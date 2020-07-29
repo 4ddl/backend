@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
+from user import Perms
 
 
 # Create your models here.
@@ -24,11 +25,6 @@ class UserManager(BaseUserManager):
         return user
 
 
-class Perm(models.Model):
-    name = models.CharField(max_length=20, unique=True, blank=False, null=False)
-    desc = models.CharField(max_length=150, blank=True, null=True)
-
-
 class User(AbstractBaseUser):
     username = models.CharField(max_length=20, null=False, blank=False, unique=True)
     password = models.CharField(max_length=100, null=False, blank=False)
@@ -42,7 +38,6 @@ class User(AbstractBaseUser):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
     objects = UserManager()
-    permissions = models.ManyToManyField(Perm, through='UserPerm', through_fields=('user', 'perm'))
 
     def has_perm(self, perm, obj=None):
         if self.is_admin:
@@ -52,6 +47,11 @@ class User(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
 
+    def is_admin_or_has_perm(self, perm):
+        if self.is_admin:
+            return True
+        return len(UserPerm.objects.filter(user=self, perm=perm)) > 0
+
     @property
     def is_staff(self):
         return self.is_admin
@@ -59,12 +59,15 @@ class User(AbstractBaseUser):
 
 class UserPerm(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    perm = models.ForeignKey(Perm, on_delete=models.CASCADE)
+    perm = models.CharField(max_length=6, choices=Perms.PERM_CHOICES, null=False, blank=False)
 
     class Meta:
         unique_together = (
             ('user', 'perm')
         )
+
+    def __str__(self):
+        return f'{self.id}-{self.user.username}-{self.perm}'
 
 
 class Activity(models.Model):
