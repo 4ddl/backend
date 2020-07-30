@@ -1,7 +1,7 @@
 from rest_framework import serializers
 import re
 from django.contrib import auth
-from user.models import User
+from user.models import User,Activity
 from django.core.exceptions import ObjectDoesNotExist
 from user.utils import USERNAME_PATTERN, PASSWORD_PATTERN
 
@@ -31,15 +31,19 @@ class LoginSerializer(serializers.Serializer):
                 'Password can only contain letters, numbers, -, _ and no shorter than 8 and no longer than 20')
         return value
 
+    def validate(self, data):
+        user = auth.authenticate(username=data['username'],
+                                 password=data['password'])
+        if not user:
+            raise serializers.ValidationError('Username or password wrong')
+        return data
+
     def login(self, request):
         user = auth.authenticate(username=self.validated_data['username'],
                                  password=self.validated_data['password'])
-        if user:
-            if request:
-                auth.login(request, user)
-            return user
-        raise serializers.ValidationError(
-            'Username or password wrong')
+        auth.login(request, user)
+        Activity.objects.create(user=user,category=Activity.USER_LOGIN,info='登录成功')
+        return user
 
 
 class RegisterSerializer(serializers.Serializer):
@@ -52,6 +56,7 @@ class RegisterSerializer(serializers.Serializer):
         password = self.validated_data['password']
         username = self.validated_data['username']
         user = User.objects.create_user(username=username, password=password, email=email)
+        Activity.objects.create(user=user, category=Activity.USER_REGISTER, info='注册成功')
         user.save()
 
     @staticmethod
