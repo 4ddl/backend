@@ -9,7 +9,10 @@
 ```sh
 python manage.py runserver
 ```
+
 ---
+## 推荐IDE
+JetBrains PyCharm
 
 ## 静态代码检查
 ```shell script
