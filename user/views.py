@@ -1,15 +1,11 @@
 from django.contrib import auth
+from django.core.cache import cache
 from rest_framework.views import APIView
 from rest_framework.views import Response
-import asyncio
+
 from user.serializers import UserInfoSerializer, LoginSerializer, RegisterSerializer
 from utils import msg
-from captcha.image import ImageCaptcha
-from uuid import uuid4
-from django.core.cache import cache
-from django.http import HttpResponse
-import string
-import random
+from utils.views import CaptchaAPI
 
 
 class AuthAPI(APIView):
@@ -28,6 +24,8 @@ class AuthAPI(APIView):
             return Response(msg(err='please sign out first before try to login'))
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid(raise_exception=False):
+            if not CaptchaAPI.verify_captcha(request, serializer.validated_data['captcha']):
+                return Response(msg(err='captcha verify error'))
             user = serializer.login(request)
             if user:
                 return Response(msg(UserInfoSerializer(user).data))
@@ -39,7 +37,10 @@ class AuthAPI(APIView):
         if request.user.is_authenticated:
             return Response(msg(err='please sign out first before try to register'))
         serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=False):
+
+        if serializer.is_valid():
+            if not CaptchaAPI.verify_captcha(request, serializer.validated_data['captcha']):
+                return Response(msg(err='captcha verify error'))
             serializer.save()
             return Response(msg('success'))
         return Response(msg(err=serializer.errors))
@@ -49,14 +50,3 @@ class AuthAPI(APIView):
     def delete(request, *args, **kwargs):
         auth.logout(request)
         return Response(msg('success'))
-
-
-class CaptchaAPI(APIView):
-    @staticmethod
-    def get(request, *args, **kwargs):
-        text = random.sample(string.ascii_letters + string.digits, 4)
-        uuid = uuid4()
-        image = ImageCaptcha()
-        result = image.generate(text)
-        cache.set(str(uuid), text, 60 * 3)
-        return HttpResponse(result, content_type='image/png')
