@@ -1,3 +1,4 @@
+from captcha.image import ImageCaptcha
 # 用于Response中默认返回的数据结构
 def msg(data=None, err=None, status=0):
     return {
@@ -5,3 +6,4 @@ def msg(data=None, err=None, status=0):
         'data': data,
         'err': err,
     }
+
