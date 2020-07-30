@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from utils import system
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -19,11 +20,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '+++q!*16g)2!2&_(&8qz7d0^2ro+keiw=@jy(oz$*yo_%rb43b'
+SECRET_KEY = system.env('SECRET_KEY', 'THIS_IS_A_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
+dev_server = (system.env('ddl_env', 'development') == 'development')
+if dev_server:
+    DEBUG = True
+else:
+    DEBUG = False
 ALLOWED_HOSTS = []
 
 # Application definition
@@ -36,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'captcha',
     'problem.apps.ProblemConfig',
     'user.apps.UserConfig',
     'submission.apps.SubmissionConfig'
@@ -122,14 +126,14 @@ AUTH_USER_MODEL = 'user.User'
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://192.168.50.2:6379/1',
+        'LOCATION': f"redis://{system.env('REDIS_HOST', '127.0.0.1')}:{system.env('REDIS_PORT', 6379)}/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     },
     "session": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://192.168.50.2:6379/2",
+        "LOCATION": f"redis://{system.env('REDIS_HOST', '127.0.0.1')}:{system.env('REDIS_PORT', 6379)}/2",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -138,3 +142,15 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "session"
 SESSION_COOKIE_AGE = 60 * 60 * 12
+
+# SMTP相关设置
+if dev_server:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = system.env('EMAIL_HOST', '')
+    EMAIL_PORT = system.env('EMAIL_PORT', 465)
+    EMAIL_HOST_USER = system.env('EMAIL_HOST_USER', '')
+    EMAIL_HOST_PASSWORD = system.env('EMAIL_HOST_PASSWORD', '')
+    EMAIL_USE_SSL = (EMAIL_PORT == 465)
+    DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

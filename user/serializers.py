@@ -4,7 +4,7 @@ from django.contrib import auth
 from user.models import User,Activity
 from django.core.exceptions import ObjectDoesNotExist
 from user.utils import USERNAME_PATTERN, PASSWORD_PATTERN
-
+from django.utils import timezone
 
 class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,6 +42,8 @@ class LoginSerializer(serializers.Serializer):
         user = auth.authenticate(username=self.validated_data['username'],
                                  password=self.validated_data['password'])
         auth.login(request, user)
+        user.last_login = timezone.now()
+        user.save()
         Activity.objects.create(user=user,category=Activity.USER_LOGIN,info='登录成功')
         return user
 
