@@ -1,6 +1,18 @@
 # ddl backend
 
-# 静态代码检查
+## dev 运行环境
+> 需要环境 Python3.8，Redis-server
+
+安装依赖：`pip install -r requirements.txt`
+
+## dev 执行命令
+```sh
+python manage.py runserver
+```
+---
+
+## 静态代码检查
 ```shell script
 flake8 --ignore=E722,W504 --exclude=venv,migrations,__pycache__ --max-line-length=120 .
 ```
+
