@@ -26,9 +26,11 @@ class AuthAPI(APIView):
         if serializer.is_valid(raise_exception=False):
             if not CaptchaAPI.verify_captcha(request, serializer.validated_data['captcha']):
                 return Response(msg(err='captcha verify error'))
-            user = serializer.login(request)
+            user, err = serializer.login(request)
             if user:
                 return Response(msg(UserInfoSerializer(user).data))
+            else:
+                return Response(msg(err=err))
         return Response(msg(err=serializer.errors))
 
     # 注册

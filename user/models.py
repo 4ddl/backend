@@ -6,12 +6,13 @@ from user import Perms
 # Create your models here.
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, email, password):
+    def create_user(self, username, email, password, is_active=True, activate_code=None):
         if not email:
             raise ValueError('Users must have an email address')
 
         user = self.model(email=self.normalize_email(email), username=username)
-
+        user.is_active = is_active
+        user.activated_code = activate_code
         user.set_password(password)
         user.save(using=self._db)
         Activity(user=user, info='register new account').save()
@@ -31,7 +32,7 @@ class User(AbstractBaseUser):
     email = models.EmailField(max_length=100, null=False, blank=False, unique=True)
     ban = models.BooleanField(default=False, null=False, blank=False)
     is_active = models.BooleanField(default=True, null=False, blank=False)
-    activated_code = models.CharField(max_length=20, null=True, blank=True, default=None)
+    activated_code = models.CharField(max_length=40, null=True, blank=True, default=None)
     date_joined = models.DateTimeField(auto_now_add=True, editable=False)
     last_login = models.DateTimeField(blank=True, null=True, editable=False)
     is_admin = models.BooleanField(default=False)
@@ -47,14 +48,22 @@ class User(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
 
-    def is_admin_or_has_perm(self, perm):
+    def is_admin_or_has_perm(self, perm: str):
         if self.is_admin:
             return True
         return len(UserPerm.objects.filter(user=self, perm=perm)) > 0
 
+    def is_admin_or_has_perms(self, perms: list):
+        if self.is_admin:
+            return True
+        return len(UserPerm.objects.filter(user=self, perm__in=perms)) >= len(perms)
+
     @property
     def is_staff(self):
         return self.is_admin
+
+    def __str__(self):
+        return str(self.username)
 
 
 class UserPerm(models.Model):
@@ -81,3 +90,6 @@ class Activity(models.Model):
     info = models.CharField(max_length=200)
     create_time = models.DateTimeField(auto_now_add=True)
     category = models.CharField(max_length=4, choices=CATEGORY_CHOICES, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.id}-{self.user}-{self.category}'
