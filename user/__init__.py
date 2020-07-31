@@ -1,5 +1,8 @@
 class Perms(object):
     TEST = 'test'
+
+    PROBLEM_CREATE = 'P_C'
     PERM_CHOICES = [
-        (TEST, '测试的权限')
+        (TEST, 'test permission, only for test'),
+        (PROBLEM_CREATE, 'create problem')
     ]

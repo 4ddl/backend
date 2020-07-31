@@ -5,6 +5,14 @@ from user.models import User, Activity
 from django.core.exceptions import ObjectDoesNotExist
 from user.utils import USERNAME_PATTERN, PASSWORD_PATTERN
 from django.utils import timezone
+import uuid
+
+
+class UserShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username']
+        read_only_fields = ['username']
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
@@ -43,11 +51,14 @@ class LoginSerializer(serializers.Serializer):
     def login(self, request):
         user = auth.authenticate(username=self.validated_data['username'],
                                  password=self.validated_data['password'])
-        auth.login(request, user)
-        user.last_login = timezone.now()
-        user.save()
-        Activity.objects.create(user=user, category=Activity.USER_LOGIN, info='登录成功')
-        return user
+        if user.is_active:
+            auth.login(request, user)
+            user.last_login = timezone.now()
+            user.save()
+            Activity.objects.create(user=user, category=Activity.USER_LOGIN, info='登录成功')
+            return user, None
+        else:
+            return None, 'User not activated, please check your activated email'
 
 
 class RegisterSerializer(serializers.Serializer):
@@ -60,8 +71,13 @@ class RegisterSerializer(serializers.Serializer):
         email = self.validated_data['email']
         password = self.validated_data['password']
         username = self.validated_data['username']
-        user = User.objects.create_user(username=username, password=password, email=email)
-        Activity.objects.create(user=user, category=Activity.USER_REGISTER, info='注册成功')
+
+        user = User.objects.create_user(username=username,
+                                        password=password,
+                                        email=email,
+                                        is_active=False,
+                                        activated_code=uuid.uuid4())
+        Activity.objects.create(user=user, category=Activity.USER_REGISTER, info='Register success')
         user.save()
 
     @staticmethod
