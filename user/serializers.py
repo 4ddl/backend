@@ -1,9 +1,10 @@
 from rest_framework import serializers
 import re
 from django.contrib import auth
-from user.models import User,Activity
+from user.models import User, Activity
 from django.core.exceptions import ObjectDoesNotExist
 from user.utils import USERNAME_PATTERN, PASSWORD_PATTERN
+from django.utils import timezone
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
@@ -16,6 +17,7 @@ class UserInfoSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
+    captcha = serializers.CharField()
 
     @staticmethod
     def validate_username(value):
@@ -42,7 +44,9 @@ class LoginSerializer(serializers.Serializer):
         user = auth.authenticate(username=self.validated_data['username'],
                                  password=self.validated_data['password'])
         auth.login(request, user)
-        Activity.objects.create(user=user,category=Activity.USER_LOGIN,info='登录成功')
+        user.last_login = timezone.now()
+        user.save()
+        Activity.objects.create(user=user, category=Activity.USER_LOGIN, info='登录成功')
         return user
 
 
@@ -50,6 +54,7 @@ class RegisterSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
     email = serializers.EmailField()
+    captcha = serializers.CharField()
 
     def save(self, **kwargs):
         email = self.validated_data['email']
