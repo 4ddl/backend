@@ -32,8 +32,8 @@ class User(AbstractBaseUser):
     ban = models.BooleanField(default=False, null=False, blank=False)
     is_active = models.BooleanField(default=True, null=False, blank=False)
     activated_code = models.CharField(max_length=20, null=True, blank=True, default=None)
-    date_joined = models.DateTimeField(auto_now_add=True)
-    last_login = models.DateTimeField(blank=True, null=True)
+    date_joined = models.DateTimeField(auto_now_add=True, editable=False)
+    last_login = models.DateTimeField(blank=True, null=True, editable=False)
     is_admin = models.BooleanField(default=False)
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']

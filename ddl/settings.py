@@ -81,8 +81,12 @@ WSGI_APPLICATION = 'ddl.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': system.env('POSTGRES_DB', 'ddl_database'),
+        'USER': system.env('POSTGRES_USER', 'ddl_username'),
+        'PASSWORD': system.env('POSTGRES_PASSWORD', 'ddl_password'),
+        'HOST': system.env('POSTGRES_HOST', '127.0.0.1'),
+        'PORT': system.env('POSTGRES_PORT', 5432),
     }
 }
 
