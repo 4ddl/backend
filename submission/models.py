@@ -6,11 +6,11 @@ from user.models import User
 from problem.models import Problem
 
 
-class Submission(models.Model):
+class SubmissionModel(models.Model):
     class Language:
-        C = 0,
-        CPP = 1,
-        JAVA = 2,
+        C = 0
+        CPP = 1
+        JAVA = 2
         PYTHON = 3
 
     class Verdict:
@@ -45,11 +45,11 @@ class Submission(models.Model):
         (Language.PYTHON, "python")
     )
 
-    id = models.IntegerField(primary_key=True)
     user = models.ForeignKey(User, models.CASCADE, verbose_name='提交用户')
+    code = models.TextField(verbose_name="源码")
     problem = models.ForeignKey(Problem, models.CASCADE, verbose_name='提交题目')
     verdict = models.IntegerField(default=-1, choices=verdict_choice, verbose_name='结果')
-    language = models.IntegerField(default=Language.C, verbose_name='提交语言')
+    lang = models.IntegerField(default=Language.C, verbose_name='提交语言')
     create_time = models.DateTimeField(auto_now=True, verbose_name='提交时间')
     time_spend = models.BigIntegerField(default=0, verbose_name='时间花费')
     memory_spend = models.BigIntegerField(default=0, verbose_name='内存花费')
@@ -59,4 +59,4 @@ class Submission(models.Model):
         verbose_name_plural = verbose_name
 
     def __str__(self):
-        return f'{self.id}--{self.problem.id}--{self.verdict}'
+        return f'<Submission>id:{self.id} problem: {self.problem.id} verdict: {self.verdict}'

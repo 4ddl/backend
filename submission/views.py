@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from utils import msg
 
-from .models import Submission
+from .models import SubmissionModel
 from .serializers import SubmissionSerializers
 
 
@@ -14,22 +14,22 @@ class SubmissionViewSet(viewsets.ViewSet):
 
     @staticmethod
     def create(request: Request):
-        serializer = SubmissionSerializers(request.data)
-        if serializer.is_valid():
-            serializer.user = request.user
-            serializer.save()
-            return Response(msg('successful create'))
-        return Response(msg(err='form invalid'))
+        serializer = SubmissionSerializers(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.user = request.user
+        print(serializer.user)
+        serializer.save()
+        return Response(msg('successful create'))
 
     @staticmethod
     def list(request: Request):
-        queryset = Submission.objects.all()
+        queryset = SubmissionModel.objects.all()
         serializer = SubmissionSerializers(queryset, many=True)
         return Response(msg(serializer.data))
 
     @staticmethod
     def retrieve(request, pk=None):
-        queryset = Submission.objects.all()
+        queryset = SubmissionModel.objects.all()
         submission = get_object_or_404(queryset, pk=pk)
         serializer = SubmissionSerializers(submission)
         return Response(msg(serializer.data))
