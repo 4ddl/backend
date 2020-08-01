@@ -8,7 +8,6 @@ from rest_framework.views import Response
 from user import Perms
 from user.permissions import IfAdminOrReadOnly
 from utils import msg
-from django.shortcuts import get_object_or_404
 from ddl.settings import PAGE_CACHE_AGE
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -27,8 +26,10 @@ class ProblemViewSet(viewsets.ViewSet):
 
     @staticmethod
     def update(request, pk=None):
-        queryset = Problem.objects.all()
-        problem = get_object_or_404(queryset, pk=pk)
+        try:
+            problem = Problem.objects.get(id=pk)
+        except ObjectDoesNotExist:
+            return Response(msg(err='Object not exist.'))
         serializer = ProblemSerializer(problem, data=request.data)
         if serializer.is_valid():
             serializer.author = request.user
