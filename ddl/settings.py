@@ -141,6 +141,13 @@ CACHES = {
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
+    },
+    "page": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{system.env('REDIS_HOST', '127.0.0.1')}:{system.env('REDIS_PORT', 6379)}/3",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
     }
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
@@ -161,3 +168,4 @@ else:
 
 # 验证码的有效时间（秒）
 CAPTCHA_AGE = 60 * 3
+PAGE_CACHE_AGE = 60 * 3

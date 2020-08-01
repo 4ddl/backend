@@ -5,6 +5,7 @@ from user.serializers import UserShortSerializer
 
 class ProblemSerializer(serializers.ModelSerializer):
     author = UserShortSerializer(read_only=True)
+
     class Meta:
         model = Problem
         fields = ['id',
