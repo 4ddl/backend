@@ -1,0 +1,32 @@
+name: Django Flake8
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services: 
+      postgres: 
+        image: postgres:alpine
+        env:
+          POSTGRES_DB: ddl_database
+          POSTGRES_USER: ddl_username
+          POSTGRES_PASSWORD: ddl_password
+      redis:
+        image: redis:alpine
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run Flake8
+      run: |
+        flake8 --ignore=E722,W504 --exclude=venv,migrations,__pycache__ --max-line-length=120 .
+      env:
+        REDIS_HOST: redis
+        POSTGRES_HOST: postgres
