@@ -19,6 +19,12 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+## 创建一个管理员用户
+```sh
+python manage.py createsuperuser
+```
+
+
 ---
 ## 推荐IDE
 JetBrains PyCharm
