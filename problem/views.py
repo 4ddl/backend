@@ -7,7 +7,7 @@ from problem.serializers import ProblemSerializer
 from rest_framework.views import Response
 from user import Perms
 from user.permissions import IfAdminOrReadOnly
-from utils import msg
+from utils.response import msg
 from ddl.settings import PAGE_CACHE_AGE
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -51,9 +51,8 @@ class ProblemViewSet(viewsets.ViewSet):
         serializer = ProblemSerializer(queryset, many=True)
         return Response(msg(serializer.data))
 
-    @staticmethod
     @method_decorator(cache_page(PAGE_CACHE_AGE, cache='page'))
-    def retrieve(request, pk=None):
+    def retrieve(self, request, pk=None):
         try:
             problem = Problem.objects.get(id=pk)
         except ObjectDoesNotExist:

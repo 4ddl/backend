@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.views import Response
 
 from user.serializers import UserInfoSerializer, LoginSerializer, RegisterSerializer
-from utils import msg
+from utils.response import msg
 from utils.views import CaptchaAPI
 
 
