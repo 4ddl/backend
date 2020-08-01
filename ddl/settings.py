@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
 from utils.system import env as system_env
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -174,3 +178,12 @@ PAGE_CACHE_AGE = 60 * 3
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'utils.exception.custom_exception_handler'
 }
+
+sentry_sdk.init(
+    dsn="https://03eb7f0b0aaf4a31b548639bea76c910@o428533.ingest.sentry.io/5374065",
+    integrations=[DjangoIntegration()],
+
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True
+)
