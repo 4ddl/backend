@@ -1,5 +1,3 @@
-from captcha.image import ImageCaptcha
-from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 
 

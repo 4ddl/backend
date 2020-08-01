@@ -10,9 +10,9 @@ class Problem(models.Model):
     VIEW_ONLY = 1
     DISABLE = 2
     PUBLIC_CHOICES = [
-        (0, 'Allow view and submit'),
-        (1, 'Allow view'),
-        (2, 'Disabled'),
+        (VIEW_SUBMIT, 'Allow view and submit'),
+        (VIEW_ONLY, 'Allow view'),
+        (DISABLE, 'Disabled'),
     ]
     title = models.CharField(max_length=100, null=False, blank=False)
     content = JSONField()

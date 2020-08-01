@@ -51,12 +51,12 @@ class User(AbstractBaseUser):
     def is_admin_or_has_perm(self, perm: str):
         if self.is_admin:
             return True
-        return len(UserPerm.objects.filter(user=self, perm=perm)) > 0
+        return len(self.perms.filter(perm=perm)) > 0
 
     def is_admin_or_has_perms(self, perms: list):
         if self.is_admin:
             return True
-        return len(UserPerm.objects.filter(user=self, perm__in=perms)) >= len(perms)
+        return len(self.perms.all()) >= len(perms)
 
     @property
     def is_staff(self):
@@ -67,7 +67,7 @@ class User(AbstractBaseUser):
 
 
 class UserPerm(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='perms')
     perm = models.CharField(max_length=6, choices=Perms.PERM_CHOICES, null=False, blank=False)
 
     class Meta:
