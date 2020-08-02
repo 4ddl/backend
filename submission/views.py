@@ -16,9 +16,7 @@ class SubmissionViewSet(viewsets.ViewSet):
     def create(request: Request):
         serializer = SubmissionSerializers(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.user = request.user
-        print(serializer.user)
-        serializer.save()
+        serializer.save(user=request.user)
         return Response(msg('successful create'))
 
     @staticmethod
