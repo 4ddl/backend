@@ -169,3 +169,8 @@ else:
 # 验证码的有效时间（秒）
 CAPTCHA_AGE = 60 * 3
 PAGE_CACHE_AGE = 60 * 3
+
+# celery 配置
+CELERY_BROKER_URL = f"redis://{system.env('REDIS_HOST', '127.0.0.1')}:{system.env('REDIS_PORT', 6379)}/4"
+CELERY_RESULT_BACKEND = f"redis://{system.env('REDIS_HOST', '127.0.0.1')}:{system.env('REDIS_PORT', 6379)}/5"
+CELERY_RESULT_SERIALIZER = 'json'

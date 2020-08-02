@@ -4,3 +4,4 @@ django-redis
 flake8
 captcha
 psycopg2-binary
+celery
