@@ -1,6 +1,6 @@
 name: Django Flake8
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
