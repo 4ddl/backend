@@ -42,5 +42,3 @@ class SubmissionSerializer(serializers.ModelSerializer):
             problem=self.validated_data['problem'],
             lang=self.validated_data['lang'],
         )
-
-
