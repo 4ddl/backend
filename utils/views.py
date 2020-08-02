@@ -17,9 +17,10 @@ class CaptchaAPI(APIView):
         uuid = uuid4()
         image = ImageCaptcha(width=120, height=40, font_sizes=(25, 30, 35))
         result = image.generate(text)
-        cache.set(str(uuid), text, CAPTCHA_AGE)
         res = HttpResponse(result, content_type='image/png')
-        res.set_cookie('CAPTCHA', str(uuid), CAPTCHA_AGE)
+        captcha_cache_key = f'captcha-{uuid}'
+        cache.set(captcha_cache_key, text, CAPTCHA_AGE)
+        res.set_cookie('CAPTCHA', captcha_cache_key, CAPTCHA_AGE)
         return res
 
     @staticmethod
@@ -31,9 +32,9 @@ class CaptchaAPI(APIView):
         """
         if 'CAPTCHA' not in request.COOKIES or request.COOKIES['CAPTCHA'] is None:
             return False
-        captcha_key = request.COOKIES['CAPTCHA']
-        captcha_value = cache.get(captcha_key)
-        cache.delete(captcha_key)
+        captcha_cache_key = request.COOKIES['CAPTCHA']
+        captcha_value = cache.get(captcha_cache_key)
+        cache.delete(captcha_cache_key)
         if captcha_value != str.upper(captcha):
             return False
         return True
