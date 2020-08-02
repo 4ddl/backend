@@ -1,11 +1,12 @@
-from rest_framework import serializers
 import re
-from django.contrib import auth
-from user.models import User, Activity
-from django.core.exceptions import ObjectDoesNotExist
-from user.utils import USERNAME_PATTERN, PASSWORD_PATTERN
-from django.utils import timezone
 import uuid
+
+from django.contrib import auth
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework import serializers
+
+from user.models import User, Activity
+from user.utils import USERNAME_PATTERN, PASSWORD_PATTERN
 
 
 class UserShortSerializer(serializers.ModelSerializer):
