@@ -5,6 +5,7 @@ from captcha.image import ImageCaptcha
 from django.core.cache import cache
 from django.http import HttpResponse
 from rest_framework.views import APIView
+
 from ddl.settings import CAPTCHA_AGE
 
 
@@ -16,11 +17,10 @@ class CaptchaAPI(APIView):
         uuid = uuid4()
         image = ImageCaptcha(width=120, height=40, font_sizes=(25, 30, 35))
         result = image.generate(text)
-        ans = cache.set(str(uuid), text, CAPTCHA_AGE)
+        cache.set(str(uuid), text, CAPTCHA_AGE)
         res = HttpResponse(result, content_type='image/png')
         res.set_cookie('CAPTCHA', str(uuid), CAPTCHA_AGE)
         return res
-
 
     @staticmethod
     def verify_captcha(request, captcha):

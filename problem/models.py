@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import JSONField, ArrayField
 from user.models import User
 
 
@@ -10,9 +10,9 @@ class Problem(models.Model):
     VIEW_ONLY = 1
     DISABLE = 2
     PUBLIC_CHOICES = [
-        (0, 'Allow view and submit'),
-        (1, 'Allow view'),
-        (2, 'Disabled'),
+        (VIEW_SUBMIT, 'Allow view and submit'),
+        (VIEW_ONLY, 'Allow view'),
+        (DISABLE, 'Disabled'),
     ]
     title = models.CharField(max_length=100, null=False, blank=False)
     content = JSONField()
@@ -23,3 +23,4 @@ class Problem(models.Model):
     author = models.ForeignKey(to=User, on_delete=models.CASCADE)
     create_time = models.DateTimeField(auto_now_add=True, editable=False)
     last_update = models.DateTimeField(auto_now=True, editable=False)
+    test_cases = ArrayField(models.CharField(max_length=100, null=False, blank=False), blank=True, default=None)

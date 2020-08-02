@@ -1,13 +1,15 @@
 from rest_framework import viewsets
-
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 # Create your views here.
 from problem.models import Problem
 from problem.serializers import ProblemSerializer
 from rest_framework.views import Response
 from user import Perms
 from user.permissions import IfAdminOrReadOnly
-from utils import msg
-from django.shortcuts import get_object_or_404
+from utils.response import msg
+from ddl.settings import PAGE_CACHE_AGE
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class ProblemViewSet(viewsets.ViewSet):
@@ -20,24 +22,28 @@ class ProblemViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             serializer.author = request.user
             serializer.save()
-        return Response(msg('successful create'))
+        return Response(msg('Successful create.'))
 
     @staticmethod
     def update(request, pk=None):
-        queryset = Problem.objects.all()
-        problem = get_object_or_404(queryset, pk=pk)
+        try:
+            problem = Problem.objects.get(id=pk)
+        except ObjectDoesNotExist:
+            return Response(msg(err='Object not exist.'))
         serializer = ProblemSerializer(problem, data=request.data)
         if serializer.is_valid():
             serializer.author = request.user
             serializer.save()
-        return Response(msg('successful update'))
+        return Response(msg('Successful update.'))
 
     @staticmethod
     def destroy(request, pk=None):
-        queryset = Problem.objects.all()
-        problem = get_object_or_404(queryset, pk=pk)
+        try:
+            problem = Problem.objects.get(id=pk)
+        except ObjectDoesNotExist:
+            return Response(msg(err='Object not exist.'))
         problem.delete()
-        return Response(msg('successful delete'))
+        return Response(msg('Successful delete.'))
 
     @staticmethod
     def list(request, *args, **kwargs):
@@ -45,9 +51,11 @@ class ProblemViewSet(viewsets.ViewSet):
         serializer = ProblemSerializer(queryset, many=True)
         return Response(msg(serializer.data))
 
-    @staticmethod
-    def retrieve(request, pk=None):
-        queryset = Problem.objects.all()
-        problem = get_object_or_404(queryset, pk=pk)
+    @method_decorator(cache_page(PAGE_CACHE_AGE, cache='page'))
+    def retrieve(self, request, pk=None):
+        try:
+            problem = Problem.objects.get(id=pk)
+        except ObjectDoesNotExist:
+            return Response(msg(err='Object not exist.'))
         serializer = ProblemSerializer(problem)
         return Response(msg(serializer.data))

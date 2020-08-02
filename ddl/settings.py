@@ -11,7 +11,11 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-from utils import system
+
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
+from utils.system import env as system_env
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,11 +24,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = system.env('SECRET_KEY', 'THIS_IS_A_SECRET_KEY')
+SECRET_KEY = system_env('SECRET_KEY', 'THIS_IS_A_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-dev_server = (system.env('ddl_env', 'development') == 'development')
+dev_server = (system_env('ddl_env', 'development') == 'development')
 if dev_server:
     DEBUG = True
 else:
@@ -43,7 +47,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'problem.apps.ProblemConfig',
     'user.apps.UserConfig',
-    'submission.apps.SubmissionConfig'
+    'submission.apps.SubmissionConfig',
+    'utils.apps.UtilsConfig'
 ]
 
 MIDDLEWARE = [
@@ -82,11 +87,11 @@ WSGI_APPLICATION = 'ddl.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': system.env('POSTGRES_DB', 'ddl_database'),
-        'USER': system.env('POSTGRES_USER', 'ddl_username'),
-        'PASSWORD': system.env('POSTGRES_PASSWORD', 'ddl_password'),
-        'HOST': system.env('POSTGRES_HOST', '127.0.0.1'),
-        'PORT': system.env('POSTGRES_PORT', 5432),
+        'NAME': system_env('POSTGRES_DB', 'ddl_database'),
+        'USER': system_env('POSTGRES_USER', 'ddl_username'),
+        'PASSWORD': system_env('POSTGRES_PASSWORD', 'ddl_password'),
+        'HOST': system_env('POSTGRES_HOST', '127.0.0.1'),
+        'PORT': system_env('POSTGRES_PORT', 5432),
     }
 }
 
@@ -111,7 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
-LANGUAGE_CODE = 'zh-hans'
+LANGUAGE_CODE = 'en'
 
 TIME_ZONE = 'UTC'
 
@@ -130,14 +135,21 @@ AUTH_USER_MODEL = 'user.User'
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': f"redis://{system.env('REDIS_HOST', '127.0.0.1')}:{system.env('REDIS_PORT', 6379)}/1",
+        'LOCATION': f"redis://{system_env('REDIS_HOST', '127.0.0.1')}:{system_env('REDIS_PORT', 6379)}/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     },
     "session": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{system.env('REDIS_HOST', '127.0.0.1')}:{system.env('REDIS_PORT', 6379)}/2",
+        "LOCATION": f"redis://{system_env('REDIS_HOST', '127.0.0.1')}:{system_env('REDIS_PORT', 6379)}/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    "page": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{system_env('REDIS_HOST', '127.0.0.1')}:{system_env('REDIS_PORT', 6379)}/3",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -152,12 +164,30 @@ if dev_server:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = system.env('EMAIL_HOST', '')
-    EMAIL_PORT = system.env('EMAIL_PORT', 465)
-    EMAIL_HOST_USER = system.env('EMAIL_HOST_USER', '')
-    EMAIL_HOST_PASSWORD = system.env('EMAIL_HOST_PASSWORD', '')
+    EMAIL_HOST = system_env('EMAIL_HOST', '')
+    EMAIL_PORT = system_env('EMAIL_PORT', 465)
+    EMAIL_HOST_USER = system_env('EMAIL_HOST_USER', '')
+    EMAIL_HOST_PASSWORD = system_env('EMAIL_HOST_PASSWORD', '')
     EMAIL_USE_SSL = (EMAIL_PORT == 465)
     DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # 验证码的有效时间（秒）
 CAPTCHA_AGE = 60 * 3
+PAGE_CACHE_AGE = 60 * 3
+
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'utils.exception.custom_exception_handler'
+}
+
+sentry_sdk.init(
+    dsn="https://03eb7f0b0aaf4a31b548639bea76c910@o428533.ingest.sentry.io/5374065",
+    integrations=[DjangoIntegration()],
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True
+)
+
+# celery 配置
+CELERY_BROKER_URL = f"redis://{system_env('REDIS_HOST', '127.0.0.1')}:{system_env('REDIS_PORT', 6379)}/4"
+CELERY_RESULT_BACKEND = f"redis://{system_env('REDIS_HOST', '127.0.0.1')}:{system_env('REDIS_PORT', 6379)}/5"
+CELERY_RESULT_SERIALIZER = 'json'
