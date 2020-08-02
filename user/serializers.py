@@ -1,12 +1,15 @@
+import random
 import re
-import uuid
 
 from django.contrib import auth
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
+from ddl.settings import ACTIVATE_CODE_AGE
 from user.models import User, Activity
 from user.utils import USERNAME_PATTERN, PASSWORD_PATTERN
+from utils.mail import send_activated_email
 
 
 class UserShortSerializer(serializers.ModelSerializer):
@@ -52,13 +55,20 @@ class LoginSerializer(serializers.Serializer):
     def login(self, request):
         user = auth.authenticate(username=self.validated_data['username'],
                                  password=self.validated_data['password'])
-        if user.is_active:
+        if user.activated:
             auth.login(request, user)
             user.save()
             Activity.objects.create(user=user, category=Activity.USER_LOGIN, info='登录成功')
-            return user, None
+            return user
         else:
-            return None, 'User not activated, please check your activated email'
+            activate_code = '%6d' % random.randint(0, 999999)
+            send_activated_email(user.username,
+                                 user.email,
+                                 activate_code)
+            cache.set(f'activate-code-{user.id}', activate_code, ACTIVATE_CODE_AGE)
+            raise serializers.ValidationError('Account not activated, '
+                                              'an mail has send to your email address, '
+                                              'please check your mail box')
 
 
 class RegisterSerializer(serializers.Serializer):
@@ -74,10 +84,15 @@ class RegisterSerializer(serializers.Serializer):
 
         user = User.objects.create_user(username=username,
                                         password=password,
-                                        email=email,
-                                        activated_code=uuid.uuid4())
+                                        email=email)
         Activity.objects.create(user=user, category=Activity.USER_REGISTER, info='Register success')
         user.save()
+        activate_code = '%6d' % random.randint(0, 999999)
+        send_activated_email(user.username,
+                             user.email,
+                             activate_code)
+        cache.set(f'activate-code-{user.id}', activate_code, ACTIVATE_CODE_AGE)
+        return user
 
     @staticmethod
     def validate_username(value):
@@ -108,3 +123,16 @@ class RegisterSerializer(serializers.Serializer):
         except ObjectDoesNotExist:
             pass
         return value
+
+
+class ActivateSerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=6, min_length=6)
+
+    def validate_code(self, value):
+        if str(value).isdigit():
+            return value
+        raise serializers.ValidationError('Activate code error')
+
+    def active(self, user):
+        if cache.get(f'activate-code-{user.id}') != self.validated_data['code']:
+            raise serializers.ValidationError('Activate code error')

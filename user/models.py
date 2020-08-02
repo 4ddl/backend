@@ -6,11 +6,10 @@ from user import Perms
 # Create your models here.
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, email, password, activated_code=None, is_admin=False, activated=False):
+    def create_user(self, username, email, password, is_admin=False, activated=False):
         if not email:
             raise ValueError('Users must have an email address')
         user = self.model(email=self.normalize_email(email), username=username)
-        user.activated_code = activated_code
         user.is_admin = is_admin
         user.activated = activated
         user.set_password(password)
@@ -32,7 +31,6 @@ class User(AbstractBaseUser):
     email = models.EmailField(max_length=100, null=False, blank=False, unique=True)
     ban = models.BooleanField(default=False, null=False, blank=False)
     activated = models.BooleanField(default=False, null=False, blank=False)
-    activated_code = models.CharField(max_length=40, null=True, blank=True, default=None)
     date_joined = models.DateTimeField(auto_now_add=True, editable=False)
     last_login = models.DateTimeField(blank=True, null=True, editable=False)
     is_admin = models.BooleanField(default=False)
@@ -56,7 +54,7 @@ class User(AbstractBaseUser):
     def is_admin_or_has_perms(self, perms: list):
         if self.is_admin:
             return True
-        return len(self.perms.all()) >= len(perms)
+        return len(self.perms.filter(perm__in=perms)) >= len(perms)
 
     @property
     def is_staff(self):
