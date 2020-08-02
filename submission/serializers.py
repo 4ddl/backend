@@ -1,21 +1,21 @@
 from rest_framework import serializers
-from .models import SubmissionModel
+from .models import Submission
 from user.serializers import UserShortSerializer
 from user.models import User
 
 
-class SubmissionSerializers(serializers.ModelSerializer):
+class SubmissionSerializer(serializers.ModelSerializer):
     user = UserShortSerializer(read_only=True)
 
     @staticmethod
     def validate_lang(value):
-        for lang in SubmissionModel.lang_choice:
+        for lang in Submission.lang_choice:
             if lang[0] == value:
                 return value
         raise serializers.ValidationError("Language not supported")
 
     class Meta:
-        model = SubmissionModel
+        model = Submission
         fields = (
             'id',
             'user',
@@ -36,7 +36,7 @@ class SubmissionSerializers(serializers.ModelSerializer):
         )
 
     def save(self, user: User):
-        SubmissionModel.objects.create(
+        Submission.objects.create(
             user=user,
             code=self.validated_data['code'],
             problem=self.validated_data['problem'],
