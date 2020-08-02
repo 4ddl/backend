@@ -48,7 +48,7 @@ class Submission(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     verdict = models.IntegerField(default=-1, choices=verdict_choice)
     lang = models.IntegerField(default=Language.C)
-    create_time = models.DateTimeField(auto_now=True)
+    create_time = models.DateTimeField(auto_now_add=True)
     time_spend = models.IntegerField(default=0)
     memory_spend = models.IntegerField(default=0)
 

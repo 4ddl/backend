@@ -2,10 +2,12 @@ from rest_framework import serializers
 from .models import Submission
 from user.serializers import UserShortSerializer
 from user.models import User
+from problem.serializers import ProblemShortSerializer
 
 
 class SubmissionSerializer(serializers.ModelSerializer):
     user = UserShortSerializer(read_only=True)
+    problem = ProblemShortSerializer(read_only=True)
 
     @staticmethod
     def validate_lang(value):

@@ -6,13 +6,13 @@ from user import Perms
 # Create your models here.
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, email, password, is_active=True, activate_code=None):
+    def create_user(self, username, email, password, is_active=True, activated_code=None):
         if not email:
             raise ValueError('Users must have an email address')
 
         user = self.model(email=self.normalize_email(email), username=username)
         user.is_active = is_active
-        user.activated_code = activate_code
+        user.activated_code = activated_code
         user.set_password(password)
         user.save(using=self._db)
         Activity(user=user, info='register new account').save()

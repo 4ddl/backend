@@ -10,4 +10,5 @@ def custom_exception_handler(exc, context):
     res = Response()
     if response is not None:
         res.data = msg(err=response.data['detail'])
+        res.status_code = 200
     return res

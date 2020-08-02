@@ -38,12 +38,11 @@ class AuthAPI(APIView):
         if request.user.is_authenticated:
             return Response(msg(err='Please sign out first before try to register.'))
         serializer = RegisterSerializer(data=request.data)
-
         if serializer.is_valid():
             if not CaptchaAPI.verify_captcha(request, serializer.validated_data['captcha']):
                 return Response(msg(err='Captcha verify error.'))
             serializer.save()
-            return Response(msg('Successful Register.'))
+            return Response(msg('Successful.'))
         return Response(msg(err=serializer.errors))
 
     # 退出登陆

@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from utils import msg
+from utils.response import msg
 
 from .models import Submission
 from .serializers import SubmissionSerializer
