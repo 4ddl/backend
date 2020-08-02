@@ -172,8 +172,9 @@ else:
     DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # 验证码的有效时间（秒）
-CAPTCHA_AGE = 60 * 3
-PAGE_CACHE_AGE = 60 * 3
+CAPTCHA_AGE = 60 * 5
+# 缓存页面的时间
+PAGE_CACHE_AGE = 60 * 5
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'utils.exception.custom_exception_handler'
