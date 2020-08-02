@@ -53,7 +53,6 @@ class LoginSerializer(serializers.Serializer):
                                  password=self.validated_data['password'])
         if user.is_active:
             auth.login(request, user)
-            user.last_login = timezone.now()
             user.save()
             Activity.objects.create(user=user, category=Activity.USER_LOGIN, info='登录成功')
             return user, None

@@ -3,6 +3,12 @@ from problem.models import Problem
 from user.serializers import UserShortSerializer
 
 
+class ProblemShorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Problem
+        fields = ['id', 'title']
+
+
 class ProblemSerializer(serializers.ModelSerializer):
     author = UserShortSerializer(read_only=True)
 
@@ -17,9 +23,11 @@ class ProblemSerializer(serializers.ModelSerializer):
                   'source',
                   'author',
                   'create_time',
+                  'test_cases',
                   'last_update']
         read_only_fields = [
             'create_time',
             'last_update',
+            'test_cases'
         ]
         depth = 0
