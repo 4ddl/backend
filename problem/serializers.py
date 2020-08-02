@@ -3,7 +3,7 @@ from problem.models import Problem
 from user.serializers import UserShortSerializer
 
 
-class ProblemShorSerializer(serializers.ModelSerializer):
+class ProblemShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Problem
         fields = ['id', 'title']
