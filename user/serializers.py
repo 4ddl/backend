@@ -75,7 +75,6 @@ class RegisterSerializer(serializers.Serializer):
         user = User.objects.create_user(username=username,
                                         password=password,
                                         email=email,
-                                        is_active=False,
                                         activated_code=uuid.uuid4())
         Activity.objects.create(user=user, category=Activity.USER_REGISTER, info='Register success')
         user.save()

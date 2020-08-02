@@ -172,20 +172,21 @@ else:
     DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # 验证码的有效时间（秒）
-CAPTCHA_AGE = 60 * 3
-PAGE_CACHE_AGE = 60 * 3
+CAPTCHA_AGE = 60 * 5
+# 缓存页面的时间
+PAGE_CACHE_AGE = 60 * 5
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'utils.exception.custom_exception_handler'
 }
-
-sentry_sdk.init(
-    dsn="https://03eb7f0b0aaf4a31b548639bea76c910@o428533.ingest.sentry.io/5374065",
-    integrations=[DjangoIntegration()],
-    # If you wish to associate users to errors (assuming you are using
-    # django.contrib.auth) you may enable sending PII data.
-    send_default_pii=True
-)
+if not dev_server:
+    sentry_sdk.init(
+        dsn="https://03eb7f0b0aaf4a31b548639bea76c910@o428533.ingest.sentry.io/5374065",
+        integrations=[DjangoIntegration()],
+        # If you wish to associate users to errors (assuming you are using
+        # django.contrib.auth) you may enable sending PII data.
+        send_default_pii=True
+    )
 
 # celery 配置
 CELERY_BROKER_URL = f"redis://{system_env('REDIS_HOST', '127.0.0.1')}:{system_env('REDIS_PORT', 6379)}/4"

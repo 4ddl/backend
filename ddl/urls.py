@@ -15,12 +15,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+
 from utils import views as utils_views
+from .settings import dev_server
 
 urlpatterns = [
     path('api/admin/', admin.site.urls),
+] if dev_server else []
+
+urlpatterns += [
     path('api/user/', include('user.urls')),
     path('api/problem/', include('problem.urls')),
     path('api/captcha', utils_views.CaptchaAPI.as_view()),
-    path('api/submission', include('submission.urls')),
+    path('api/submission/', include('submission.urls')),
 ]

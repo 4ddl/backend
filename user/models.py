@@ -6,23 +6,23 @@ from user import Perms
 # Create your models here.
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, email, password, is_active=True, activated_code=None):
+    def create_user(self, username, email, password, activated_code=None, is_admin=False, activated=False):
         if not email:
             raise ValueError('Users must have an email address')
-
         user = self.model(email=self.normalize_email(email), username=username)
-        user.is_active = is_active
         user.activated_code = activated_code
+        user.is_admin = is_admin
+        user.activated = activated
         user.set_password(password)
         user.save(using=self._db)
-        Activity(user=user, info='register new account').save()
+        Activity(
+            user=user,
+            info='register administrator account' if user.is_admin else 'register new account'
+        ).save()
         return user
 
     def create_superuser(self, username, email, password):
-        user = self.create_user(username, email, password)
-        user.is_admin = True
-        user.save(using=self._db)
-        Activity(user=user, info='grant administrators privilege').save()
+        user = self.create_user(username, email, password, is_admin=True, activated=True)
         return user
 
 
@@ -31,7 +31,7 @@ class User(AbstractBaseUser):
     password = models.CharField(max_length=100, null=False, blank=False)
     email = models.EmailField(max_length=100, null=False, blank=False, unique=True)
     ban = models.BooleanField(default=False, null=False, blank=False)
-    is_active = models.BooleanField(default=True, null=False, blank=False)
+    activated = models.BooleanField(default=False, null=False, blank=False)
     activated_code = models.CharField(max_length=40, null=True, blank=True, default=None)
     date_joined = models.DateTimeField(auto_now_add=True, editable=False)
     last_login = models.DateTimeField(blank=True, null=True, editable=False)
@@ -61,6 +61,10 @@ class User(AbstractBaseUser):
     @property
     def is_staff(self):
         return self.is_admin
+
+    @property
+    def is_active(self):
+        return True
 
     def __str__(self):
         return str(self.username)
