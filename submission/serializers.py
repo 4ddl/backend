@@ -5,6 +5,24 @@ from user.models import User
 from problem.serializers import ProblemShortSerializer
 
 
+class SubmissionShortSerializer(serializers.ModelSerializer):
+    user = UserShortSerializer()
+    problem = ProblemShortSerializer()
+
+    class Meta:
+        model = Submission
+        fields = (
+            'id',
+            'user',
+            'problem',
+            'create_time',
+            'verdict',
+            'lang',
+            'time_spend',
+            'memory_spend'
+        )
+
+
 class SubmissionSerializer(serializers.ModelSerializer):
     user = UserShortSerializer(read_only=True)
     problem = ProblemShortSerializer(read_only=True)
