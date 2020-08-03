@@ -1,4 +1,4 @@
-from rest_framework.routers import Route, SimpleRouter, DynamicRoute
+from rest_framework.routers import SimpleRouter, DynamicRoute
 
 from user.views import AuthViewSet
 

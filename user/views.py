@@ -1,9 +1,8 @@
 from django.contrib import auth
-from django.shortcuts import get_object_or_404
+from rest_framework.decorators import action
 from rest_framework.views import Response
 from rest_framework.viewsets import ViewSet
-from rest_framework.decorators import action
-from user.models import User
+
 from user.serializers import UserInfoSerializer, LoginSerializer, RegisterSerializer, ActivateSerializer
 from utils.response import msg
 from utils.views import CaptchaAPI
