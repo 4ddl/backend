@@ -193,5 +193,7 @@ CELERY_RESULT_BACKEND = f"redis://{system_env('REDIS_HOST', '127.0.0.1')}:{syste
 CELERY_RESULT_SERIALIZER = 'json'
 
 REST_FRAMEWORK = {
-    'EXCEPTION_HANDLER': 'utils.exception.custom_exception_handler'
+    'EXCEPTION_HANDLER': 'utils.exception.custom_exception_handler',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
 }
