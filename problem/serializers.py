@@ -9,8 +9,24 @@ class ProblemShortSerializer(serializers.ModelSerializer):
         fields = ['id', 'title']
 
 
-class ProblemSerializer(serializers.ModelSerializer):
+class ProblemListSerializer(serializers.ModelSerializer):
     author = UserShortSerializer(read_only=True)
+
+    class Meta:
+        model = Problem
+        fields = ['id',
+                  'title',
+                  'time_limit',
+                  'memory_limit',
+                  'public',
+                  'author',
+                  'source',
+                  'create_time']
+        depth = 0
+
+
+class ProblemSerializer(serializers.ModelSerializer):
+    user = UserShortSerializer(read_only=True)
 
     class Meta:
         model = Problem
