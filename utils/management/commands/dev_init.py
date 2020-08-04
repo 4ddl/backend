@@ -32,9 +32,9 @@ class Command(BaseCommand):
             exit(1)
         self.stdout.write(self.style.SUCCESS("Migrate success."))
 
-        username = 'root'
-        email = 'root@ddl.com'
-        password = 'rootroot'
+        username = 'banana'
+        email = 'banana@ddl.com'
+        password = 'banana1234'
         if User.objects.filter(username=username).exists():
             self.stdout.write(self.style.WARNING('Due to the existence of this user, no new super user was created.'))
         else:
