@@ -1,31 +1,30 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-from user import Perms
 
 
 # Create your models here.
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, email, password, is_admin=False, activated=False):
+    def create_user(self, username, email, password, is_superuser=False, activated=False):
         if not email:
             raise ValueError('Users must have an email address')
         user = self.model(email=self.normalize_email(email), username=username)
-        user.is_admin = is_admin
+        user.is_superuser = is_superuser
         user.activated = activated
         user.set_password(password)
         user.save(using=self._db)
         Activity(
             user=user,
-            info='register administrator account' if user.is_admin else 'register new account'
+            info='注册管理员账号' if user.is_superuser else '注册用户账号'
         ).save()
         return user
 
     def create_superuser(self, username, email, password):
-        user = self.create_user(username, email, password, is_admin=True, activated=True)
+        user = self.create_user(username, email, password, is_superuser=True, activated=True)
         return user
 
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=20, null=False, blank=False, unique=True)
     password = models.CharField(max_length=100, null=False, blank=False)
     email = models.EmailField(max_length=100, null=False, blank=False, unique=True)
@@ -33,32 +32,14 @@ class User(AbstractBaseUser):
     activated = models.BooleanField(default=False, null=False, blank=False)
     date_joined = models.DateTimeField(auto_now_add=True, editable=False)
     last_login = models.DateTimeField(blank=True, null=True, editable=False)
-    is_admin = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
     objects = UserManager()
 
-    def has_perm(self, perm, obj=None):
-        if self.is_admin:
-            return True
-        return False
-
-    def has_module_perms(self, app_label):
-        return True
-
-    def is_admin_or_has_perm(self, perm: str):
-        if self.is_admin:
-            return True
-        return len(self.perms.filter(perm=perm)) > 0
-
-    def is_admin_or_has_perms(self, perms: list):
-        if self.is_admin:
-            return True
-        return len(self.perms.filter(perm__in=perms)) >= len(perms)
-
     @property
     def is_staff(self):
-        return self.is_admin
+        return self.is_superuser
 
     @property
     def is_active(self):
@@ -66,19 +47,6 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return str(self.username)
-
-
-class UserPerm(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='perms')
-    perm = models.CharField(max_length=6, choices=Perms.PERM_CHOICES, null=False, blank=False)
-
-    class Meta:
-        unique_together = (
-            ('user', 'perm')
-        )
-
-    def __str__(self):
-        return f'{self.id}-{self.user.username}-{self.perm}'
 
 
 class Activity(models.Model):
@@ -95,3 +63,6 @@ class Activity(models.Model):
 
     def __str__(self):
         return f'{self.id}-{self.user}-{self.category}'
+
+    class Meta:
+        verbose_name_plural = 'Activities'
