@@ -16,8 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from ddl.settings import dev_server
 from utils import views as utils_views
-from .settings import dev_server
 
 urlpatterns = [
     path('api/admin/', admin.site.urls),

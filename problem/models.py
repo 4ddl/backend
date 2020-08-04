@@ -24,3 +24,6 @@ class Problem(models.Model):
     create_time = models.DateTimeField(auto_now_add=True, editable=False)
     last_update = models.DateTimeField(auto_now=True, editable=False)
     test_cases = ArrayField(models.CharField(max_length=100, null=False, blank=False), blank=True, default=None)
+
+    def __str__(self):
+        return f'{self.id}-{self.title}'
