@@ -2,6 +2,7 @@ import random
 import re
 
 from django.contrib import auth
+from django.contrib.auth.models import Permission
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
@@ -12,6 +13,14 @@ from user.utils import USERNAME_PATTERN, PASSWORD_PATTERN
 from utils.mail import send_activated_email
 
 
+class PermissionListField(serializers.RelatedField):
+    def to_representation(self, value: Permission):
+        return {
+            'id': value.id,
+            'name': f'{value.content_type.app_label}.{value.codename}'
+        }
+
+
 class UserShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -20,10 +29,12 @@ class UserShortSerializer(serializers.ModelSerializer):
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
+    user_permissions = PermissionListField(read_only=True, many=True)
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'is_admin', 'activated']
-        read_only_fields = ['username', 'email', 'is_admin', 'activated']
+        fields = ['id', 'username', 'email', 'is_superuser', 'activated', 'user_permissions']
+        read_only_fields = ['username', 'email', 'is_superuser', 'activated']
 
 
 class LoginSerializer(serializers.Serializer):
@@ -87,7 +98,7 @@ class RegisterSerializer(serializers.Serializer):
         user = User.objects.create_user(username=username,
                                         password=password,
                                         email=email)
-        Activity.objects.create(user=user, category=Activity.USER_REGISTER, info='Register success')
+        Activity.objects.create(user=user, category=Activity.USER_REGISTER, info='注册成功')
         user.save()
         activate_code = '%06d' % random.randint(0, 999999)
         send_activated_email(user.username,
