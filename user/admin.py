@@ -2,10 +2,10 @@ from django.contrib import admin
 
 # Register your models here.
 
-from django.contrib.auth.models import Group
-from user.models import Activity, UserPerm
+from user.models import Activity, User
+from django.contrib.auth.models import Permission
 
-admin.site.unregister(Group)
+admin.site.register(Permission)
 
 
 class ActivityAdmin(admin.ModelAdmin):
@@ -13,9 +13,10 @@ class ActivityAdmin(admin.ModelAdmin):
     list_filter = ('user',)
 
 
-class UserPermAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'perm')
+class UserAdmin(admin.ModelAdmin):
+    list_display = ('id', 'username', 'is_superuser', 'date_joined')
+    list_filter = ('username',)
 
 
 admin.site.register(Activity, ActivityAdmin)
-admin.site.register(UserPerm, UserPermAdmin)
+admin.site.register(User, UserAdmin)

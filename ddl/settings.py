@@ -28,12 +28,12 @@ SECRET_KEY = system_env('SECRET_KEY', 'THIS_IS_A_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-dev_server = (system_env('ddl_env', 'development') == 'development')
+dev_server = (system_env('ddl_env', 'development') != 'production')
 if dev_server:
     DEBUG = True
 else:
     DEBUG = False
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -175,10 +175,9 @@ else:
 CAPTCHA_AGE = 60 * 5
 # 缓存页面的时间
 PAGE_CACHE_AGE = 60 * 5
+# 验证邮箱的有效时间
+ACTIVATE_CODE_AGE = 60 * 60
 
-REST_FRAMEWORK = {
-    'EXCEPTION_HANDLER': 'utils.exception.custom_exception_handler'
-}
 if not dev_server:
     sentry_sdk.init(
         dsn="https://03eb7f0b0aaf4a31b548639bea76c910@o428533.ingest.sentry.io/5374065",
@@ -192,3 +191,7 @@ if not dev_server:
 CELERY_BROKER_URL = f"redis://{system_env('REDIS_HOST', '127.0.0.1')}:{system_env('REDIS_PORT', 6379)}/4"
 CELERY_RESULT_BACKEND = f"redis://{system_env('REDIS_HOST', '127.0.0.1')}:{system_env('REDIS_PORT', 6379)}/5"
 CELERY_RESULT_SERIALIZER = 'json'
+
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'utils.exception.custom_exception_handler'
+}
