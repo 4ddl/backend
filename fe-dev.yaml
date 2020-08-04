@@ -1,0 +1,34 @@
+version: "3"
+services:
+  ddl-postgres-dev:
+    image: postgres:alpine
+    container_name: ddl-postgres-dev
+    restart: always
+    volumes:
+      - ~/data/ddl-postgres-dev:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=ddl_database
+      - POSTGRES_USER=ddl_username
+      - POSTGRES_PASSWORD=ddl_password
+    ports:
+      - '0.0.0.0:5432:5432'
+  ddl-redis-dev:
+    image: redis:alpine
+    container_name: ddl-redis-dev
+    volumes:
+      - ~/data/ddl_redis_dev:/data
+    ports:
+      - '0.0.0.0:6379:6379'
+  ddl-backend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    container_name: ddl-backend-dev
+    depends_on:
+      - ddl-redis-dev
+      - ddl-postgres-dev
+    environment:
+      - REDIS_HOST=ddl-redis-dev
+      - POSTGRES_HOST=ddl-postgres-dev
+    ports:
+    - 0.0.0.0:8080:8080
