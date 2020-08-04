@@ -5,27 +5,24 @@ from django.views.decorators.cache import cache_page
 from problem.models import Problem
 from problem.serializers import ProblemSerializer
 from rest_framework.views import Response
-from user import Perms
-from user.permissions import IfAdminOrReadOnly
 from utils.response import msg
 from ddl.settings import PAGE_CACHE_AGE
 from django.core.exceptions import ObjectDoesNotExist
+from utils.permissions import check_permissions
 
 
 class ProblemViewSet(viewsets.ViewSet):
-    perms = [Perms.PROBLEM_CREATE]
-    permission_classes = [IfAdminOrReadOnly]
 
-    @staticmethod
-    def create(request):
+    @check_permissions('problem.add_problem')
+    def create(self, request):
         serializer = ProblemSerializer(data=request.data)
         if serializer.is_valid():
             serializer.author = request.user
             serializer.save()
         return Response(msg('Successful create.'))
 
-    @staticmethod
-    def update(request, pk=None):
+    @check_permissions('problem.change_problem')
+    def update(self, request, pk=None):
         try:
             problem = Problem.objects.get(id=pk)
         except ObjectDoesNotExist:
@@ -36,8 +33,8 @@ class ProblemViewSet(viewsets.ViewSet):
             serializer.save()
         return Response(msg('Successful update.'))
 
-    @staticmethod
-    def destroy(request, pk=None):
+    @check_permissions('problem.delete_problem')
+    def destroy(self, request, pk=None):
         try:
             problem = Problem.objects.get(id=pk)
         except ObjectDoesNotExist:
@@ -45,8 +42,7 @@ class ProblemViewSet(viewsets.ViewSet):
         problem.delete()
         return Response(msg('Successful delete.'))
 
-    @staticmethod
-    def list(request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         queryset = Problem.objects.all()
         serializer = ProblemSerializer(queryset, many=True)
         return Response(msg(serializer.data))
