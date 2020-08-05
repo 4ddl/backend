@@ -16,8 +16,8 @@ class ProblemListSerializer(serializers.ModelSerializer):
         model = Problem
         fields = ['id',
                   'title',
-                  'time_limit',
-                  'memory_limit',
+                  'accepted_submissions',
+                  'total_submissions',
                   'public',
                   'author',
                   'source',

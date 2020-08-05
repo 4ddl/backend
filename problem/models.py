@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField, ArrayField
 from user.models import User
+from submission.config import Verdict
 
 
 # Create your models here.
@@ -27,6 +28,14 @@ class Problem(models.Model):
 
     def __str__(self):
         return f'{self.id}-{self.title}'
+
+    @property
+    def accepted_submissions(self):
+        return self.submissions.filter(verdict=Verdict.ACCEPTED).count()
+
+    @property
+    def total_submissions(self):
+        return self.submissions.count()
 
     class Meta:
         ordering = ['id']

@@ -1,0 +1,18 @@
+class Language:
+    C = 0
+    CPP = 1
+    JAVA = 2
+    PYTHON = 3
+
+
+class Verdict:
+    PENDING = -1
+    ACCEPTED = 0
+    PRESENTATION_ERROR = 1
+    TIME_LIMIT_EXCEEDED = 2
+    MEMORY_LIMIT_EXCEEDED = 3
+    WRONG_ANSWER = 4
+    RUNTIME_ERROR = 5
+    OUTPUT_LIMIT_EXCEEDED = 6
+    COMPILE_ERROR = 7
+    SYSTEM_ERROR = 8
