@@ -9,6 +9,7 @@ from problem.models import Problem
 from problem.serializers import ProblemSerializer, ProblemListSerializer
 from utils.permissions import check_permissions
 from utils.response import msg
+from django.db.models import Q
 
 
 class ProblemViewSet(viewsets.GenericViewSet):
@@ -16,8 +17,23 @@ class ProblemViewSet(viewsets.GenericViewSet):
     serializer_class = ProblemSerializer
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
+        """
+        管理员的话，返回所有题目列表
+        普通登录的话，返回可以查看的，或者自己上传的题目列表
+        未登录的话，仅返回可以查看的题目列表
+        :param request: Request
+        :param args:
+        :param kwargs:
+        :return: Response
+        """
+        if request.user.is_staff:
+            queryset = self.filter_queryset(self.get_queryset())
+        elif request.user.is_authenticated:
+            queryset = self.filter_queryset(self.get_queryset().filter(
+                Q(public=Problem.VIEW_ONLY) | Q(public=Problem.VIEW_SUBMIT) | Q(author=request.user)))
+        else:
+            queryset = self.filter_queryset(self.get_queryset().filter(
+                Q(public=Problem.VIEW_ONLY) | Q(public=Problem.VIEW_SUBMIT)))
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)

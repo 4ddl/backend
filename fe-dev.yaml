@@ -23,7 +23,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-dev
-    command: bash /app/docker/entrypoint.sh
+    command: bash /app/docker/entrypoint-dev.sh
     volumes:
     - .:/app
     image: ddl_backend:dev
