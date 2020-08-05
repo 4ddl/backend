@@ -35,4 +35,4 @@ services:
       - REDIS_HOST=ddl-redis-dev
       - POSTGRES_HOST=ddl-postgres-dev
     ports:
-    - '0.0.0.0:8080:8080'
+    - '0.0.0.0:8000:8000'
