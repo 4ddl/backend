@@ -10,11 +10,22 @@ from problem.serializers import ProblemSerializer, ProblemListSerializer
 from utils.permissions import check_permissions
 from utils.response import msg
 from django.db.models import Q
+from django_filters import rest_framework as filters
+
+
+class ProblemFilter(filters.FilterSet):
+    id = filters.NumberFilter(field_name='id', lookup_expr='startswith')
+    title = filters.CharFilter(field_name='title', lookup_expr='startswith')
+
+    class Meta:
+        model = Problem
+        fields = ['id', 'title']
 
 
 class ProblemViewSet(viewsets.GenericViewSet):
     queryset = Problem.objects.all()
     serializer_class = ProblemSerializer
+    filterset_class = ProblemFilter
 
     def list(self, request, *args, **kwargs):
         """

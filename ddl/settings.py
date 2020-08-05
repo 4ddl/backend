@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_filters',
     'problem.apps.ProblemConfig',
     'user.apps.UserConfig',
     'submission.apps.SubmissionConfig',
@@ -194,5 +195,6 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'utils.exception.custom_exception_handler',
-    'DEFAULT_PAGINATION_CLASS': 'utils.pagination.CustomPagination'
+    'DEFAULT_PAGINATION_CLASS': 'utils.pagination.CustomPagination',
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
