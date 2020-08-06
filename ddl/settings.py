@@ -198,3 +198,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'utils.pagination.CustomPagination',
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
+if dev_server:
+    UPLOAD_DIR = os.path.join(BASE_DIR, 'upload')
+else:
+    UPLOAD_DIR = 'upload'
+
+PROBLEM_IMAGE_DIR = os.path.join(UPLOAD_DIR, 'problem_image')
