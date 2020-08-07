@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from uuid import uuid4
 
 
 # Create your models here.
@@ -11,6 +12,7 @@ class UserManager(BaseUserManager):
         user = self.model(email=self.normalize_email(email), username=username)
         user.is_superuser = is_superuser
         user.activated = activated
+        user.activate_uuid = uuid4()
         user.set_password(password)
         user.save(using=self._db)
         Activity(
@@ -30,6 +32,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=100, null=False, blank=False, unique=True)
     ban = models.BooleanField(default=False, null=False, blank=False)
     activated = models.BooleanField(default=False, null=False, blank=False)
+    activate_uuid = models.UUIDField(null=False, blank=False)
     date_joined = models.DateTimeField(auto_now_add=True, editable=False)
     last_login = models.DateTimeField(blank=True, null=True, editable=False)
     is_superuser = models.BooleanField(default=False)
