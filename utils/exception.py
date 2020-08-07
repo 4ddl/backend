@@ -9,7 +9,7 @@ def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
     # Now add the HTTP status code to the response.
     if response is not None and response.status_code in [400, 401, 403, 404, 405]:
-        if isinstance(response.data, str) or isinstance(response.data, list):
+        if isinstance(response.data, str) or isinstance(response.data, list) or isinstance(response.data, dict):
             return Response(msg(err=response.data))
         else:
             return Response(msg(err=response.data['detail']))

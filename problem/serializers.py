@@ -26,7 +26,7 @@ class ProblemListSerializer(serializers.ModelSerializer):
 
 
 class ProblemSerializer(serializers.ModelSerializer):
-    author = UserShortSerializer(read_only=True)
+    author = UserShortSerializer(required=False)
 
     class Meta:
         model = Problem
@@ -39,11 +39,14 @@ class ProblemSerializer(serializers.ModelSerializer):
                   'source',
                   'author',
                   'create_time',
-                  'test_cases',
                   'last_update']
-        read_only_fields = [
-            'create_time',
-            'last_update',
-            'test_cases'
-        ]
         depth = 0
+
+    def save(self, user):
+        Problem(author=user,
+                title=self.validated_data['title'],
+                memory_limit=self.validated_data['memory_limit'],
+                source=self.validated_data['source'],
+                content=self.validated_data['content'],
+                time_limit=self.validated_data['time_limit'],
+                public=self.validated_data['public']).save()
