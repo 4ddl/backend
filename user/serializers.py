@@ -11,6 +11,7 @@ from ddl.settings import ACTIVATE_CODE_AGE
 from user.models import User, Activity
 from user.utils import USERNAME_PATTERN, PASSWORD_PATTERN
 from utils.mail import send_activated_email
+from uuid import uuid4
 
 
 class PermissionListField(serializers.RelatedField):
@@ -74,11 +75,13 @@ class LoginSerializer(serializers.Serializer):
         elif user.ban:
             return None, 'You have been banned from this website.'
         else:
+            user.activate_uuid = uuid4()
+            user.save()
             activate_code = '%06d' % random.randint(0, 999999)
             send_activated_email(user.username,
                                  user.email,
                                  activate_code)
-            cache.set(f'activate-code-{user.id}', activate_code, ACTIVATE_CODE_AGE)
+            cache.set(f'activate-code-{user.activate_uuid}', activate_code, ACTIVATE_CODE_AGE)
             return user, 'Account not activated, ' \
                          'an mail has been sent to your email address, ' \
                          'please check your mail box'
@@ -104,7 +107,7 @@ class RegisterSerializer(serializers.Serializer):
         send_activated_email(user.username,
                              user.email,
                              activate_code)
-        cache.set(f'activate-code-{user.id}', activate_code, ACTIVATE_CODE_AGE)
+        cache.set(f'activate-code-{user.activate_uuid}', activate_code, ACTIVATE_CODE_AGE)
         return user
 
     @staticmethod
@@ -155,16 +158,16 @@ class ActivateSerializer(serializers.Serializer):
         if user.activated:
             raise serializers.ValidationError('User activated.')
 
-        saved_code = cache.get(f'activate-code-{user.id}')
+        saved_code = cache.get(f'activate-code-{user.activate_uuid}')
         if saved_code is None:
             activate_code = '%06d' % random.randint(0, 999999)
             send_activated_email(user.username,
                                  user.email,
                                  activate_code)
-            cache.set(f'activate-code-{user.id}', activate_code, ACTIVATE_CODE_AGE)
+            cache.set(f'activate-code-{user.activate_uuid}', activate_code, ACTIVATE_CODE_AGE)
             raise serializers.ValidationError('Activate code expired, server send email again.')
         elif saved_code != self.validated_data['code']:
             raise serializers.ValidationError('Activate code error')
         user.activated = True
         user.save()
-        cache.delete(f'activate-code-{user.id}')
+        cache.delete(f'activate-code-{user.activate_uuid}')
