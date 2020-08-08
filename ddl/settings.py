@@ -196,11 +196,20 @@ CELERY_RESULT_SERIALIZER = 'json'
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'utils.exception.custom_exception_handler',
     'DEFAULT_PAGINATION_CLASS': 'utils.pagination.CustomPagination',
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+    ]
 }
+
 if dev_server:
     UPLOAD_DIR = os.path.join(BASE_DIR, 'upload')
+    TMP_DIR = os.path.join(UPLOAD_DIR, 'temp')
 else:
     UPLOAD_DIR = 'upload'
-
+    TMP_DIR = '/tmp'
 PROBLEM_IMAGE_DIR = os.path.join(UPLOAD_DIR, 'problem_image')
+PROBLEM_PDF_DIR = os.path.join(UPLOAD_DIR, 'problem_pdf')
+PROBLEM_TEST_CASES_DIR = os.path.join(UPLOAD_DIR, 'problem_test_cases')
+X_FRAME_OPTIONS = 'SAMEORIGIN'
