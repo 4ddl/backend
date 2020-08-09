@@ -1,7 +1,8 @@
+from django.contrib.postgres.fields import JSONField
 from django.db import models
-from django.contrib.postgres.fields import JSONField, ArrayField
-from user.models import User
+
 from submission.config import Verdict
+from user.models import User
 
 
 # Create your models here.
@@ -24,10 +25,7 @@ class Problem(models.Model):
     author = models.ForeignKey(to=User, on_delete=models.CASCADE)
     create_time = models.DateTimeField(auto_now_add=True, editable=False)
     last_update = models.DateTimeField(auto_now=True, editable=False)
-    test_cases = ArrayField(models.CharField(max_length=100, null=False, blank=False),
-                            null=True,
-                            blank=True,
-                            default=None)
+    manifest = JSONField(default=None, null=True, blank=True)
 
     def __str__(self):
         return f'{self.id}-{self.title}'

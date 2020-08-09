@@ -25,8 +25,31 @@ class ProblemListSerializer(serializers.ModelSerializer):
         depth = 0
 
 
+class ProblemCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Problem
+        fields = ['id',
+                  'title',
+                  'content',
+                  'time_limit',
+                  'memory_limit',
+                  'public',
+                  'source',
+                  'manifest']
+
+    def save(self, user):
+        Problem(author=user,
+                title=self.validated_data['title'],
+                memory_limit=self.validated_data['memory_limit'],
+                source=self.validated_data['source'],
+                content=self.validated_data['content'],
+                time_limit=self.validated_data['time_limit'],
+                manifest=self.validated_data['manifest'],
+                public=self.validated_data['public']).save()
+
+
 class ProblemSerializer(serializers.ModelSerializer):
-    author = UserShortSerializer(required=False)
+    author = UserShortSerializer(read_only=True)
 
     class Meta:
         model = Problem
@@ -42,11 +65,19 @@ class ProblemSerializer(serializers.ModelSerializer):
                   'last_update']
         depth = 0
 
-    def save(self, user):
-        Problem(author=user,
-                title=self.validated_data['title'],
-                memory_limit=self.validated_data['memory_limit'],
-                source=self.validated_data['source'],
-                content=self.validated_data['content'],
-                time_limit=self.validated_data['time_limit'],
-                public=self.validated_data['public']).save()
+
+class ProblemFileSerializer(serializers.Serializer):
+    title = serializers.CharField()
+
+
+class ProblemTestCasesSerializer(serializers.Serializer):
+    file = serializers.FileField()
+    spj = serializers.BooleanField()
+
+
+class ProblemPDFSerializer(serializers.Serializer):
+    file = serializers.FileField()
+
+
+class ProblemImageSerializer(serializers.Serializer):
+    file = serializers.ImageField()

@@ -1,6 +1,6 @@
+from rest_framework.exceptions import PermissionDenied, NotAuthenticated
 from rest_framework.request import Request
 from rest_framework.viewsets import ViewSet
-from rest_framework.exceptions import PermissionDenied, NotAuthenticated
 
 
 def check_permissions(*permissions):
@@ -27,9 +27,6 @@ def check_permissions(*permissions):
 
 def is_authenticated():
     """
-    检查是否包含一些权限，
-    权限列表为空的情况下相当于isAuthenticated。
-
     :return: function
     """
 
@@ -38,5 +35,23 @@ def is_authenticated():
             if request.user.is_anonymous:
                 raise NotAuthenticated
             return func(view, request, *args, **kw)
+
         return wrapper
+
+    return decorator
+
+
+def is_administrator():
+    """
+    :return: function
+    """
+
+    def decorator(func):
+        def wrapper(view: ViewSet, request: Request, *args, **kw):
+            if request.user.is_staff:
+                return func(view, request, *args, **kw)
+            raise NotAuthenticated
+
+        return wrapper
+
     return decorator
