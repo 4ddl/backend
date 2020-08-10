@@ -1,39 +1,22 @@
 # Create your models here.
 from django.db import models
-from user.models import User
+
 from problem.models import Problem
 from submission.config import Verdict, Language
+from user.models import User
 
 
 class Submission(models.Model):
-    verdict_choice = (
-        (Verdict.PENDING, 'Pending'),
-        (Verdict.ACCEPTED, 'Accepted'),
-        (Verdict.PRESENTATION_ERROR, 'Presentation Error'),
-        (Verdict.TIME_LIMIT_EXCEEDED, 'Time Limit Exceeded'),
-        (Verdict.MEMORY_LIMIT_EXCEEDED, 'Memory Limit Exceeded'),
-        (Verdict.WRONG_ANSWER, 'Wrong Answer'),
-        (Verdict.RUNTIME_ERROR, 'Runtime Error'),
-        (Verdict.OUTPUT_LIMIT_EXCEEDED, 'Output Limit Exceeded'),
-        (Verdict.COMPILE_ERROR, 'Compile Error'),
-        (Verdict.SYSTEM_ERROR, 'System Error'),
-    )
-
-    lang_choice = (
-        (Language.C, "gcc"),
-        (Language.CPP, "g++"),
-        (Language.JAVA, "java"),
-        (Language.PYTHON, "python")
-    )
-
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submissions')
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, related_name='submissions')
     code = models.TextField()
-    verdict = models.IntegerField(default=-1, choices=verdict_choice)
-    lang = models.IntegerField(default=Language.C)
+    verdict = models.CharField(max_length=10, default=Verdict.PENDING, choices=Verdict.VERDICT_CHOICES)
+    lang = models.CharField(max_length=10, choices=Language.LANGUAGE_CHOICES)
     create_time = models.DateTimeField(auto_now_add=True)
-    time_spend = models.IntegerField(default=0)
-    memory_spend = models.IntegerField(default=0)
+    time_spend = models.IntegerField(null=True)
+    memory_spend = models.IntegerField(null=True)
+    # 程序编译运行的时候返回的一些错误信息和编译失败的错误信息
+    additional_info = models.TextField(default='')
 
     def __str__(self):
         return f'<Submission>id:{self.id} problem: {self.problem.id} verdict: {self.verdict}'

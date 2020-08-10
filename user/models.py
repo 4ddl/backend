@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from uuid import uuid4
+from submission.config import Verdict
 
 
 # Create your models here.
@@ -39,6 +40,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
     objects = UserManager()
+
+    @property
+    def accepted_submissions(self):
+        return self.submissions.filter(verdict=Verdict.ACCEPTED).count()
+
+    @property
+    def total_submissions(self):
+        return self.submissions.count()
 
     @property
     def is_staff(self):

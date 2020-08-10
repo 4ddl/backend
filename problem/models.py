@@ -22,7 +22,7 @@ class Problem(models.Model):
     memory_limit = models.IntegerField(default=0, null=False, blank=False)
     public = models.IntegerField(default=VIEW_SUBMIT, choices=PUBLIC_CHOICES, null=False, blank=False)
     source = models.CharField(max_length=100, null=False, blank=False)
-    author = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    author = models.ForeignKey(to=User, default=None, null=True, on_delete=models.SET_NULL)
     create_time = models.DateTimeField(auto_now_add=True, editable=False)
     last_update = models.DateTimeField(auto_now=True, editable=False)
     manifest = JSONField(default=None, null=True, blank=True)

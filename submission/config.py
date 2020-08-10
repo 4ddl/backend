@@ -1,18 +1,39 @@
 class Language:
-    C = 0
-    CPP = 1
-    JAVA = 2
-    PYTHON = 3
+    C = 'c'
+    CPP = 'cpp'
+    JAVA = 'java'
+    PYTHON = 'python'
+    GO = 'go'
+
+    LANGUAGE_CHOICES = (
+        (C, "GCC"),
+        (CPP, "G++"),
+        (JAVA, "Java"),
+        (PYTHON, "Python"),
+        (GO, 'GO')
+    )
 
 
 class Verdict:
-    PENDING = -1
-    ACCEPTED = 0
-    PRESENTATION_ERROR = 1
-    TIME_LIMIT_EXCEEDED = 2
-    MEMORY_LIMIT_EXCEEDED = 3
-    WRONG_ANSWER = 4
-    RUNTIME_ERROR = 5
-    OUTPUT_LIMIT_EXCEEDED = 6
-    COMPILE_ERROR = 7
-    SYSTEM_ERROR = 8
+    PENDING = 'PENDING'
+    ACCEPTED = 'AC'
+    PRESENTATION_ERROR = 'PE'
+    TIME_LIMIT_EXCEEDED = 'TLE'
+    MEMORY_LIMIT_EXCEEDED = 'MLE'
+    WRONG_ANSWER = 'WA'
+    RUNTIME_ERROR = 'RE'
+    OUTPUT_LIMIT_EXCEEDED = 'OLE'
+    COMPILE_ERROR = 'CE'
+    SYSTEM_ERROR = 'SE'
+    VERDICT_CHOICES = (
+        (PENDING, 'Pending'),
+        (ACCEPTED, 'Accepted'),
+        (PRESENTATION_ERROR, 'Presentation Error'),
+        (TIME_LIMIT_EXCEEDED, 'Time Limit Exceeded'),
+        (MEMORY_LIMIT_EXCEEDED, 'Memory Limit Exceeded'),
+        (WRONG_ANSWER, 'Wrong Answer'),
+        (RUNTIME_ERROR, 'Runtime Error'),
+        (OUTPUT_LIMIT_EXCEEDED, 'Output Limit Exceeded'),
+        (COMPILE_ERROR, 'Compile Error'),
+        (SYSTEM_ERROR, 'System Error'),
+    )
