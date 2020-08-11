@@ -10,7 +10,10 @@ from .models import Submission
 from .serializers import SubmissionSerializer, SubmissionShortSerializer
 
 
-class SubmissionViewSet(viewsets.ViewSet):
+class SubmissionViewSet(viewsets.GenericViewSet):
+    queryset = Submission.objects.all()
+    serializer_class = SubmissionSerializer
+
     @is_authenticated()
     def create(self, request: Request):
         serializer = SubmissionSerializer(data=request.data)
@@ -19,9 +22,14 @@ class SubmissionViewSet(viewsets.ViewSet):
         return Response(msg('successful create'))
 
     def list(self, request: Request):
-        queryset = Submission.objects.all()
-        serializer = SubmissionShortSerializer(queryset, many=True)
-        return Response(msg(serializer.data))
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
         queryset = Submission.objects.all()
@@ -30,3 +38,9 @@ class SubmissionViewSet(viewsets.ViewSet):
             serializer = SubmissionSerializer(submission)
             return Response(msg(serializer.data))
         raise PermissionDenied
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return SubmissionShortSerializer
+        else:
+            return self.get_serializer_class()

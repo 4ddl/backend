@@ -4,6 +4,7 @@ from problem.serializers import ProblemShortSerializer
 from user.models import User
 from user.serializers import UserShortSerializer
 from .models import Submission
+from .config import Language
 
 
 class SubmissionShortSerializer(serializers.ModelSerializer):
@@ -30,7 +31,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def validate_lang(value):
-        if value in list(map(lambda x: x[0], Submission.lang_choice)):
+        if value in list(map(lambda x: x[0], Language.LANGUAGE_CHOICES)):
             return value
         raise serializers.ValidationError("Language not supported")
 

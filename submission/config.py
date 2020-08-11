@@ -6,16 +6,17 @@ class Language:
     GO = 'go'
 
     LANGUAGE_CHOICES = (
-        (C, "GCC"),
-        (CPP, "G++"),
-        (JAVA, "Java"),
-        (PYTHON, "Python"),
-        (GO, 'GO')
+        (C, "C (GCC 9.3.0)"),
+        (CPP, "C++ (G++ 9.3.0)"),
+        (JAVA, "Java (OpenJDK 14.0.1)"),
+        (PYTHON, "Python (Python 3.8.2)"),
+        (GO, 'Go (Golang 1.13.8)')
     )
 
 
 class Verdict:
-    PENDING = 'PENDING'
+    PENDING = 'P'
+    RUNNING = 'R'
     ACCEPTED = 'AC'
     PRESENTATION_ERROR = 'PE'
     TIME_LIMIT_EXCEEDED = 'TLE'
@@ -27,6 +28,7 @@ class Verdict:
     SYSTEM_ERROR = 'SE'
     VERDICT_CHOICES = (
         (PENDING, 'Pending'),
+        (RUNNING, 'Running'),
         (ACCEPTED, 'Accepted'),
         (PRESENTATION_ERROR, 'Presentation Error'),
         (TIME_LIMIT_EXCEEDED, 'Time Limit Exceeded'),
