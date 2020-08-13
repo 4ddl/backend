@@ -17,7 +17,10 @@ class Submission(models.Model):
     time_spend = models.IntegerField(null=True)
     memory_spend = models.IntegerField(null=True)
     # 程序编译运行的时候返回的一些错误信息和编译失败的错误信息
-    additional_info = JSONField(default=None)
+    additional_info = JSONField(default=None, null=True)
 
     def __str__(self):
         return f'<Submission>id:{self.id} problem: {self.problem.id} verdict: {self.verdict}'
+
+    class Meta:
+        ordering = ['-id']

@@ -26,14 +26,8 @@ class SubmissionShortSerializer(serializers.ModelSerializer):
 
 
 class SubmissionSerializer(serializers.ModelSerializer):
-    user = UserShortSerializer(read_only=True)
-    problem = ProblemShortSerializer(read_only=True)
-
-    @staticmethod
-    def validate_lang(value):
-        if value in list(map(lambda x: x[0], Language.LANGUAGE_CHOICES)):
-            return value
-        raise serializers.ValidationError("Language not supported")
+    user = UserShortSerializer()
+    problem = ProblemShortSerializer()
 
     class Meta:
         model = Submission
@@ -48,18 +42,27 @@ class SubmissionSerializer(serializers.ModelSerializer):
             'time_spend',
             'memory_spend'
         )
-        read_only_fields = (
-            'id',
-            'verdict',
-            'create_time',
-            'time_spend',
-            'memory_spend'
+
+
+class SubmissionCreateSerializer(serializers.ModelSerializer):
+    @staticmethod
+    def validate_lang(value):
+        if value in list(map(lambda x: x[0], Language.LANGUAGE_CHOICES)):
+            return value
+        raise serializers.ValidationError("Language not supported")
+
+    class Meta:
+        model = Submission
+        fields = (
+            'code',
+            'problem',
+            'lang',
         )
 
     def save(self, user: User):
-        Submission.objects.create(
+        return Submission(
             user=user,
             code=self.validated_data['code'],
             problem=self.validated_data['problem'],
             lang=self.validated_data['lang'],
-        )
+        ).save()

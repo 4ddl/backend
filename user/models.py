@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 from uuid import uuid4
 from submission.config import Verdict
+from django.utils import timezone
 
 
 # Create your models here.
@@ -56,6 +57,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_active(self):
         return True
+
+    @property
+    def last_submit_time(self):
+        if self.submissions.count() > 0:
+            return self.submissions.all().order_by('-id')[0].create_time
+        else:
+            return None
 
     def __str__(self):
         return str(self.username)
