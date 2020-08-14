@@ -3,7 +3,6 @@ from django.db import models
 
 from submission.config import Verdict
 from user.models import User
-from django.db.models import Count
 
 
 # Create your models here.
