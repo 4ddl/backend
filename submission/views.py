@@ -11,16 +11,26 @@ from .models import Submission
 from .serializers import SubmissionSerializer, SubmissionShortSerializer, SubmissionCreateSerializer
 from django.utils import timezone
 from datetime import timedelta
+from django_filters import rest_framework as filters
+
+
+class SubmissionFilter(filters.FilterSet):
+    verdict = filters.CharFilter(field_name='verdict', lookup_expr='iexact')
+    user = filters.CharFilter(field_name='user', lookup_expr='exact')
+
+    class Meta:
+        model = Submission
+        fields = ['verdict', 'user']
 
 
 class SubmissionViewSet(viewsets.GenericViewSet):
     queryset = Submission.objects.all()
     serializer_class = SubmissionSerializer
+    filterset_class = SubmissionFilter
 
     @is_authenticated()
     def create(self, request: Request):
         last_submit_time = request.user.last_submit_time
-        print('time', last_submit_time, timezone.now())
         if last_submit_time is not None and timezone.now() < last_submit_time + timedelta(seconds=10):
             return Response(msg(err='Can\'t submit twice within 10 seconds.'))
         serializer = self.get_serializer(data=request.data)
@@ -44,7 +54,7 @@ class SubmissionViewSet(viewsets.GenericViewSet):
         return Response(msg(serializer.data))
 
     @action(detail=True, methods=['get'])
-    def personal_view(self, request, pk=None):
+    def personal(self, request, pk=None):
         queryset = self.get_queryset()
         submission = get_object_or_404(queryset, pk=pk)
         if submission.user == request.user or request.user.is_staff:
