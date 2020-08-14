@@ -3,6 +3,7 @@ from django.db import models
 
 from submission.config import Verdict
 from user.models import User
+from django.db.models import Count
 
 
 # Create your models here.
@@ -31,11 +32,11 @@ class Problem(models.Model):
         return f'{self.id}-{self.title}'
 
     @property
-    def accepted_submissions(self):
+    def total_accepted(self):
         return self.submissions.filter(verdict=Verdict.ACCEPTED).count()
 
     @property
-    def total_submissions(self):
+    def total_submitted(self):
         return self.submissions.count()
 
     class Meta:
