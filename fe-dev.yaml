@@ -20,13 +20,10 @@ services:
     ports:
       - '0.0.0.0:6379:6379'
   ddl-backend-dev:
-    build:
-      context: .
-      dockerfile: Dockerfile-dev
     command: bash /app/docker/entrypoint-dev.sh
     volumes:
     - .:/app
-    image: ddl_backend:dev
+    image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb:dev
     container_name: ddl-backend-dev
     depends_on:
       - ddl-redis-dev
