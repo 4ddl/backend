@@ -14,7 +14,7 @@ class AuthRouter(SimpleRouter):
         Route(
             url=r'^{prefix}/{lookup}{trailing_slash}$',
             mapping={
-                'get': 'retrieve',
+                'get': 'user_info',
             },
             name='{basename}-detail',
             detail=True,

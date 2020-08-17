@@ -61,10 +61,7 @@ class AuthViewSet(ViewSet):
         serializer.active()
         return Response(msg('Successful activate.'))
 
-    def retrieve(self, request, pk=None):
-        if request.user.is_authenticated:
-            queryset = User.objects.all()
-            user = get_object_or_404(queryset, pk=pk)
-            return Response(msg(UserInfoSerializer(user).data))
-        else:
-            return Response(msg(err='Not login.'))
+    def user_info(self, request, pk=None):
+        queryset = User.objects.all()
+        user = get_object_or_404(queryset, pk=pk)
+        return Response(msg(UserInfoSerializer(user).data))
