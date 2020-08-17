@@ -1,9 +1,11 @@
 from django.contrib import auth
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.views import Response
 from rest_framework.viewsets import ViewSet
 
 from user.serializers import UserInfoSerializer, LoginSerializer, RegisterSerializer, ActivateSerializer
+from user.models import User
 from utils.response import msg
 from utils.views import CaptchaAPI
 
@@ -58,3 +60,8 @@ class AuthViewSet(ViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.active()
         return Response(msg('Successful activate.'))
+
+    def user_info(self, request, pk=None):
+        queryset = User.objects.all()
+        user = get_object_or_404(queryset, pk=pk)
+        return Response(msg(UserInfoSerializer(user).data))
