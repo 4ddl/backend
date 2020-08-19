@@ -179,3 +179,32 @@ class ActivateSerializer(serializers.Serializer):
         user.activated = True
         user.save()
         cache.delete(f'activate-code-{user.activate_uuid}')
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField()
+    new_password = serializers.CharField()
+
+    @staticmethod
+    def validate_new_password(value):
+        if re.match(PASSWORD_PATTERN, value) is None:
+            raise serializers.ValidationError(
+                'Password can only contain letters, numbers, -, _ and no shorter than 8 and no longer than 20')
+        return value
+
+    def validate_old_password(self, old):
+        user = self.context['user']
+        if not auth.authenticate(username=user.username,
+                                 password=old):
+            raise serializers.ValidationError('Old password error')
+        return old
+
+    def validate(self, attrs):
+        if attrs['old_password'] == attrs['new_password']:
+            raise serializers.ValidationError('The new password cannot be the same as the old password')
+        return attrs
+
+    def save(self, **kwargs):
+        user = self.context['user']
+        user.set_password(self.validated_data['new_password'])
+        user.save()
