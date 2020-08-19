@@ -3,8 +3,10 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.views import Response
 from rest_framework.viewsets import ViewSet
+from rest_framework.request import Request
 
-from user.serializers import UserInfoSerializer, LoginSerializer, RegisterSerializer, ActivateSerializer
+from user.serializers import UserInfoSerializer, LoginSerializer, RegisterSerializer, ActivateSerializer, \
+    ChangePasswordSerializer
 from user.models import User
 from utils.response import msg
 from utils.views import CaptchaAPI
@@ -65,3 +67,15 @@ class AuthViewSet(ViewSet):
         queryset = User.objects.all()
         user = get_object_or_404(queryset, pk=pk)
         return Response(msg(UserInfoSerializer(user).data))
+
+    @action(methods=['PUT'], detail=False)
+    def password(self, request: Request):
+        if request.user.is_authenticated:
+            serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            auth.logout(request)
+            return Response(msg('Success'))
+        return Response(msg(err='Not login.'))
+
+
