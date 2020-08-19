@@ -15,8 +15,6 @@ import os
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
-from utils.system import env as system_env
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -24,11 +22,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = system_env('SECRET_KEY', 'THIS_IS_A_SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY', 'THIS_IS_A_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-dev_server = (system_env('ddl_env', 'development') != 'production')
+dev_server = (os.getenv('ddl_env', 'development') != 'production')
 if dev_server:
     DEBUG = True
 else:
@@ -88,11 +86,11 @@ WSGI_APPLICATION = 'ddl.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': system_env('POSTGRES_DB', 'ddl_database'),
-        'USER': system_env('POSTGRES_USER', 'ddl_username'),
-        'PASSWORD': system_env('POSTGRES_PASSWORD', 'ddl_password'),
-        'HOST': system_env('POSTGRES_HOST', '127.0.0.1'),
-        'PORT': system_env('POSTGRES_PORT', 5432),
+        'NAME': os.getenv('POSTGRES_DB', 'ddl_database'),
+        'USER': os.getenv('POSTGRES_USER', 'ddl_username'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'ddl_password'),
+        'HOST': os.getenv('POSTGRES_HOST', '127.0.0.1'),
+        'PORT': os.getenv('POSTGRES_PORT', 5432),
     }
 }
 
@@ -136,21 +134,21 @@ AUTH_USER_MODEL = 'user.User'
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': f"redis://{system_env('REDIS_HOST', '127.0.0.1')}:{system_env('REDIS_PORT', 6379)}/1",
+        'LOCATION': f"redis://{os.getenv('REDIS_HOST', '127.0.0.1')}:{os.getenv('REDIS_PORT', 6379)}/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     },
     "session": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{system_env('REDIS_HOST', '127.0.0.1')}:{system_env('REDIS_PORT', 6379)}/2",
+        "LOCATION": f"redis://{os.getenv('REDIS_HOST', '127.0.0.1')}:{os.getenv('REDIS_PORT', 6379)}/2",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     },
     "page": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://{system_env('REDIS_HOST', '127.0.0.1')}:{system_env('REDIS_PORT', 6379)}/3",
+        "LOCATION": f"redis://{os.getenv('REDIS_HOST', '127.0.0.1')}:{os.getenv('REDIS_PORT', 6379)}/3",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -165,10 +163,10 @@ if dev_server:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = system_env('EMAIL_HOST', '')
-    EMAIL_PORT = system_env('EMAIL_PORT', 465)
-    EMAIL_HOST_USER = system_env('EMAIL_HOST_USER', '')
-    EMAIL_HOST_PASSWORD = system_env('EMAIL_HOST_PASSWORD', '')
+    EMAIL_HOST = os.getenv('EMAIL_HOST', '')
+    EMAIL_PORT = os.getenv('EMAIL_PORT', 465)
+    EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
     EMAIL_USE_SSL = (EMAIL_PORT == 465)
     DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
@@ -189,8 +187,8 @@ if not dev_server:
     )
 
 # celery 配置
-CELERY_BROKER_URL = f"redis://{system_env('REDIS_HOST', '127.0.0.1')}:{system_env('REDIS_PORT', 6379)}/4"
-CELERY_RESULT_BACKEND = f"redis://{system_env('REDIS_HOST', '127.0.0.1')}:{system_env('REDIS_PORT', 6379)}/5"
+CELERY_BROKER_URL = f"redis://{os.getenv('REDIS_HOST', '127.0.0.1')}:{os.getenv('REDIS_PORT', 6379)}/4"
+CELERY_RESULT_BACKEND = f"redis://{os.getenv('REDIS_HOST', '127.0.0.1')}:{os.getenv('REDIS_PORT', 6379)}/5"
 CELERY_RESULT_SERIALIZER = 'json'
 
 REST_FRAMEWORK = {
