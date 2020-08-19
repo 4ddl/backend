@@ -77,5 +77,3 @@ class AuthViewSet(ViewSet):
             auth.logout(request)
             return Response(msg('Success'))
         return Response(msg(err='Not login.'))
-
-
