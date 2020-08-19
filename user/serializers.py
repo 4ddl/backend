@@ -193,7 +193,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         return value
 
     def validate_old_password(self, old):
-        user = self.context['request'].user
+        user = self.context['user']
         if not auth.authenticate(username=user.username,
                                  password=old):
             raise serializers.ValidationError('Old password error')
@@ -205,6 +205,6 @@ class ChangePasswordSerializer(serializers.Serializer):
         return attrs
 
     def save(self, **kwargs):
-        user = self.context['request'].user
+        user = self.context['user']
         user.set_password(self.validated_data['new_password'])
         user.save()

@@ -71,7 +71,7 @@ class AuthViewSet(ViewSet):
     @action(methods=['PUT'], detail=False)
     def password(self, request: Request):
         if request.user.is_authenticated:
-            serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+            serializer = ChangePasswordSerializer(data=request.data, context={'user': request.user})
             serializer.is_valid(raise_exception=True)
             serializer.save()
             auth.logout(request)
