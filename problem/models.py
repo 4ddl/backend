@@ -1,4 +1,3 @@
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 
 from submission.config import Verdict
@@ -17,7 +16,7 @@ class Problem(models.Model):
         (DISABLE, 'Disabled'),
     ]
     title = models.CharField(max_length=100, null=False, blank=False)
-    content = JSONField()
+    content = models.JSONField()
     time_limit = models.IntegerField(default=0, null=False, blank=False)
     memory_limit = models.IntegerField(default=0, null=False, blank=False)
     public = models.IntegerField(default=VIEW_SUBMIT, choices=PUBLIC_CHOICES, null=False, blank=False)
@@ -25,7 +24,7 @@ class Problem(models.Model):
     author = models.ForeignKey(to=User, default=None, null=True, on_delete=models.SET_NULL)
     create_time = models.DateTimeField(auto_now_add=True, editable=False)
     last_update = models.DateTimeField(auto_now=True, editable=False)
-    manifest = JSONField(default=None, null=True, blank=True)
+    manifest = models.JSONField(default=None, null=True, blank=True)
 
     def __str__(self):
         return f'{self.id}-{self.title}'
@@ -40,3 +39,7 @@ class Problem(models.Model):
 
     class Meta:
         ordering = ['id']
+        permissions = [
+            ('view_private_problem', 'Can view private problem'),
+            ('manage_problem', 'Can manage problem')
+        ]
