@@ -1,13 +1,14 @@
 from django.contrib import auth
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 from rest_framework.decorators import action
+from rest_framework.request import Request
 from rest_framework.views import Response
 from rest_framework.viewsets import ViewSet
-from rest_framework.request import Request
 
+from user.models import User
 from user.serializers import UserInfoSerializer, LoginSerializer, RegisterSerializer, ActivateSerializer, \
     ChangePasswordSerializer
-from user.models import User
 from utils.response import msg
 from utils.views import CaptchaAPI
 
@@ -25,11 +26,11 @@ class AuthViewSet(ViewSet):
     @action(methods=['POST'], detail=False)
     def login(self, request):
         if request.user.is_authenticated:
-            return Response(msg(err='Please sign out first before try to login.'))
+            return Response(msg(err=_('Please sign out first before try to login.')))
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid(raise_exception=False):
             if not CaptchaAPI.verify_captcha(request, serializer.validated_data['captcha']):
-                return Response(msg(err='Captcha verify error.'))
+                return Response(msg(err=_('Captcha verify error.')))
             user, err = serializer.login(request)
             if user:
                 return Response(msg(UserInfoSerializer(user).data, err=err))
@@ -41,11 +42,11 @@ class AuthViewSet(ViewSet):
     @action(methods=['PUT'], detail=False)
     def register(self, request):
         if request.user.is_authenticated:
-            return Response(msg(err='Please sign out first before try to register.'))
+            return Response(msg(err=_('Please sign out first before try to register.')))
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             if not CaptchaAPI.verify_captcha(request, serializer.validated_data['captcha']):
-                return Response(msg(err='Captcha verify error.'))
+                return Response(msg(err=_('Captcha verify error.')))
             user = serializer.save()
             return Response(msg(UserInfoSerializer(user).data))
         return Response(msg(err=serializer.errors))

@@ -76,6 +76,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return str(self.username)
 
+    class Meta:
+        permissions = [('manage_privilege', 'Manage User Privilege')]
+
 
 class Activity(models.Model):
     USER_LOGIN = 'UL'

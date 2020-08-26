@@ -28,4 +28,5 @@ urlpatterns += [
     path('api/problem/', include('problem.urls')),
     path('api/captcha', utils_views.CaptchaAPI.as_view()),
     path('api/submission/', include('submission.urls')),
+    path('api/system/', include('system.urls')),
 ]

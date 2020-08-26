@@ -47,17 +47,20 @@ INSTALLED_APPS = [
     'problem.apps.ProblemConfig',
     'user.apps.UserConfig',
     'submission.apps.SubmissionConfig',
-    'utils.apps.UtilsConfig'
+    'utils.apps.UtilsConfig',
+    'system.apps.SystemConfig'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'ddl.urls'
@@ -73,6 +76,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n'
             ],
         },
     },
@@ -114,6 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
+from django.utils.translation import gettext_lazy as _
 
 LANGUAGE_CODE = 'en'
 
@@ -124,7 +129,14 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+LANGUAGES = (
+    ('zh-hans', _('Simplified Chinese')),
+    ('en', _('English')),
+)
+LOCALE_PATHS = (os.path.join(BASE_DIR, 'locale'),)
 
+LANGUAGE_SESSION_KEY = '_language'
+LANGUAGE_COOKIE_NAME = '_language'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 

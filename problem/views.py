@@ -21,6 +21,8 @@ from problem.uploads import TestCasesProcessor, TestCasesError
 from utils.permissions import check_permissions
 from utils.response import msg
 
+from problem.perm import ManageProblemPermission
+
 
 class ProblemFilter(filters.FilterSet):
     id = filters.NumberFilter(field_name='id', lookup_expr='icontains')
@@ -62,14 +64,14 @@ class ProblemViewSet(viewsets.GenericViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @check_permissions('problem.add_problem')
+    @check_permissions('problem.manage_problem')
     def create(self, request):
         serializer = ProblemCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(request.user)
         return Response(msg('Successful create.'))
 
-    @check_permissions('problem.change_problem')
+    @check_permissions('problem.manage_problem')
     def update(self, request, *args, **kwargs):
         problem = self.get_object()
         serializer = ProblemCreateSerializer(problem, data=request.data)
@@ -77,7 +79,7 @@ class ProblemViewSet(viewsets.GenericViewSet):
         serializer.save(request.user)
         return Response(msg('Successful update.'))
 
-    @check_permissions('problem.delete_problem')
+    @check_permissions('problem.manage_problem')
     def destroy(self, request, *args, **kwargs):
         problem = self.get_object()
         problem.delete()
@@ -86,6 +88,12 @@ class ProblemViewSet(viewsets.GenericViewSet):
     def retrieve(self, request, *args, **kwargs):
         problem = self.get_object()
         serializer = ProblemSerializer(problem)
+        return Response(msg(serializer.data))
+
+    @action(detail=True, methods=['get'], permission_classes=[ManageProblemPermission])
+    def system_retrieve(self, request, *args, **kwargs):
+        problem = self.get_object()
+        serializer = ProblemCreateSerializer(problem)
         return Response(msg(serializer.data))
 
     def get_serializer_class(self):
@@ -98,7 +106,7 @@ class ProblemViewSet(viewsets.GenericViewSet):
         else:
             return self.serializer_class
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], permission_classes=[ManageProblemPermission])
     def upload_test_cases(self, request, *args, **kwargs):
         serializer = ProblemTestCasesSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -130,7 +138,7 @@ class ProblemImageAPI(APIView):
         else:
             return Response(msg(err='Image not exist.'))
 
-    @check_permissions('problem.add_problem')
+    @check_permissions('problem.manage_problem')
     def put(self, request, *args, **kwargs):
         serializer = ProblemImageSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -165,7 +173,7 @@ class ProblemImageAPI(APIView):
             img.close()
         return Response(msg(f'/api/problem/image?title={filename}'))
 
-    @check_permissions('problem.add_problem')
+    @check_permissions('problem.manage_problem')
     def delete(self, request, *args, **kwargs):
         form = ImageNameForms(request.GET)
         if form.is_valid():
@@ -190,7 +198,7 @@ class ProblemPDFAPI(APIView):
         else:
             return Response(msg(err='PDF not exist.'))
 
-    @check_permissions('problem.add_problem')
+    @check_permissions('problem.manage_problem')
     def post(self, request, *args, **kwargs):
         serializer = ProblemPDFSerializer(data=request.data)
         serializer.is_valid(True)
