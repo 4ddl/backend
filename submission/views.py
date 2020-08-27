@@ -32,7 +32,7 @@ class SubmissionViewSet(viewsets.GenericViewSet):
     def create(self, request: Request):
         last_submit_time = request.user.last_submit_time
         if last_submit_time is not None and timezone.now() < last_submit_time + timedelta(seconds=10):
-            return Response(msg(err='Can\'t submit twice within 10 seconds.'))
+            return Response(msg(err=_('Can\'t submit twice within 10 seconds.')))
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         submission = serializer.save(user=request.user)

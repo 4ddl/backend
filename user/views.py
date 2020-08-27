@@ -20,7 +20,7 @@ class AuthViewSet(ViewSet):
         if request.user.is_authenticated:
             return Response(msg(UserInfoSerializer(request.user).data))
         else:
-            return Response(msg(err='Not login.'))
+            return Response(msg(err=_('Not login.')))
 
     # 登录
     @action(methods=['POST'], detail=False)
@@ -55,14 +55,14 @@ class AuthViewSet(ViewSet):
     @action(methods=['DELETE'], detail=False)
     def logout(self, request):
         auth.logout(request)
-        return Response(msg('Successful logout.'))
+        return Response(msg(_('Successful logout.')))
 
     @action(methods=['POST'], detail=False)
     def activate(self, request):
         serializer = ActivateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.active()
-        return Response(msg('Successful activate.'))
+        return Response(msg(_('Successful activate.')))
 
     def user_info(self, request, pk=None):
         queryset = User.objects.all()
@@ -76,5 +76,5 @@ class AuthViewSet(ViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             auth.logout(request)
-            return Response(msg('Success'))
-        return Response(msg(err='Not login.'))
+            return Response(msg(_('Success')))
+        return Response(msg(err=_('Not login.')))

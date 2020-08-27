@@ -22,7 +22,7 @@ from utils.permissions import check_permissions
 from utils.response import msg
 
 from problem.perm import ManageProblemPermission
-
+from django.utils.translation import gettext as _
 
 class ProblemFilter(filters.FilterSet):
     id = filters.NumberFilter(field_name='id', lookup_expr='icontains')
@@ -69,7 +69,7 @@ class ProblemViewSet(viewsets.GenericViewSet):
         serializer = ProblemCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(request.user)
-        return Response(msg('Successful create.'))
+        return Response(msg(_('Successful create.')))
 
     @check_permissions('problem.manage_problem')
     def update(self, request, *args, **kwargs):
@@ -77,13 +77,13 @@ class ProblemViewSet(viewsets.GenericViewSet):
         serializer = ProblemCreateSerializer(problem, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(request.user)
-        return Response(msg('Successful update.'))
+        return Response(msg(_('Successful update.')))
 
     @check_permissions('problem.manage_problem')
     def destroy(self, request, *args, **kwargs):
         problem = self.get_object()
         problem.delete()
-        return Response(msg('Successful delete.'))
+        return Response(msg(_('Successful delete.')))
 
     def retrieve(self, request, *args, **kwargs):
         problem = self.get_object()
@@ -130,13 +130,13 @@ class ProblemImageAPI(APIView):
     def get(self, request, *args, **kwargs):
         form = RequestFileForm(data=request.GET)
         if not form.is_valid():
-            return Response(msg('Params validate error'))
+            return Response(msg(_('Params validate error')))
         path = os.path.join(PROBLEM_IMAGE_DIR, str(form.cleaned_data['title']))
         if os.path.exists(path):
             with open(path, 'rb') as f:
                 return HttpResponse(f.read())
         else:
-            return Response(msg(err='Image not exist.'))
+            return Response(msg(err=_('Image not exist.')))
 
     @check_permissions('problem.manage_problem')
     def put(self, request, *args, **kwargs):
@@ -182,7 +182,7 @@ class ProblemImageAPI(APIView):
             if os.path.exists(path):
                 os.remove(path)
                 return Response(msg('Ok'))
-            return Response(msg(err='file not exist.'))
+            return Response(msg(err=_('file not exist.')))
         return Response(msg(err=form.errors))
 
 
@@ -190,13 +190,13 @@ class ProblemPDFAPI(APIView):
     def get(self, request, *args, **kwargs):
         form = RequestFileForm(data=request.GET)
         if not form.is_valid():
-            return Response(msg('Params validate error'))
+            return Response(msg(_('Params validate error')))
         path = os.path.join(PROBLEM_PDF_DIR, str(form.cleaned_data['title']))
         if os.path.exists(path):
             with open(path, 'rb') as f:
                 return HttpResponse(f.read(), content_type='application/pdf')
         else:
-            return Response(msg(err='PDF not exist.'))
+            return Response(msg(err=_('PDF not exist.')))
 
     @check_permissions('problem.manage_problem')
     def post(self, request, *args, **kwargs):

@@ -6,7 +6,7 @@ from django.contrib.auth.models import Permission
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
-
+from django.utils.translation import gettext as _
 from ddl.settings import ACTIVATE_CODE_AGE
 from user.models import User, Activity
 from user.utils import USERNAME_PATTERN, PASSWORD_PATTERN
@@ -55,21 +55,21 @@ class LoginSerializer(serializers.Serializer):
     def validate_username(value):
         if re.match(USERNAME_PATTERN, value) is None:
             raise serializers.ValidationError(
-                'Username can only contain letters, numbers, -, _ and no shorter than 6 and no longer than 20')
+                _('Username can only contain letters, numbers, -, _ and no shorter than 6 and no longer than 20'))
         return value
 
     @staticmethod
     def validate_password(value):
         if re.match(PASSWORD_PATTERN, value) is None:
             raise serializers.ValidationError(
-                'Password can only contain letters, numbers, -, _ and no shorter than 8 and no longer than 20')
+                _('Password can only contain letters, numbers, -, _ and no shorter than 8 and no longer than 20'))
         return value
 
     def validate(self, data):
         user = auth.authenticate(username=data['username'],
                                  password=data['password'])
         if not user:
-            raise serializers.ValidationError('Username or password wrong')
+            raise serializers.ValidationError(_('Username or password wrong'))
         return data
 
     def login(self, request):
@@ -81,7 +81,7 @@ class LoginSerializer(serializers.Serializer):
             Activity.objects.create(user=user, category=Activity.USER_LOGIN, info='登录成功')
             return user, None
         elif user.ban:
-            return None, 'You have been banned from this website.'
+            return None, _('You have been banned from this website.')
         else:
             user.activate_uuid = uuid4()
             user.save()
@@ -90,9 +90,9 @@ class LoginSerializer(serializers.Serializer):
                                  user.email,
                                  activate_code)
             cache.set(f'activate-code-{user.activate_uuid}', activate_code, ACTIVATE_CODE_AGE)
-            return user, 'Account not activated, ' \
-                         'an mail has been sent to your email address, ' \
-                         'please check your mail box'
+            return user, _('Account not activated, '
+                           'an mail has been sent to your email address, '
+                           'please check your mail box')
 
 
 class RegisterSerializer(serializers.Serializer):
@@ -122,10 +122,10 @@ class RegisterSerializer(serializers.Serializer):
     def validate_username(value):
         if re.match(USERNAME_PATTERN, value) is None:
             raise serializers.ValidationError(
-                'Username can only contain letters, numbers, -, _ and no shorter than 6 and no longer than 20')
+                _('Username can only contain letters, numbers, -, _ and no shorter than 6 and no longer than 20'))
         try:
             User.objects.get(username=value)
-            raise serializers.ValidationError('Username exist')
+            raise serializers.ValidationError(_('Username exist'))
         except ObjectDoesNotExist:
             pass
         return value
@@ -134,16 +134,16 @@ class RegisterSerializer(serializers.Serializer):
     def validate_password(value):
         if re.match(PASSWORD_PATTERN, value) is None:
             raise serializers.ValidationError(
-                'Password can only contain letters, numbers, -, _ and no shorter than 8 and no longer than 20')
+                _('Password can only contain letters, numbers, -, _ and no shorter than 8 and no longer than 20'))
         return value
 
     @staticmethod
     def validate_email(value):
         if len(value) > 100:
-            raise serializers.ValidationError('Email address is too long')
+            raise serializers.ValidationError(_('Email address is too long'))
         try:
             User.objects.get(email=value)
-            raise serializers.ValidationError('Email address occupied')
+            raise serializers.ValidationError(_('Email address occupied'))
         except ObjectDoesNotExist:
             pass
         return value
@@ -156,15 +156,15 @@ class ActivateSerializer(serializers.Serializer):
     def validate_code(self, value):
         if str(value).isdigit():
             return value
-        raise serializers.ValidationError('Activate code error')
+        raise serializers.ValidationError(_('Activate code error'))
 
     def active(self):
         try:
             user = User.objects.get(id=self.validated_data['id'])
         except ObjectDoesNotExist:
-            raise serializers.ValidationError('User not exist.')
+            raise serializers.ValidationError(_('User not exist.'))
         if user.activated:
-            raise serializers.ValidationError('User activated.')
+            raise serializers.ValidationError(_('User activated.'))
 
         saved_code = cache.get(f'activate-code-{user.activate_uuid}')
         if saved_code is None:
@@ -173,9 +173,9 @@ class ActivateSerializer(serializers.Serializer):
                                  user.email,
                                  activate_code)
             cache.set(f'activate-code-{user.activate_uuid}', activate_code, ACTIVATE_CODE_AGE)
-            raise serializers.ValidationError('Activate code expired, server send email again.')
+            raise serializers.ValidationError(_('Activate code expired, server send email again.'))
         elif saved_code != self.validated_data['code']:
-            raise serializers.ValidationError('Activate code error')
+            raise serializers.ValidationError(_('Activate code error'))
         user.activated = True
         user.save()
         cache.delete(f'activate-code-{user.activate_uuid}')
@@ -189,19 +189,19 @@ class ChangePasswordSerializer(serializers.Serializer):
     def validate_new_password(value):
         if re.match(PASSWORD_PATTERN, value) is None:
             raise serializers.ValidationError(
-                'Password can only contain letters, numbers, -, _ and no shorter than 8 and no longer than 20')
+                _('Password can only contain letters, numbers, -, _ and no shorter than 8 and no longer than 20'))
         return value
 
     def validate_old_password(self, old):
         user = self.context['user']
         if not auth.authenticate(username=user.username,
                                  password=old):
-            raise serializers.ValidationError('Old password error')
+            raise serializers.ValidationError(_('Old password error'))
         return old
 
     def validate(self, attrs):
         if attrs['old_password'] == attrs['new_password']:
-            raise serializers.ValidationError('The new password cannot be the same as the old password')
+            raise serializers.ValidationError(_('The new password cannot be the same as the old password'))
         return attrs
 
     def save(self, **kwargs):
