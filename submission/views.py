@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
 from rest_framework.response import Response
-
+from django.utils.translation import gettext as _
 from utils.permissions import is_authenticated
 from utils.response import msg
 from .models import Submission

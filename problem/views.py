@@ -4,6 +4,7 @@ from uuid import uuid4
 from PIL import Image
 from django.db.models import Q
 from django.http.response import HttpResponse
+from django.utils.translation import gettext as _
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -13,6 +14,7 @@ from rest_framework.views import Response
 from ddl.settings import PROBLEM_IMAGE_DIR, TMP_DIR, PROBLEM_PDF_DIR
 from problem.forms import ImageNameForms, RequestFileForm
 from problem.models import Problem
+from problem.perm import ManageProblemPermission
 from problem.serializers import ProblemSerializer, \
     ProblemListSerializer, \
     ProblemTestCasesSerializer, \
@@ -21,8 +23,6 @@ from problem.uploads import TestCasesProcessor, TestCasesError
 from utils.permissions import check_permissions
 from utils.response import msg
 
-from problem.perm import ManageProblemPermission
-from django.utils.translation import gettext as _
 
 class ProblemFilter(filters.FilterSet):
     id = filters.NumberFilter(field_name='id', lookup_expr='icontains')

@@ -7,6 +7,7 @@ from .models import Submission
 from .config import Language
 from django.utils.translation import gettext as _
 
+
 class SubmissionShortSerializer(serializers.ModelSerializer):
     user = UserShortSerializer()
     problem = ProblemShortSerializer()

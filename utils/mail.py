@@ -1,6 +1,6 @@
 from django.core.mail import EmailMultiAlternatives
+
 from ddl.settings import ACTIVATE_CODE_AGE
-from django.utils.translation import gettext as _
 
 
 def send_activated_email(username, to_email, activate_code):
