@@ -21,7 +21,8 @@ class ProblemListSerializer(serializers.ModelSerializer):
                   'public',
                   'author',
                   'source',
-                  'create_time']
+                  'create_time',
+                  'last_update']
         depth = 0
 
 
@@ -46,6 +47,19 @@ class ProblemCreateSerializer(serializers.ModelSerializer):
                 time_limit=self.validated_data['time_limit'],
                 manifest=self.validated_data['manifest'],
                 public=self.validated_data['public']).save()
+
+
+class ProblemUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Problem
+        fields = ['id',
+                  'title',
+                  'content',
+                  'time_limit',
+                  'memory_limit',
+                  'public',
+                  'source',
+                  'manifest']
 
 
 class ProblemSerializer(serializers.ModelSerializer):

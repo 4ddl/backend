@@ -18,7 +18,7 @@ from problem.perm import ManageProblemPermission
 from problem.serializers import ProblemSerializer, \
     ProblemListSerializer, \
     ProblemTestCasesSerializer, \
-    ProblemCreateSerializer, ProblemImageSerializer, ProblemPDFSerializer
+    ProblemCreateSerializer, ProblemImageSerializer, ProblemPDFSerializer, ProblemUpdateSerializer
 from problem.uploads import TestCasesProcessor, TestCasesError
 from utils.permissions import check_permissions
 from utils.response import msg
@@ -74,9 +74,9 @@ class ProblemViewSet(viewsets.GenericViewSet):
     @check_permissions('problem.manage_problem')
     def update(self, request, *args, **kwargs):
         problem = self.get_object()
-        serializer = ProblemCreateSerializer(problem, data=request.data)
+        serializer = ProblemUpdateSerializer(problem, data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(request.user)
+        serializer.save()
         return Response(msg(_('Successful update.')))
 
     @check_permissions('problem.manage_problem')
