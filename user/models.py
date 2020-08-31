@@ -87,7 +87,7 @@ class Activity(models.Model):
         (USER_LOGIN, 'User Login'),
         (USER_REGISTER, 'User Register')
     ]
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='activities')
     info = models.CharField(max_length=200)
     create_time = models.DateTimeField(auto_now_add=True)
     category = models.CharField(max_length=4, choices=CATEGORY_CHOICES, null=True, blank=True)

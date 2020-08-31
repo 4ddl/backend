@@ -11,6 +11,12 @@ class AuthRouter(SimpleRouter):
             detail=False,
             initkwargs={}
         ),
+        DynamicRoute(
+            url=r'^{prefix}/{lookup}/{url_path}$',
+            name='{basename}-{url_name}',
+            detail=True,
+            initkwargs={}
+        ),
         Route(
             url=r'^{prefix}/{lookup}{trailing_slash}$',
             mapping={

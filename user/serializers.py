@@ -208,3 +208,11 @@ class ChangePasswordSerializer(serializers.Serializer):
         user = self.context['user']
         user.set_password(self.validated_data['new_password'])
         user.save()
+
+
+class ActivityListSerializer(serializers.ModelSerializer):
+    user = UserShortSerializer()
+
+    class Meta:
+        model = Activity
+        fields = ['user', 'info', 'category', 'info', 'create_time']

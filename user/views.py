@@ -2,13 +2,14 @@ from django.contrib import auth
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 from rest_framework.decorators import action
+from rest_framework.exceptions import NotAuthenticated
 from rest_framework.request import Request
 from rest_framework.views import Response
 from rest_framework.viewsets import ViewSet
 
 from user.models import User
 from user.serializers import UserInfoSerializer, LoginSerializer, RegisterSerializer, ActivateSerializer, \
-    ChangePasswordSerializer
+    ChangePasswordSerializer, ActivityListSerializer
 from utils.response import msg
 from utils.views import CaptchaAPI
 
@@ -57,6 +58,7 @@ class AuthViewSet(ViewSet):
         auth.logout(request)
         return Response(msg(_('Successful logout.')))
 
+    # 激活账号
     @action(methods=['POST'], detail=False)
     def activate(self, request):
         serializer = ActivateSerializer(data=request.data)
@@ -64,11 +66,13 @@ class AuthViewSet(ViewSet):
         serializer.active()
         return Response(msg(_('Successful activate.')))
 
+    # 获取个人信息
     def user_info(self, request, pk=None):
         queryset = User.objects.all()
         user = get_object_or_404(queryset, pk=pk)
         return Response(msg(UserInfoSerializer(user).data))
 
+    # 修改密码
     @action(methods=['PUT'], detail=False)
     def password(self, request: Request):
         if request.user.is_authenticated:
@@ -77,4 +81,11 @@ class AuthViewSet(ViewSet):
             serializer.save()
             auth.logout(request)
             return Response(msg(_('Success')))
-        return Response(msg(err=_('Not login.')))
+        raise NotAuthenticated
+
+    @action(methods=['GET'], detail=False)
+    def activities(self, request: Request):
+        if request.user.is_authenticated:
+            serializer = ActivityListSerializer(request.user.activities.all(), many=True)
+            return Response(msg(serializer.data))
+        raise NotAuthenticated

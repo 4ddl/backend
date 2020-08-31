@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-27 17:17+0800\n"
+"POT-Creation-Date: 2020-08-31 00:44+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,13 +54,19 @@ msgstr "文件不存在"
 msgid "PDF not exist."
 msgstr "PDF文件不存在"
 
-#: .\submission\serializers.py:52
+#: .\submission\serializers.py:53
 msgid "Language not supported"
 msgstr "语言不被支持"
 
 #: .\submission\views.py:35
 msgid "Can't submit twice within 10 seconds."
 msgstr "两次提交之间需要间隔至少10秒"
+
+#: .\system\views.py:13
+#, fuzzy
+#| msgid "Success"
+msgid "Success."
+msgstr "成功"
 
 #: .\user\serializers.py:58 .\user\serializers.py:125
 msgid ""
@@ -124,31 +130,31 @@ msgstr "原密码错误"
 msgid "The new password cannot be the same as the old password"
 msgstr "新密码不能和原密码一样"
 
-#: .\user\views.py:23 .\user\views.py:80
+#: .\user\views.py:24
 msgid "Not login."
 msgstr "需要登录"
 
-#: .\user\views.py:29
+#: .\user\views.py:30
 msgid "Please sign out first before try to login."
 msgstr "登录之前请先退出登录"
 
-#: .\user\views.py:33 .\user\views.py:49
+#: .\user\views.py:34 .\user\views.py:50
 msgid "Captcha verify error."
 msgstr "验证码验证失败"
 
-#: .\user\views.py:45
+#: .\user\views.py:46
 msgid "Please sign out first before try to register."
 msgstr "注册之前请先退出登录"
 
-#: .\user\views.py:58
+#: .\user\views.py:59
 msgid "Successful logout."
 msgstr "成功登出"
 
-#: .\user\views.py:65
+#: .\user\views.py:67
 msgid "Successful activate."
 msgstr "成功激活"
 
-#: .\user\views.py:79
+#: .\user\views.py:83
 msgid "Success"
 msgstr "成功"
 
