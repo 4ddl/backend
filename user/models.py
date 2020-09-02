@@ -77,15 +77,18 @@ class User(AbstractBaseUser, PermissionsMixin):
         return str(self.username)
 
     class Meta:
-        permissions = [('manage_privilege', 'Manage User Privilege')]
+        permissions = [('manage_user', 'Manage User'), ]
+        ordering = ['-id']
 
 
 class Activity(models.Model):
     USER_LOGIN = 'UL'
     USER_REGISTER = 'UR'
+    SUBMISSION = 'SU'
     CATEGORY_CHOICES = [
         (USER_LOGIN, 'User Login'),
-        (USER_REGISTER, 'User Register')
+        (USER_REGISTER, 'User Register'),
+        (SUBMISSION, 'Submission')
     ]
     user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='activities')
     info = models.CharField(max_length=200)
@@ -97,3 +100,4 @@ class Activity(models.Model):
 
     class Meta:
         verbose_name_plural = 'Activities'
+        ordering = ['-id']

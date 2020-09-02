@@ -61,9 +61,11 @@ class SubmissionCreateSerializer(serializers.ModelSerializer):
         )
 
     def save(self, user: User):
-        return Submission(
+        submission = Submission(
             user=user,
             code=self.validated_data['code'],
             problem=self.validated_data['problem'],
             lang=self.validated_data['lang'],
-        ).save()
+        )
+        submission.save()
+        return submission

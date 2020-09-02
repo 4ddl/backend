@@ -29,6 +29,26 @@ class UserShortSerializer(serializers.ModelSerializer):
         read_only_fields = ['username']
 
 
+class AdvancedUserInfoSerializer(serializers.ModelSerializer):
+    user_permissions = PermissionListField(read_only=True, many=True)
+    username = serializers.CharField(read_only=True)
+    email = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'username',
+            'email',
+            'is_superuser',
+            'total_passed',
+            'total_accepted',
+            'total_submitted',
+            'activated',
+            'ban',
+            'user_permissions']
+
+
 class UserInfoSerializer(serializers.ModelSerializer):
     user_permissions = PermissionListField(read_only=True, many=True)
 
@@ -215,4 +235,4 @@ class ActivityListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Activity
-        fields = ['user', 'info', 'category', 'info', 'create_time']
+        fields = ['id', 'user', 'info', 'category', 'info', 'create_time']

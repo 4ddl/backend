@@ -1,20 +1,71 @@
 from django.contrib import auth
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotAuthenticated
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.request import Request
 from rest_framework.views import Response
-from rest_framework.viewsets import ViewSet
 
 from user.models import User
+from user.perm import ManageUserPermission
 from user.serializers import UserInfoSerializer, LoginSerializer, RegisterSerializer, ActivateSerializer, \
-    ChangePasswordSerializer, ActivityListSerializer
+    ChangePasswordSerializer, ActivityListSerializer, AdvancedUserInfoSerializer
 from utils.response import msg
 from utils.views import CaptchaAPI
+from utils.tools import random_str
 
 
-class AuthViewSet(ViewSet):
+class AdvancedUserViewSet(viewsets.GenericViewSet,
+                          UpdateModelMixin,
+                          ListModelMixin,
+                          RetrieveModelMixin):
+    serializer_class = AdvancedUserInfoSerializer
+    permission_classes = [ManageUserPermission]
+    queryset = User.objects.all()
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(msg(serializer.data))
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+
+        return Response(msg(serializer.data))
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(msg(serializer.data))
+
+    @action(methods=['POST'], detail=True)
+    def reset_password(self, request, pk=None, *args, **kwargs):
+        queryset = User.objects.all()
+        user = get_object_or_404(queryset, pk=pk)
+        new_password = random_str(8)
+        user.set_password(new_password)
+        user.save()
+        return Response(msg({
+            'new_password': new_password
+        }))
+
+
+class AuthViewSet(viewsets.ViewSet):
     # 查询登录状态和登录信息
     @action(methods=['GET'], detail=False)
     def info(self, request):
@@ -67,7 +118,7 @@ class AuthViewSet(ViewSet):
         return Response(msg(_('Successful activate.')))
 
     # 获取个人信息
-    def user_info(self, request, pk=None):
+    def retrieve(self, request, pk=None):
         queryset = User.objects.all()
         user = get_object_or_404(queryset, pk=pk)
         return Response(msg(UserInfoSerializer(user).data))
@@ -86,6 +137,6 @@ class AuthViewSet(ViewSet):
     @action(methods=['GET'], detail=False)
     def activities(self, request: Request):
         if request.user.is_authenticated:
-            serializer = ActivityListSerializer(request.user.activities.all(), many=True)
+            serializer = ActivityListSerializer(request.user.activities.all()[:10], many=True)
             return Response(msg(serializer.data))
         raise NotAuthenticated
