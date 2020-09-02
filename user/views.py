@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotAuthenticated
+from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.request import Request
 from rest_framework.views import Response
@@ -11,7 +11,7 @@ from rest_framework.views import Response
 from user.models import User
 from user.perm import ManageUserPermission
 from user.serializers import UserInfoSerializer, LoginSerializer, RegisterSerializer, ActivateSerializer, \
-    ChangePasswordSerializer, ActivityListSerializer, AdvancedUserInfoSerializer
+    ChangePasswordSerializer, ActivityListSerializer, AdvancedUserInfoSerializer, RankSerializer
 from utils.response import msg
 from utils.views import CaptchaAPI
 from utils.tools import random_str
@@ -65,7 +65,10 @@ class AdvancedUserViewSet(viewsets.GenericViewSet,
         }))
 
 
-class AuthViewSet(viewsets.ViewSet):
+class AuthViewSet(viewsets.GenericViewSet, ListModelMixin):
+    serializer_class = RankSerializer
+    queryset = User.objects.all()
+
     # 查询登录状态和登录信息
     @action(methods=['GET'], detail=False)
     def info(self, request):
@@ -135,9 +138,20 @@ class AuthViewSet(viewsets.ViewSet):
         raise NotAuthenticated
 
     # 获取活动记录
-    @action(methods=['GET'], detail=False)
-    def activities(self, request: Request):
-        if request.user.is_authenticated:
-            serializer = ActivityListSerializer(request.user.activities.all()[:10], many=True)
+    @action(methods=['GET'], detail=True)
+    def activities(self, request: Request, pk=None, *args, **kwargs):
+        if request.user.is_authenticated and request.user.id == pk or request.user.is_staff:
+            user = get_object_or_404(User.objects.all(), pk=pk)
+            serializer = ActivityListSerializer(user.activities.all()[:10], many=True)
             return Response(msg(serializer.data))
-        raise NotAuthenticated
+        raise PermissionDenied
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        queryset = sorted(queryset, key=lambda x: (-x.total_passed, x.total_submitted, x.id))
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(msg(serializer.data))

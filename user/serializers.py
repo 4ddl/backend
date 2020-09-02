@@ -236,3 +236,13 @@ class ActivityListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
         fields = ['id', 'user', 'info', 'category', 'info', 'create_time']
+
+
+class RankSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id',
+                  'username',
+                  'total_passed',
+                  'total_accepted',
+                  'total_submitted']
