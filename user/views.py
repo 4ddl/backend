@@ -134,6 +134,7 @@ class AuthViewSet(viewsets.ViewSet):
             return Response(msg(_('Success')))
         raise NotAuthenticated
 
+    # 获取活动记录
     @action(methods=['GET'], detail=False)
     def activities(self, request: Request):
         if request.user.is_authenticated:
