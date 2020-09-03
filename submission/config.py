@@ -1,10 +1,19 @@
+from ddlcw import languages
+
+
 class Language:
     C = 'c'
     CPP = 'cpp'
     JAVA = 'java'
     PYTHON = 'python'
     GO = 'go'
-
+    LANGUAGE_CONFIG = {
+        C: languages.c_lang_config,
+        CPP: languages.cpp_lang_config,
+        PYTHON: languages.py3_lang_config,
+        GO: languages.go_lang_config,
+        JAVA: languages.java_lang_config
+    }
     LANGUAGE_CHOICES = (
         (C, "C (GCC 9.3.0)"),
         (CPP, "C++ (G++ 9.3.0)"),

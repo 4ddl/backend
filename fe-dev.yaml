@@ -19,10 +19,24 @@ services:
       - ~/data/ddl_redis_dev:/data
     ports:
       - '0.0.0.0:6379:6379'
+  ddl-celery-dev:
+    command: celery -A ddl worker -l info
+    volumes:
+      - .:/app
+      - ~/data/upload/test_cases:/test_cases
+    image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb:dev
+    container_name: ddl-celery-dev
+    depends_on:
+      - ddl-redis-dev
+      - ddl-postgres-dev
+    environment:
+      - REDIS_HOST=ddl-redis-dev
+      - POSTGRES_HOST=ddl-postgres-dev
   ddl-backend-dev:
     command: bash /app/docker/entrypoint-dev.sh
     volumes:
-    - .:/app
+      - .:/app
+      - ~/data/upload:/upload
     image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb:dev
     container_name: ddl-backend-dev
     depends_on:
