@@ -15,14 +15,9 @@ def run_submission_task(pk):
             submission.verdict = Verdict.SYSTEM_ERROR
             submission.additional_info = 'Linux platform required.'
         else:
-            manifest = submission.problem.manifest
-            time_limit = submission.problem.time_limit
-            memory_limit = submission.problem.memory_limit
-            code = submission.code
             submission.verdict = Verdict.ACCEPTED
             submission.time_spend = 1000
             submission.memory_spend = 3
             submission.save()
-            print(manifest, time_limit, memory_limit, code)
     except ObjectDoesNotExist:
         pass
