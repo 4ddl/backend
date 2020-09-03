@@ -19,6 +19,10 @@ def run_submission_task(pk):
             time_limit = submission.problem.time_limit
             memory_limit = submission.problem.memory_limit
             code = submission.code
+            submission.verdict = Verdict.ACCEPTED
+            submission.time_spend = 1000
+            submission.memory_spend = 3
+            submission.save()
             print(manifest, time_limit, memory_limit, code)
     except ObjectDoesNotExist:
         pass
