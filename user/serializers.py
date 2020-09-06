@@ -8,10 +8,16 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from django.utils.translation import gettext as _
 from ddl.settings import ACTIVATE_CODE_AGE
-from user.models import User, Activity
+from user.models import User, Activity, StudentInfo
 from user.utils import USERNAME_PATTERN, PASSWORD_PATTERN
 from utils.mail import send_activated_email
 from uuid import uuid4
+
+
+class StudentInfoShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentInfo
+        fields = ['id', 'school']
 
 
 class PermissionListField(serializers.RelatedField):
@@ -239,10 +245,18 @@ class ActivityListSerializer(serializers.ModelSerializer):
 
 
 class RankSerializer(serializers.ModelSerializer):
+    student = StudentInfoShortSerializer(read_only=True)
+
     class Meta:
         model = User
         fields = ['id',
                   'username',
                   'total_passed',
                   'total_accepted',
-                  'total_submitted']
+                  'total_submitted',
+                  'student']
+
+
+class FollowingSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    follow = serializers.BooleanField()
