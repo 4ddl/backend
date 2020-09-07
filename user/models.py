@@ -39,6 +39,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=True, editable=False)
     last_login = models.DateTimeField(blank=True, null=True, editable=False)
     is_superuser = models.BooleanField(default=False)
+
+    following = models.ManyToManyField('self')
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
     objects = UserManager()
@@ -81,6 +83,27 @@ class User(AbstractBaseUser, PermissionsMixin):
         ordering = ['-id']
 
 
+class StudentInfo(models.Model):
+    SCHOOL_WUST = 'WUST'
+    SCHOOL_OTHER = 'OTHER'
+    SCHOOL_CHOICES = [
+        (SCHOOL_WUST, '武汉科技大学'),
+        (SCHOOL_OTHER, '其他')
+    ]
+    user = models.OneToOneField(to=User, on_delete=models.CASCADE, related_name='student')
+    # 学校
+    school = models.CharField(max_length=40, null=False, blank=False)
+    # 学号
+    student_id = models.CharField(max_length=40, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.id}'
+
+    class Meta:
+        verbose_name_plural = 'StudentsInfo'
+        ordering = ['-user']
+
+
 class Activity(models.Model):
     USER_LOGIN = 'UL'
     USER_REGISTER = 'UR'
@@ -96,7 +119,7 @@ class Activity(models.Model):
     category = models.CharField(max_length=4, choices=CATEGORY_CHOICES, null=True, blank=True)
 
     def __str__(self):
-        return f'{self.id}-{self.user}-{self.category}'
+        return f'{self.id}'
 
     class Meta:
         verbose_name_plural = 'Activities'

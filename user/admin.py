@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 
-from user.models import Activity, User
+from user.models import Activity, User, StudentInfo
 from django.contrib.auth.models import Permission
 
 admin.site.register(Permission)
@@ -18,5 +18,10 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ('username',)
 
 
+class StudentInfoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'school')
+
+
 admin.site.register(Activity, ActivityAdmin)
 admin.site.register(User, UserAdmin)
+admin.site.register(StudentInfo, StudentInfoAdmin)
