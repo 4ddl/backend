@@ -44,8 +44,11 @@ def run_submission_task(pk):
             try:
                 result = runner.run()
                 submission.verdict = Verdict.ACCEPTED
+                submission.time_spend = 0
+                submission.memory_spend = 0
                 for item in result:
-                    print(item)
+                    submission.time_spend = max(submission.time_spend, item['real_time'])
+                    submission.memory_spend = max(submission.memory_spend, item['memory'])
                     if item['result'] != 0:
                         submission.verdict = Verdict.VERDICT_DICT[item['result']]
                         break

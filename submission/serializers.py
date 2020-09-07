@@ -41,7 +41,8 @@ class SubmissionSerializer(serializers.ModelSerializer):
             'lang',
             'create_time',
             'time_spend',
-            'memory_spend'
+            'memory_spend',
+            'additional_info'
         )
 
 
