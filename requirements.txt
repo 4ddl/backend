@@ -8,3 +8,4 @@ celery
 sentry-sdk
 django-filter
 git+https://github.com/4ddl/ddlcw.git
+daphne
