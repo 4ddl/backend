@@ -5,16 +5,17 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.views import Response
 
 from user.models import User
 from user.perm import ManageUserPermission
 from user.serializers import UserInfoSerializer, LoginSerializer, RegisterSerializer, ActivateSerializer, \
-    ChangePasswordSerializer, ActivityListSerializer, AdvancedUserInfoSerializer, RankSerializer
+    ChangePasswordSerializer, ActivityListSerializer, AdvancedUserInfoSerializer, RankSerializer, FollowingSerializer
 from utils.response import msg
-from utils.views import CaptchaAPI
 from utils.tools import random_str
+from utils.views import CaptchaAPI
 
 
 class AdvancedUserViewSet(viewsets.GenericViewSet,
@@ -155,3 +156,29 @@ class AuthViewSet(viewsets.GenericViewSet, ListModelMixin):
             return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(queryset, many=True)
         return Response(msg(serializer.data))
+
+    @action(methods=['GET', 'POST'], detail=False, permission_classes=[IsAuthenticated])
+    def following(self, request, *args, **kwargs):
+        if request.method == 'GET':
+            queryset = self.filter_queryset(request.user.following.all())
+            queryset = sorted(queryset, key=lambda x: (-x.total_passed, x.total_submitted, x.id))
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(msg(serializer.data))
+        else:
+            serializer = FollowingSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            if serializer.validated_data['follow']:
+                request.user.following.add(serializer.validated_data['user_id'])
+            else:
+                request.user.following.remove(serializer.validated_data['user_id'])
+            return Response(msg('Success.'))
+
+    @action(methods=['GET'], detail=True, permission_classes=[IsAuthenticated])
+    def followed(self, request, pk=None, *args, **kwargs):
+        return Response(msg({
+            'followed': int(pk) in list(map(lambda user: user.id, request.user.following.all()))
+        }))
