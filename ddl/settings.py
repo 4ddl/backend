@@ -218,7 +218,7 @@ if dev_server:
     UPLOAD_DIR = os.path.join(BASE_DIR, 'upload')
     TMP_DIR = os.path.join(UPLOAD_DIR, 'temp')
 else:
-    UPLOAD_DIR = 'upload'
+    UPLOAD_DIR = '/upload'
     TMP_DIR = '/tmp'
 PROBLEM_IMAGE_DIR = os.path.join(UPLOAD_DIR, 'problem_image')
 PROBLEM_PDF_DIR = os.path.join(UPLOAD_DIR, 'problem_pdf')

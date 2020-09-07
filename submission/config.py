@@ -1,10 +1,20 @@
+from ddlcw import languages
+from ddlcw import config
+
+
 class Language:
     C = 'c'
     CPP = 'cpp'
     JAVA = 'java'
     PYTHON = 'python'
     GO = 'go'
-
+    LANGUAGE_CONFIG = {
+        C: languages.c_lang_config,
+        CPP: languages.cpp_lang_config,
+        PYTHON: languages.py3_lang_config,
+        GO: languages.go_lang_config,
+        JAVA: languages.java_lang_config
+    }
     LANGUAGE_CHOICES = (
         (C, "C (GCC 9.3.0)"),
         (CPP, "C++ (G++ 9.3.0)"),
@@ -26,6 +36,16 @@ class Verdict:
     OUTPUT_LIMIT_EXCEEDED = 'OLE'
     COMPILE_ERROR = 'CE'
     SYSTEM_ERROR = 'SE'
+    VERDICT_DICT = {
+        config.RESULT_SUCCESS: ACCEPTED,
+        config.RESULT_CPU_TIME_LIMIT_EXCEEDED: TIME_LIMIT_EXCEEDED,
+        config.RESULT_MEMORY_LIMIT_EXCEEDED: MEMORY_LIMIT_EXCEEDED,
+        config.RESULT_PRESENTATION_ERROR: PRESENTATION_ERROR,
+        config.RESULT_REAL_TIME_LIMIT_EXCEEDED: TIME_LIMIT_EXCEEDED,
+        config.RESULT_RUNTIME_ERROR: RUNTIME_ERROR,
+        config.RESULT_SYSTEM_ERROR: SYSTEM_ERROR,
+        config.RESULT_WRONG_ANSWER: WRONG_ANSWER
+    }
     VERDICT_CHOICES = (
         (PENDING, 'Pending'),
         (RUNNING, 'Running'),

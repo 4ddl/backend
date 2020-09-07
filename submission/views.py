@@ -13,6 +13,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django_filters import rest_framework as filters
 from user.models import Activity
+from submission.tasks import run_submission_task
 
 
 class SubmissionFilter(filters.FilterSet):
@@ -37,6 +38,7 @@ class SubmissionViewSet(viewsets.GenericViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         submission = serializer.save(user=request.user)
+        run_submission_task.delay(submission.id)
         Activity(user=request.user, category=Activity.SUBMISSION,
                  info=f'用户提交了题目{submission.problem.id}，提交编号是{submission.id}').save()
         return Response(msg(SubmissionShortSerializer(submission).data))
