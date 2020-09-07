@@ -4,9 +4,10 @@ MAINTAINER xudian.cn@gmail.com
 
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-ENV ddl_env development
+ENV ddl_env production
 RUN mkdir /config
 COPY requirements.txt /config
+ADD . /app
 WORKDIR /app
 RUN sed -i 's/archive.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list
 RUN apt-get update
