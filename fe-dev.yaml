@@ -12,6 +12,8 @@ services:
       - POSTGRES_PASSWORD=ddl_password
     ports:
       - '0.0.0.0:5432:5432'
+    networks:
+      - ddl-dev
   ddl-redis-dev:
     image: redis:alpine
     container_name: ddl-redis-dev
@@ -19,11 +21,13 @@ services:
       - ~/data/ddl_redis_dev:/data
     ports:
       - '0.0.0.0:6379:6379'
+    networks:
+      - ddl-dev
   ddl-celery-dev:
     command: celery -A ddl worker -l info
     volumes:
       - .:/app
-      - ~/data/upload/test_cases:/test_cases
+      - ~/data/upload/problem_test_cases:/upload/problem_test_cases
     image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb:dev
     container_name: ddl-celery-dev
     depends_on:
@@ -32,11 +36,15 @@ services:
     environment:
       - REDIS_HOST=ddl-redis-dev
       - POSTGRES_HOST=ddl-postgres-dev
+    networks:
+      - ddl-dev
   ddl-backend-dev:
     command: bash /app/docker/entrypoint-dev.sh
     volumes:
       - .:/app
-      - ~/data/upload:/upload
+      - ~/data/upload/problem_test_cases:/upload/problem_test_cases
+      - ~/data/upload/problem_image:/upload/problem_image
+      - ~/data/upload/problem_pdf:/upload/problem_pdf
     image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb:dev
     container_name: ddl-backend-dev
     depends_on:
@@ -46,4 +54,8 @@ services:
       - REDIS_HOST=ddl-redis-dev
       - POSTGRES_HOST=ddl-postgres-dev
     ports:
-    - '0.0.0.0:8000:8000'
+      - '0.0.0.0:8000:8000'
+    networks:
+      - ddl-dev
+networks:
+  ddl-dev:
