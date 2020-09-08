@@ -27,10 +27,11 @@ from utils.response import msg
 class ProblemFilter(filters.FilterSet):
     id = filters.NumberFilter(field_name='id', lookup_expr='icontains')
     title = filters.CharFilter(field_name='title', lookup_expr='icontains')
+    source = filters.CharFilter(field_name='source', lookup_expr='icontains')
 
     class Meta:
         model = Problem
-        fields = ['id', 'title']
+        fields = ['id', 'title', 'source']
 
 
 class ProblemViewSet(viewsets.GenericViewSet):

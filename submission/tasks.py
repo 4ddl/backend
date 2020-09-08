@@ -30,7 +30,7 @@ def run_submission_task(pk):
                                      submission.code,
                                      Language.LANGUAGE_CONFIG[submission.lang])
             except KeyError as e:
-                submission.additional_info = {'error': str(e)}
+                submission.additional_info = {'error': repr(e)}
                 submission.verdict = Verdict.SYSTEM_ERROR
                 submission.save()
                 return
@@ -38,7 +38,7 @@ def run_submission_task(pk):
             try:
                 runner.compile()
             except exceptions.CompileError as e:
-                submission.additional_info = {'error': str(e)}
+                submission.additional_info = {'error': repr(e)}
                 submission.verdict = Verdict.COMPILE_ERROR
                 submission.save()
                 return
