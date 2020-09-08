@@ -21,7 +21,7 @@ def run_submission_task(pk):
         else:
             submission.verdict = Verdict.RUNNING
             submission.save()
-
+            # initialize runner
             try:
                 runner = JudgeRunner(PROBLEM_TEST_CASES_DIR,
                                      submission.problem.manifest,
@@ -34,6 +34,7 @@ def run_submission_task(pk):
                 submission.verdict = Verdict.SYSTEM_ERROR
                 submission.save()
                 return
+            # compile code
             try:
                 runner.compile()
             except exceptions.CompileError as e:
@@ -41,6 +42,7 @@ def run_submission_task(pk):
                 submission.verdict = Verdict.COMPILE_ERROR
                 submission.save()
                 return
+            # run code
             try:
                 result = runner.run()
                 submission.verdict = Verdict.ACCEPTED
@@ -59,5 +61,9 @@ def run_submission_task(pk):
                 submission.verdict = Verdict.SYSTEM_ERROR
                 submission.save()
                 return
+            try:
+                runner.clean()
+            except OSError:
+                pass
     except ObjectDoesNotExist:
         pass
