@@ -9,6 +9,7 @@ from submission.models import Submission
 from ddlcw import Runner as JudgeRunner
 from ddl.settings import PROBLEM_TEST_CASES_DIR
 from ddlcw import exceptions
+import ddlcw.config
 
 
 @shared_task
@@ -29,6 +30,9 @@ def run_submission_task(pk):
                                      submission.problem.memory_limit,
                                      submission.code,
                                      Language.LANGUAGE_CONFIG[submission.lang])
+                if ddlcw.config.DEBUG:
+                    print('runner')
+                    print(runner.__dict__)
             except KeyError as e:
                 submission.additional_info = {'error': repr(e)}
                 submission.verdict = Verdict.SYSTEM_ERROR

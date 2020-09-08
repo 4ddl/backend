@@ -112,14 +112,14 @@ class ProblemViewSet(viewsets.GenericViewSet):
         serializer = ProblemTestCasesSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         tmp_file = f'{uuid4()}.zip'
-        if not os.path.exists(TMP_DIR) or not os.path.isdir(TMP_DIR):
-            os.makedirs(TMP_DIR)
+        os.makedirs(TMP_DIR, exist_ok=True)
         with open(os.path.join(TMP_DIR, tmp_file), 'wb') as destination:
             for chunk in serializer.validated_data['file'].chunks(1024):
                 destination.write(chunk)
         try:
             manifest = TestCasesProcessor.handle_upload_test_cases(tmp_file, TMP_DIR,
                                                                    spj=serializer.validated_data['spj'])
+            os.remove(os.path.join(TMP_DIR, tmp_file))
             return Response(msg(manifest))
         except TestCasesError as e:
             return Response(msg(err=str(e)))

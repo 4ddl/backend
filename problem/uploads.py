@@ -49,8 +49,7 @@ class TestCasesProcessor(object):
             hash_val.update(f.read(1024))
         test_case_id = hash_val.hexdigest()
         test_case_dir = os.path.join(PROBLEM_TEST_CASES_DIR, test_case_id)
-        if not os.path.exists(test_case_dir):
-            os.makedirs(test_case_dir)
+        os.makedirs(test_case_dir, exist_ok=True)
         manifest = {
             'hash': test_case_id,
             'test_cases': test_cases,
@@ -62,5 +61,5 @@ class TestCasesProcessor(object):
                 if item.endswith('.out'):
                     content = content.rstrip()
                 des.write(content)
-            os.chmod(os.path.join(test_case_dir, item), 0o640)
+            os.chmod(os.path.join(test_case_dir, item), 0o644)
         return manifest
