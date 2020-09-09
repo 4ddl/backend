@@ -8,7 +8,6 @@ from submission.models import Submission
 
 from ddlcw import Runner as JudgeRunner
 from ddl.settings import PROBLEM_TEST_CASES_DIR
-from ddlcw import exceptions
 import ddlcw.config
 
 
