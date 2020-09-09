@@ -61,5 +61,5 @@ class TestCasesProcessor(object):
                 if item.endswith('.out'):
                     content = content.rstrip()
                 des.write(content)
-            os.chmod(os.path.join(test_case_dir, item), 0o644)
+            os.chmod(os.path.join(test_case_dir, item), 0o640)
         return manifest
