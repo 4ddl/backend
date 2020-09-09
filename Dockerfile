@@ -19,4 +19,5 @@ RUN apt-get -y install curl unzip python3 python3-dev python3-pip gcc g++ libsec
 RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 RUN pip3 install --no-cache-dir -r /config/requirements.txt
 RUN curl -s https://api.github.com/repos/4ddl/ddlf/releases/latest -o /config/web-version.info
+RUN cat /config/web-version.info
 RUN curl -L $(cat /config/web-version.info | grep browser_download_url| cut -d '"' -f 4) -o dist.zip && mkdir /web && unzip dist.zip -d /web && rm dist.zip
