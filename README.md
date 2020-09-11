@@ -34,7 +34,14 @@ JetBrains PyCharm
 flake8 --ignore=E722,W504 --exclude=venv,migrations,__pycache__ --max-line-length=120 .
 ```
 
-## Run Server
-```shell script
-daphne -b 0.0.0.0 -p 8000 --proxy-headers ddl.asgi:application
+
+---
+## deploy
+```
+docker-compose -f deploy.yaml build
+docker-compose -f deploy.yaml up -d
+```
+## build with proxy
+```
+docker-compose -f deploy.yaml build --build-args HTTPS_PROXY=socks5://127.0.0.1:1080
 ```

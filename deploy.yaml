@@ -1,0 +1,81 @@
+version: "3"
+services:
+  ddl-postgres:
+    image: postgres:alpine
+    container_name: ddl-postgres
+    restart: always
+    volumes:
+      - ~/data/ddl-postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=ddl_database
+      - POSTGRES_USER=ddl_username
+      - POSTGRES_PASSWORD=ddl_password
+    ports:
+      - '0.0.0.0:5432:5432'
+    networks:
+      - ddl
+  ddl-redis:
+    image: redis:alpine
+    container_name: ddl-redis
+    volumes:
+      - ~/data/ddl-redis:/data
+    ports:
+      - '0.0.0.0:6379:6379'
+    networks:
+      - ddl
+  ddl-celery:
+    command: celery -A ddl worker -l info
+    volumes:
+      - ~/data/upload/problem_test_cases:/upload/problem_test_cases
+    image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb
+    container_name: ddl-celery
+    depends_on:
+      - ddl-redis
+      - ddl-postgres
+    environment:
+      - REDIS_HOST=ddl-redis
+      - POSTGRES_HOST=ddl-postgres
+    networks:
+      - ddl
+  ddl-backend:
+    command: bash /app/docker/entrypoint.sh
+    volumes:
+      - ~/data/upload/problem_test_cases:/upload/problem_test_cases
+      - ~/data/upload/problem_image:/upload/problem_image
+      - ~/data/upload/problem_pdf:/upload/problem_pdf
+      - web:/web
+    image: ddlb
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ddl-backend
+    depends_on:
+      - ddl-redis
+      - ddl-postgres
+    environment:
+      - REDIS_HOST=ddl-redis
+      - POSTGRES_HOST=ddl-postgres
+    ports:
+      - '0.0.0.0:8000:8000'
+    networks:
+      - ddl
+  ddl-web:
+    container_name: ddl-web
+    image: web
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    depends_on:
+      - ddl-backend
+    environment:
+      - BACKEND_HOST=ddl-backend
+      - BACKEND_PORT=8000
+    ports:
+      - '0.0.0.0:80:80'
+    networks:
+      - ddl
+networks:
+  ddl:
+
+volumes:
+  web:
