@@ -5,6 +5,7 @@ from django.contrib import auth
 from django.contrib.auth.models import Permission
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 from rest_framework import serializers
 from django.utils.translation import gettext as _
 from ddl.settings import ACTIVATE_CODE_AGE
@@ -12,6 +13,7 @@ from user.models import User, Activity, StudentInfo
 from user.utils import USERNAME_PATTERN, PASSWORD_PATTERN
 from utils.mail import send_activated_email
 from uuid import uuid4
+from utils.views import CaptchaAPI
 
 
 class StudentInfoShortSerializer(serializers.ModelSerializer):
@@ -77,6 +79,12 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField()
     captcha = serializers.CharField()
 
+    def validate_captcha(self, value):
+        request = self.context['request']
+        if not CaptchaAPI.verify_captcha(request, value):
+            raise serializers.ValidationError(_('Captcha verify error.'))
+        return value
+
     @staticmethod
     def validate_username(value):
         if re.match(USERNAME_PATTERN, value) is None:
@@ -126,6 +134,12 @@ class RegisterSerializer(serializers.Serializer):
     password = serializers.CharField()
     email = serializers.EmailField()
     captcha = serializers.CharField()
+
+    def validate_captcha(self, value):
+        request = self.context['request']
+        if not CaptchaAPI.verify_captcha(request, value):
+            raise serializers.ValidationError(_('Captcha verify error.'))
+        return value
 
     def save(self, **kwargs):
         email = self.validated_data['email']
@@ -260,3 +274,84 @@ class RankSerializer(serializers.ModelSerializer):
 class FollowingSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()
     follow = serializers.BooleanField()
+
+    @staticmethod
+    def validate_user_id(self, value):
+        try:
+            User.objects.get(id=value)
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError(_('User not exist.'))
+        return value
+
+
+class POSTCheckEmailAddressSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    captcha = serializers.CharField()
+
+    def validate_captcha(self, value):
+        request = self.context['request']
+        if not CaptchaAPI.verify_captcha(request, value):
+            raise serializers.ValidationError(_('Captcha verify error.'))
+        return value
+
+    @staticmethod
+    def validate_email(value):
+        if len(value) > 100:
+            raise serializers.ValidationError(_('Email address is too long'))
+        try:
+            User.objects.get(email=value)
+            raise serializers.ValidationError(_('Email address occupied'))
+        except ObjectDoesNotExist:
+            pass
+        return value
+
+    def save(self, user: User):
+        user.activate_uuid = uuid4()
+        user.save()
+        activate_code = '%06d' % random.randint(0, 999999)
+        send_activated_email(user.username,
+                             self.validated_data['email'],
+                             activate_code)
+        cache.set(f'update-mail-code-{user.activate_uuid}', activate_code, ACTIVATE_CODE_AGE)
+        cache.set(f'update-mail-address-{user.activate_uuid}', self.validated_data['email'], ACTIVATE_CODE_AGE)
+
+
+class PUTChangeEmailAddressSerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=6, min_length=6)
+
+    def validate_code(self, value):
+        user = self.context['user']
+        if cache.get(f'update-mail-code-{user.activate_uuid}') == value:
+            return value
+        raise serializers.ValidationError(_('Verify code error'))
+
+    def save(self, **kwargs):
+        user = self.context['user']
+        email = cache.get(f'update-mail-address-{user.activate_uuid}')
+        if email:
+            try:
+                user.email = email
+                user.save()
+                cache.delete(f'update-mail-address-{user.activate_uuid}')
+                cache.delete(f'update-mail-code-{user.activate_uuid}')
+            except IntegrityError:
+                raise serializers.ValidationError(_('email address occupied, please change another.'))
+        else:
+            raise serializers.ValidationError(_('Please send check email address again.'))
+
+
+class StudentInfoSerializer(serializers.ModelSerializer):
+    school = serializers.ChoiceField(choices=StudentInfo.SCHOOL_CHOICES)
+
+    def save(self, user: User):
+        try:
+            user.student.school = self.validated_data['school']
+            user.student.student_id = self.validated_data['student_id']
+            user.student.save()
+        except StudentInfo.DoesNotExist:
+            StudentInfo(user=user, school=self.validated_data['school'],
+                        student_id=self.validated_data['student_id']).save()
+
+    class Meta:
+        model = StudentInfo
+        fields = ['school', 'student_id']

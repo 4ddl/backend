@@ -9,15 +9,16 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.views import Response
 
-from user.models import User
+from user.models import User, StudentInfo
 from user.perm import ManageUserPermission
 from user.serializers import UserInfoSerializer, LoginSerializer, RegisterSerializer, ActivateSerializer, \
-    ChangePasswordSerializer, ActivityListSerializer, AdvancedUserInfoSerializer, RankSerializer, FollowingSerializer
+    ChangePasswordSerializer, ActivityListSerializer, AdvancedUserInfoSerializer, RankSerializer, \
+    FollowingSerializer, PUTChangeEmailAddressSerializer, POSTCheckEmailAddressSerializer, StudentInfoSerializer
 from utils.response import msg
 from utils.tools import random_str
-from utils.views import CaptchaAPI
 
 
+# Administrator's operations
 class AdvancedUserViewSet(viewsets.GenericViewSet,
                           UpdateModelMixin,
                           ListModelMixin,
@@ -26,11 +27,13 @@ class AdvancedUserViewSet(viewsets.GenericViewSet,
     permission_classes = [ManageUserPermission]
     queryset = User.objects.all()
 
+    # Use administrator's privilege to get single guy's information
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(msg(serializer.data))
 
+    # Use administrator's privilege to update someone's information
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -43,6 +46,7 @@ class AdvancedUserViewSet(viewsets.GenericViewSet,
 
         return Response(msg(serializer.data))
 
+    # Use administrator's privilege to list user
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -54,6 +58,7 @@ class AdvancedUserViewSet(viewsets.GenericViewSet,
         serializer = self.get_serializer(queryset, many=True)
         return Response(msg(serializer.data))
 
+    # Use administrator's privilege to reset some one's password
     @action(methods=['POST'], detail=True)
     def reset_password(self, request, pk=None, *args, **kwargs):
         queryset = User.objects.all()
@@ -66,7 +71,8 @@ class AdvancedUserViewSet(viewsets.GenericViewSet,
         }))
 
 
-class AuthViewSet(viewsets.GenericViewSet, ListModelMixin):
+# Simple user operations
+class UserViewSet(viewsets.GenericViewSet, ListModelMixin):
     serializer_class = RankSerializer
     queryset = User.objects.all()
 
@@ -83,10 +89,8 @@ class AuthViewSet(viewsets.GenericViewSet, ListModelMixin):
     def login(self, request):
         if request.user.is_authenticated:
             return Response(msg(err=_('Please sign out first before try to login.')))
-        serializer = LoginSerializer(data=request.data)
+        serializer = LoginSerializer(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=False):
-            if not CaptchaAPI.verify_captcha(request, serializer.validated_data['captcha']):
-                return Response(msg(err=_('Captcha verify error.')))
             user, err = serializer.login(request)
             if user:
                 return Response(msg(UserInfoSerializer(user).data, err=err))
@@ -99,10 +103,8 @@ class AuthViewSet(viewsets.GenericViewSet, ListModelMixin):
     def register(self, request):
         if request.user.is_authenticated:
             return Response(msg(err=_('Please sign out first before try to register.')))
-        serializer = RegisterSerializer(data=request.data)
+        serializer = RegisterSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            if not CaptchaAPI.verify_captcha(request, serializer.validated_data['captcha']):
-                return Response(msg(err=_('Captcha verify error.')))
             user = serializer.save()
             return Response(msg(UserInfoSerializer(user).data))
         return Response(msg(err=serializer.errors))
@@ -147,6 +149,7 @@ class AuthViewSet(viewsets.GenericViewSet, ListModelMixin):
             return Response(msg(serializer.data))
         raise PermissionDenied
 
+    # User Rank List
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         queryset = sorted(queryset, key=lambda x: (-x.total_passed, x.total_submitted, x.id))
@@ -157,6 +160,8 @@ class AuthViewSet(viewsets.GenericViewSet, ListModelMixin):
         serializer = self.get_serializer(queryset, many=True)
         return Response(msg(serializer.data))
 
+    # GET: Get user following list
+    # POST: Change user following status
     @action(methods=['GET', 'POST'], detail=False, permission_classes=[IsAuthenticated])
     def following(self, request, *args, **kwargs):
         if request.method == 'GET':
@@ -177,8 +182,49 @@ class AuthViewSet(viewsets.GenericViewSet, ListModelMixin):
                 request.user.following.remove(serializer.validated_data['user_id'])
             return Response(msg('Success.'))
 
+    # If user(pk) has followed by login user?
     @action(methods=['GET'], detail=True, permission_classes=[IsAuthenticated])
     def followed(self, request, pk=None, *args, **kwargs):
         return Response(msg({
             'followed': int(pk) in list(map(lambda user: user.id, request.user.following.all()))
         }))
+
+    # update self's permission
+    # Usage: send POST method first, then server will send an check email to your new address.
+    #        then send PUT method to update your email address.
+    @action(methods=['POST', 'PUT'], detail=False, permission_classes=[IsAuthenticated])
+    def email(self, request, *args, **kwargs):
+        if request.method == 'PUT':
+            serializer = self.get_serializer(data=request.data, context={'user': request.user})
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(msg(_('Change email address success.')))
+        else:
+            serializer = self.get_serializer(data=request.data, context={'request': request})
+            serializer.is_valid(raise_exception=True)
+            serializer.save(request.user)
+            return Response(msg(_('please check your new email address to confirm change.')))
+
+    # update and get user student information
+    @action(methods=['POST', 'GET'], detail=False, permission_classes=[IsAuthenticated])
+    def student(self, request, *args, **kwargs):
+        if request.method == 'POST':
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(request.user)
+            return Response(msg(serializer.data))
+        else:
+            try:
+                serializer = self.get_serializer(request.user.student)
+            except StudentInfo.DoesNotExist:
+                return Response(msg({}))
+            return Response(msg(serializer.data))
+
+    def get_serializer_class(self):
+        if self.action == 'email':
+            if self.request.method == 'PUT':
+                return PUTChangeEmailAddressSerializer
+            return POSTCheckEmailAddressSerializer
+        elif self.action == 'student':
+            return StudentInfoSerializer
+        return self.serializer_class
