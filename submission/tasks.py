@@ -8,7 +8,6 @@ from submission.models import Submission
 
 from ddlcw import Runner as JudgeRunner
 from ddl.settings import PROBLEM_TEST_CASES_DIR
-from ddlcw import exceptions
 import ddlcw.config
 
 
@@ -33,7 +32,7 @@ def run_submission_task(pk):
                 if ddlcw.config.DEBUG:
                     print('runner')
                     print(runner.__dict__)
-            except KeyError as e:
+            except Exception as e:
                 submission.additional_info = {'error': repr(e)}
                 submission.verdict = Verdict.SYSTEM_ERROR
                 submission.save()
@@ -41,7 +40,7 @@ def run_submission_task(pk):
             # compile code
             try:
                 runner.compile()
-            except exceptions.CompileError as e:
+            except Exception as e:
                 submission.additional_info = {'error': repr(e)}
                 submission.verdict = Verdict.COMPILE_ERROR
                 submission.save()
@@ -60,7 +59,7 @@ def run_submission_task(pk):
                         break
                 submission.additional_info = {'result': result}
                 submission.save()
-            except exceptions.JudgeError as e:
+            except Exception as e:
                 submission.additional_info = {'error': str(e)}
                 submission.verdict = Verdict.SYSTEM_ERROR
                 submission.save()
