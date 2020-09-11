@@ -44,7 +44,10 @@ services:
       - ~/data/upload/problem_image:/upload/problem_image
       - ~/data/upload/problem_pdf:/upload/problem_pdf
       - web:/web
-    image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb
+    image: ddlb
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: ddl-backend
     depends_on:
       - ddl-redis
@@ -57,11 +60,11 @@ services:
     networks:
       - ddl
   ddl-web:
-    image: nginx
     container_name: ddl-web
-    volumes:
-      - web:/usr/share/nginx/web:ro
-      - ./nginx:/etc/nginx/templates
+    image: web
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
     depends_on:
       - ddl-backend
     environment:
