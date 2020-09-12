@@ -73,4 +73,4 @@ class SubmissionViewSet(viewsets.GenericViewSet):
         elif self.action == 'create':
             return SubmissionCreateSerializer
         else:
-            return self.get_serializer_class()
+            return self.serializer_class

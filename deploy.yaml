@@ -27,10 +27,7 @@ services:
     command: celery -A ddl worker -l info
     volumes:
       - ~/data/upload/problem_test_cases:/upload/problem_test_cases
-    image: ddlb
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb
     container_name: ddl-celery
     depends_on:
       - ddl-redis
@@ -46,10 +43,7 @@ services:
       - ~/data/upload/problem_test_cases:/upload/problem_test_cases
       - ~/data/upload/problem_image:/upload/problem_image
       - ~/data/upload/problem_pdf:/upload/problem_pdf
-    image: ddlb
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb
     container_name: ddl-backend
     depends_on:
       - ddl-redis

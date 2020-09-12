@@ -8,19 +8,22 @@ class Language:
     JAVA = 'java'
     PYTHON = 'python'
     GO = 'go'
+    KT = 'kotlin'
     LANGUAGE_CONFIG = {
         C: languages.c_lang_config,
         CPP: languages.cpp_lang_config,
         PYTHON: languages.py3_lang_config,
         GO: languages.go_lang_config,
-        JAVA: languages.java_lang_config
+        JAVA: languages.java_lang_config,
+        KT: languages.kotlin_lang_config
     }
     LANGUAGE_CHOICES = (
         (C, "C (GCC 9.3.0)"),
         (CPP, "C++ (G++ 9.3.0)"),
-        (JAVA, "Java (OpenJDK 14.0.1)"),
+        (JAVA, "Java (BellSoft OpenJDK 14.0.2)"),
         (PYTHON, "Python (Python 3.8.2)"),
-        (GO, 'Go (Golang 1.13.8)')
+        (GO, 'Go (Golang 1.13.8)'),
+        (KT, 'Kotlin (Kotlin 1.4.10)')
     )
 
 

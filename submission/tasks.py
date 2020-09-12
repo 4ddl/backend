@@ -1,15 +1,13 @@
 import platform
 
 from celery import shared_task
+from ddlcw import Runner as JudgeRunner
 from django.core.exceptions import ObjectDoesNotExist
 
+from ddl.settings import PROBLEM_TEST_CASES_DIR
 from submission.config import Verdict, Language
 from submission.models import Submission
-
-from ddlcw import Runner as JudgeRunner
-from ddl.settings import PROBLEM_TEST_CASES_DIR
-import ddlcw.config
-
+import traceback
 
 @shared_task
 def run_submission_task(pk):
@@ -29,10 +27,8 @@ def run_submission_task(pk):
                                      submission.problem.memory_limit,
                                      submission.code,
                                      Language.LANGUAGE_CONFIG[submission.lang])
-                if ddlcw.config.DEBUG:
-                    print('runner')
-                    print(runner.__dict__)
             except Exception as e:
+                traceback.print_exc()
                 submission.additional_info = {'error': repr(e)}
                 submission.verdict = Verdict.SYSTEM_ERROR
                 submission.save()
@@ -41,6 +37,7 @@ def run_submission_task(pk):
             try:
                 runner.compile()
             except Exception as e:
+                traceback.print_exc()
                 submission.additional_info = {'error': repr(e)}
                 submission.verdict = Verdict.COMPILE_ERROR
                 submission.save()
@@ -62,7 +59,8 @@ def run_submission_task(pk):
                 submission.additional_info = {'result': result}
                 submission.save()
             except Exception as e:
-                submission.additional_info = {'error': str(e)}
+                traceback.print_exc()
+                submission.additional_info = {'error': repr(e)}
                 submission.verdict = Verdict.SYSTEM_ERROR
                 submission.save()
                 return
