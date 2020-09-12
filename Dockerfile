@@ -18,15 +18,19 @@ RUN apt-get -y install curl zip unzip python3 python3-dev python3-pip gcc g++ li
 RUN curl -s "https://get.sdkman.io" | bash
 RUN chmod a+x "$SDKMAN_DIR/bin/sdkman-init.sh"
 RUN bash -c "source $SDKMAN_DIR/bin/sdkman-init.sh && sdk install java 14.0.2.fx-librca && sdk install kotlin"
-RUN cat /usr/local/sdkman/candidates/kotlin/current/bin/kotlinc | grep -v "\-noverify" > /usr/local/sdkman/candidates/kotlin/current/bin/kotlinc 
+# "OpenJDK 64-Bit Server VM warning: Options -Xverify:none and -noverify
+# were deprecated in JDK 13 and will likely be removed in a future release."
+# so only add -noverify for older versions
+RUN sed -i "/noverify/d" /usr/local/sdkman/candidates/kotlin/current/bin/kotlinc 
 ENV JAVA_HONE=/usr/local/sdkman/candidates/java/current
 ENV PATH=${PATH}:/usr/local/sdkman/candidates/kotlin/current/bin:/usr/local/sdkman/candidates/java/current/bin
 RUN echo $PATH
-RUN java -version > /config/java.info
+RUN java -version 2> /config/java.info
 RUN kotlin -version > /config/kotlin.info
-RUN gcc -v > /config/gcc.info
-RUN g++ -v > /config/g++.info
+RUN gcc -v 2> /config/gcc.info
+RUN g++ -v 2> /config/g++.info
 RUN go version > /config/go.info
+RUN python -V > /config/python.info
 RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 RUN cd /tmp && git clone --depth=1 https://github.com/4ddl/ddlc && cd ddlc \
 	&& mkdir build && cd build && cmake .. && make && make install && apt-get clean && rm -rf /var/lib/apt/lists/* \
