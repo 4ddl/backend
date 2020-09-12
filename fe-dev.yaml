@@ -29,13 +29,14 @@ services:
     volumes:
       - .:/app
       - ~/data/upload/problem_test_cases:/upload/problem_test_cases
-    image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb:dev
+    image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb
     container_name: ddl-celery-dev
     restart: always
     depends_on:
       - ddl-redis-dev
       - ddl-postgres-dev
     environment:
+      - ddl_env=development
       - REDIS_HOST=ddl-redis-dev
       - POSTGRES_HOST=ddl-postgres-dev
     networks:
@@ -47,14 +48,14 @@ services:
       - ~/data/upload/problem_test_cases:/upload/problem_test_cases
       - ~/data/upload/problem_image:/upload/problem_image
       - ~/data/upload/problem_pdf:/upload/problem_pdf
-    image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb:dev
+    image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb
     container_name: ddl-backend-dev
     restart: always
     depends_on:
       - ddl-redis-dev
       - ddl-postgres-dev
     environment:
-      
+      - ddl_env=development
       - REDIS_HOST=ddl-redis-dev
       - POSTGRES_HOST=ddl-postgres-dev
     ports:

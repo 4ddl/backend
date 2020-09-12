@@ -31,7 +31,7 @@ services:
       - ~/data/upload/problem_test_cases:/upload/problem_test_cases
     build:
       context: .
-      dockerfile: Dockerfile-dev
+      dockerfile: Dockerfile
     container_name: ddl-celery-dev
     restart: always
     depends_on:

@@ -63,10 +63,7 @@ services:
       - ddl
   ddl-web:
     container_name: ddl-web
-    image: web
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
+    image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlf
     depends_on:
       - ddl-backend
     environment:
