@@ -9,6 +9,7 @@ from submission.config import Verdict, Language
 from submission.models import Submission
 import traceback
 
+
 @shared_task
 def run_submission_task(pk):
     try:
