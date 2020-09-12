@@ -17,6 +17,7 @@ services:
   ddl-redis-dev:
     image: redis:alpine
     container_name: ddl-redis-dev
+    restart: always
     volumes:
       - ~/data/ddl_redis_dev:/data
     ports:
@@ -32,6 +33,7 @@ services:
       context: .
       dockerfile: Dockerfile-dev
     container_name: ddl-celery-dev
+    restart: always
     depends_on:
       - ddl-redis-dev
       - ddl-postgres-dev

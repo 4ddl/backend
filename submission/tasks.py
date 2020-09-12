@@ -49,9 +49,11 @@ def run_submission_task(pk):
             try:
                 result = runner.run()
                 submission.verdict = Verdict.ACCEPTED
+                # attention: time spend and memory spend indicated maximum case time spend and maximum case memory spend
                 submission.time_spend = 0
                 submission.memory_spend = 0
                 for item in result:
+                    # calculate max time spend and memory spend
                     submission.time_spend = max(submission.time_spend, item['real_time'])
                     submission.memory_spend = max(submission.memory_spend, item['memory'])
                     if item['result'] != 0:
@@ -65,6 +67,7 @@ def run_submission_task(pk):
                 submission.save()
                 return
             try:
+                # clean running directory
                 runner.clean()
             except OSError:
                 pass

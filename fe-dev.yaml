@@ -17,6 +17,7 @@ services:
   ddl-redis-dev:
     image: redis:alpine
     container_name: ddl-redis-dev
+    restart: always
     volumes:
       - ~/data/ddl_redis_dev:/data
     ports:
@@ -30,6 +31,7 @@ services:
       - ~/data/upload/problem_test_cases:/upload/problem_test_cases
     image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb:dev
     container_name: ddl-celery-dev
+    restart: always
     depends_on:
       - ddl-redis-dev
       - ddl-postgres-dev
@@ -47,6 +49,7 @@ services:
       - ~/data/upload/problem_pdf:/upload/problem_pdf
     image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb:dev
     container_name: ddl-backend-dev
+    restart: always
     depends_on:
       - ddl-redis-dev
       - ddl-postgres-dev

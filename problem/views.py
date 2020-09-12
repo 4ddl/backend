@@ -67,7 +67,7 @@ class ProblemViewSet(viewsets.GenericViewSet):
 
     @check_permissions('problem.manage_problem')
     def create(self, request):
-        serializer = ProblemCreateSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(request.user)
         return Response(msg(_('Successful create.')))
@@ -75,7 +75,7 @@ class ProblemViewSet(viewsets.GenericViewSet):
     @check_permissions('problem.manage_problem')
     def update(self, request, *args, **kwargs):
         problem = self.get_object()
-        serializer = ProblemUpdateSerializer(problem, data=request.data)
+        serializer = self.get_serializer(problem, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(msg(_('Successful update.')))
@@ -102,14 +102,16 @@ class ProblemViewSet(viewsets.GenericViewSet):
             return ProblemListSerializer
         elif self.action == 'upload_test_cases':
             return ProblemTestCasesSerializer
-        elif self.action in ['update', 'create']:
+        elif self.action == 'update':
+            return ProblemUpdateSerializer
+        elif self.action == 'create':
             return ProblemCreateSerializer
         else:
             return self.serializer_class
 
     @action(detail=False, methods=['post'], permission_classes=[ManageProblemPermission])
     def upload_test_cases(self, request, *args, **kwargs):
-        serializer = ProblemTestCasesSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         tmp_file = f'{uuid4()}.zip'
         os.makedirs(TMP_DIR, exist_ok=True)

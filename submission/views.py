@@ -55,7 +55,7 @@ class SubmissionViewSet(viewsets.GenericViewSet):
     def retrieve(self, request, pk=None):
         queryset = self.get_queryset()
         submission = get_object_or_404(queryset, pk=pk)
-        serializer = SubmissionShortSerializer(submission)
+        serializer = self.get_serializer(submission)
         return Response(msg(serializer.data))
 
     @action(detail=True, methods=['get'])
@@ -63,12 +63,12 @@ class SubmissionViewSet(viewsets.GenericViewSet):
         queryset = self.get_queryset()
         submission = get_object_or_404(queryset, pk=pk)
         if submission.user == request.user or request.user.is_staff:
-            serializer = SubmissionSerializer(submission)
+            serializer = self.get_serializer(submission)
             return Response(msg(serializer.data))
         raise PermissionDenied
 
     def get_serializer_class(self):
-        if self.action == 'list':
+        if self.action in ['list', 'retrieve']:
             return SubmissionShortSerializer
         elif self.action == 'create':
             return SubmissionCreateSerializer
