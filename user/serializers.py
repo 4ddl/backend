@@ -276,7 +276,6 @@ class FollowingSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()
     follow = serializers.BooleanField()
 
-    @staticmethod
     def validate_user_id(self, value):
         try:
             User.objects.get(id=value)
