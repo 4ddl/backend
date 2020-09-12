@@ -86,6 +86,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 class StudentInfo(models.Model):
     SCHOOL_WUST = 'WUST'
     SCHOOL_OTHER = 'OTHER'
+
     SCHOOL_CHOICES = [
         (SCHOOL_WUST, '武汉科技大学'),
         (SCHOOL_OTHER, '其他')
