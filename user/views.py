@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotAuthenticated, PermissionDenied
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -80,7 +80,7 @@ class UserViewSet(viewsets.GenericViewSet, ListModelMixin):
     @action(methods=['GET'], detail=False)
     def info(self, request):
         if request.user.is_authenticated:
-            return Response(msg(UserInfoSerializer(request.user).data))
+            return Response(msg(self.get_serializer(request.user).data))
         else:
             return Response(msg(err=_('Not login.')))
 
@@ -89,25 +89,23 @@ class UserViewSet(viewsets.GenericViewSet, ListModelMixin):
     def login(self, request):
         if request.user.is_authenticated:
             return Response(msg(err=_('Please sign out first before try to login.')))
-        serializer = LoginSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid(raise_exception=False):
-            user, err = serializer.login(request)
-            if user:
-                return Response(msg(UserInfoSerializer(user).data, err=err))
-            else:
-                return Response(msg(err=err))
-        return Response(msg(err=serializer.errors))
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user, err = serializer.login(request)
+        if user:
+            return Response(msg(UserInfoSerializer(user).data, err=err))
+        else:
+            return Response(msg(err=err))
 
     # 注册
     @action(methods=['PUT'], detail=False)
     def register(self, request):
         if request.user.is_authenticated:
             return Response(msg(err=_('Please sign out first before try to register.')))
-        serializer = RegisterSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            user = serializer.save()
-            return Response(msg(UserInfoSerializer(user).data))
-        return Response(msg(err=serializer.errors))
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response(msg(UserInfoSerializer(user).data))
 
     # 退出登陆
     @action(methods=['DELETE'], detail=False)
@@ -118,7 +116,7 @@ class UserViewSet(viewsets.GenericViewSet, ListModelMixin):
     # 激活账号
     @action(methods=['POST'], detail=False)
     def activate(self, request):
-        serializer = ActivateSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.active()
         return Response(msg(_('Successful activate.')))
@@ -127,25 +125,23 @@ class UserViewSet(viewsets.GenericViewSet, ListModelMixin):
     def retrieve(self, request, pk=None):
         queryset = User.objects.all()
         user = get_object_or_404(queryset, pk=pk)
-        return Response(msg(UserInfoSerializer(user).data))
+        return Response(msg(self.get_serializer(user).data))
 
     # 修改密码
-    @action(methods=['PUT'], detail=False)
+    @action(methods=['PUT'], detail=False, permission_classes=[IsAuthenticated])
     def password(self, request: Request):
-        if request.user.is_authenticated:
-            serializer = ChangePasswordSerializer(data=request.data, context={'user': request.user})
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            auth.logout(request)
-            return Response(msg(_('Success')))
-        raise NotAuthenticated
+        serializer = ChangePasswordSerializer(data=request.data, context={'user': request.user})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        auth.logout(request)
+        return Response(msg(_('Success')))
 
     # 获取活动记录
-    @action(methods=['GET'], detail=True)
+    @action(methods=['GET'], detail=True, permission_classes=[IsAuthenticated])
     def activities(self, request: Request, pk=None, *args, **kwargs):
-        if request.user.is_authenticated and request.user.id == pk or request.user.is_staff:
+        if request.user.id == pk or request.user.is_staff:
             user = get_object_or_404(User.objects.all(), pk=pk)
-            serializer = ActivityListSerializer(user.activities.all()[:10], many=True)
+            serializer = self.get_serializer(user.activities.all()[:10], many=True)
             return Response(msg(serializer.data))
         raise PermissionDenied
 
@@ -174,7 +170,7 @@ class UserViewSet(viewsets.GenericViewSet, ListModelMixin):
             serializer = self.get_serializer(queryset, many=True)
             return Response(msg(serializer.data))
         else:
-            serializer = FollowingSerializer(data=request.data)
+            serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             if serializer.validated_data['follow']:
                 request.user.following.add(serializer.validated_data['user_id'])
@@ -221,7 +217,25 @@ class UserViewSet(viewsets.GenericViewSet, ListModelMixin):
             return Response(msg(serializer.data))
 
     def get_serializer_class(self):
-        if self.action == 'email':
+        if self.action in ['info', 'retrieve']:
+            return UserInfoSerializer
+        elif self.action == 'login':
+            return LoginSerializer
+        elif self.action == 'register':
+            return RegisterSerializer
+        elif self.action == 'activate':
+            return ActivateSerializer
+        elif self.action == 'password':
+            return ChangePasswordSerializer
+        elif self.action == 'activities':
+            return ActivityListSerializer
+        elif self.action == 'list':
+            return RankSerializer
+        elif self.action == 'following':
+            if self.request.method == 'GET':
+                return RankSerializer
+            return FollowingSerializer
+        elif self.action == 'email':
             if self.request.method == 'PUT':
                 return PUTChangeEmailAddressSerializer
             return POSTCheckEmailAddressSerializer

@@ -4,10 +4,9 @@ from problem.serializers import ProblemShortSerializer
 from user.models import User
 from user.serializers import UserShortSerializer
 from .models import Submission
-from .config import Language
-from django.utils.translation import gettext as _
 
 
+# list submission serializer
 class SubmissionShortSerializer(serializers.ModelSerializer):
     user = UserShortSerializer()
     problem = ProblemShortSerializer()
@@ -26,6 +25,7 @@ class SubmissionShortSerializer(serializers.ModelSerializer):
         )
 
 
+# basic submission serializer
 class SubmissionSerializer(serializers.ModelSerializer):
     user = UserShortSerializer()
     problem = ProblemShortSerializer()
@@ -46,13 +46,8 @@ class SubmissionSerializer(serializers.ModelSerializer):
         )
 
 
+# create submission serializer
 class SubmissionCreateSerializer(serializers.ModelSerializer):
-    @staticmethod
-    def validate_lang(value):
-        if value in list(map(lambda x: x[0], Language.LANGUAGE_CHOICES)):
-            return value
-        raise serializers.ValidationError(_("Language not supported"))
-
     class Meta:
         model = Submission
         fields = (

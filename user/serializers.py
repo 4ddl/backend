@@ -1,18 +1,19 @@
 import random
 import re
+from uuid import uuid4
 
 from django.contrib import auth
 from django.contrib.auth.models import Permission
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
-from rest_framework import serializers
 from django.utils.translation import gettext as _
+from rest_framework import serializers
+
 from ddl.settings import ACTIVATE_CODE_AGE
 from user.models import User, Activity, StudentInfo
 from user.utils import USERNAME_PATTERN, PASSWORD_PATTERN
 from utils.mail import send_activated_email
-from uuid import uuid4
 from utils.views import CaptchaAPI
 
 
@@ -341,7 +342,6 @@ class PUTChangeEmailAddressSerializer(serializers.Serializer):
 
 
 class StudentInfoSerializer(serializers.ModelSerializer):
-    school = serializers.ChoiceField(choices=StudentInfo.SCHOOL_CHOICES)
 
     def save(self, user: User):
         try:
@@ -354,4 +354,4 @@ class StudentInfoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudentInfo
-        fields = ['school', 'student_id']
+        fields = ('school', 'student_id')

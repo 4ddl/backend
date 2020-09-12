@@ -93,7 +93,7 @@ class StudentInfo(models.Model):
     ]
     user = models.OneToOneField(to=User, on_delete=models.CASCADE, related_name='student')
     # 学校
-    school = models.CharField(max_length=40, null=False, blank=False)
+    school = models.CharField(max_length=40, choices=SCHOOL_CHOICES, null=False, blank=False)
     # 学号
     student_id = models.CharField(max_length=40, null=True, blank=True)
 
