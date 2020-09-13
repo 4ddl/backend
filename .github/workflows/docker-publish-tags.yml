@@ -16,7 +16,7 @@ jobs:
           echo `echo $GITHUB_REF | cut -d '/' -f 3`
       - name: Build Docker image
         run: |
-          docker build . --tag ${{ secrets.ALIYUN_IMAGE_DDLB }}:`echo $GITHUB_REF | cut -d '/' -f 3`
+          docker build . --tag ${{ secrets.ALIYUN_IMAGE_DDLB }}:`echo $GITHUB_REF | cut -d '/' -f 3` --file Dockerfile-CI
       - name: Log into Aliyun Container Registry
         run: |
           echo "${{ secrets.ALIYUN_IMAGE_PASS }}" | docker login registry.cn-hangzhou.aliyuncs.com -u ${{ secrets.ALIYUN_IMAGE_USER }} --password-stdin
