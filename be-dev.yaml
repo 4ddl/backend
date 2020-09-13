@@ -29,7 +29,9 @@ services:
     volumes:
       - .:/app
       - ~/data/upload/problem_test_cases:/upload/problem_test_cases
-    image: registry.cn-hangzhou.aliyuncs.com/dianhsu/ddlb
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: ddl-celery-dev
     restart: always
     depends_on:

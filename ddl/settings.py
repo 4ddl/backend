@@ -15,6 +15,8 @@ import os
 import sentry_sdk
 from django.utils.translation import gettext_lazy as _
 from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -193,7 +195,7 @@ ACTIVATE_CODE_AGE = 60 * 60
 if not dev_server:
     sentry_sdk.init(
         dsn="https://03eb7f0b0aaf4a31b548639bea76c910@o428533.ingest.sentry.io/5374065",
-        integrations=[DjangoIntegration()],
+        integrations=[DjangoIntegration(), CeleryIntegration(), RedisIntegration()],
         # If you wish to associate users to errors (assuming you are using
         # django.contrib.auth) you may enable sending PII data.
         send_default_pii=True

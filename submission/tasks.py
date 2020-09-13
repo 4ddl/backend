@@ -8,6 +8,7 @@ from ddl.settings import PROBLEM_TEST_CASES_DIR
 from submission.config import Verdict, Language
 from submission.models import Submission
 import traceback
+from problem.utils import validate_manifest, ManifestError
 
 
 @shared_task
@@ -21,6 +22,13 @@ def run_submission_task(pk):
             submission.verdict = Verdict.RUNNING
             submission.save()
             # initialize runner
+            try:
+                validate_manifest(submission.problem.manifest)
+            except ManifestError as e:
+                traceback.print_exc()
+                submission.additional_info = {'error': repr(e)}
+                submission.verdict = Verdict.SYSTEM_ERROR
+                submission.save()
             try:
                 runner = JudgeRunner(PROBLEM_TEST_CASES_DIR,
                                      submission.problem.manifest,
