@@ -16,10 +16,10 @@ jobs:
           echo `echo $GITHUB_REF | cut -d '/' -f 3`
       - name: Build Docker image
         run: |
-          docker build . --tag ${{ secrets.ALIYUN_IMAGE_DDLB }}:`echo $GITHUB_REF | cut -d '/' -f 3` --file Dockerfile-CI
-      - name: Log into Aliyun Container Registry
+          docker build . --tag 4ddl/ddlb:`echo $GITHUB_REF | cut -d '/' -f 3` --file Dockerfile-CI
+      - name: Log into Docker Hub
         run: |
-          echo "${{ secrets.ALIYUN_IMAGE_PASS }}" | docker login registry.cn-hangzhou.aliyuncs.com -u ${{ secrets.ALIYUN_IMAGE_USER }} --password-stdin
-      - name: Publish Image to Aliyun
+          echo "${{ secrets.DOCKER_HUB_PASS }}" | docker login -u ${{ secrets.DOCKER_HUB_USER }} --password-stdin
+      - name: Push Image to Docker Hub
         run: |
-          docker push ${{ secrets.ALIYUN_IMAGE_DDLB }}:`echo $GITHUB_REF | cut -d '/' -f 3`
+          docker push 4ddl/ddlb:`echo $GITHUB_REF | cut -d '/' -f 3`
