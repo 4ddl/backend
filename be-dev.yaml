@@ -32,6 +32,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: 4ddl/ddlb
     container_name: ddl-celery-dev
     restart: always
     depends_on:
