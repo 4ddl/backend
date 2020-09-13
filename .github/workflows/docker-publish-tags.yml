@@ -16,10 +16,10 @@ jobs:
           echo $GITHUB_REF
       - name: Build Docker image
         run: |
-          docker build . --tag ${{ secrets.ALIYUN_IMAGE_DDLB }}:latest
+          docker build . --tag ${{ secrets.ALIYUN_IMAGE_DDLB }}:${{ github.ref }}
       - name: Log into Aliyun Container Registry
         run: |
           echo "${{ secrets.ALIYUN_IMAGE_PASS }}" | docker login registry.cn-hangzhou.aliyuncs.com -u ${{ secrets.ALIYUN_IMAGE_USER }} --password-stdin
       - name: Publish Image to Aliyun
         run: |
-          docker push ${{ secrets.ALIYUN_IMAGE_DDLB }}:latest
+          docker push ${{ secrets.ALIYUN_IMAGE_DDLB }}:${{ github.ref }}
