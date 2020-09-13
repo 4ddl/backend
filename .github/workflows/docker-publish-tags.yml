@@ -22,4 +22,4 @@ jobs:
           echo "${{ secrets.ALIYUN_IMAGE_PASS }}" | docker login registry.cn-hangzhou.aliyuncs.com -u ${{ secrets.ALIYUN_IMAGE_USER }} --password-stdin
       - name: Publish Image to Aliyun
         run: |
-          docker push ${{ secrets.ALIYUN_IMAGE_DDLB }}:$IMAGE_VER
+          docker push ${{ secrets.ALIYUN_IMAGE_DDLB }}:`echo $GITHUB_REF | cut -d '/' -f 3`
