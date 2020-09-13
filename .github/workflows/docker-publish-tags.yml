@@ -14,12 +14,13 @@ jobs:
       - name: Echo Ref
         run: | 
           echo $GITHUB_REF
+          IMAGE_VER=`echo $GITHUB_REF | cut -d '/' -f 3` 
       - name: Build Docker image
         run: |
-          docker build . --tag ${{ secrets.ALIYUN_IMAGE_DDLB }}:${{ github.ref }}
+          docker build . --tag ${{ secrets.ALIYUN_IMAGE_DDLB }}:$IMAGE_VER
       - name: Log into Aliyun Container Registry
         run: |
           echo "${{ secrets.ALIYUN_IMAGE_PASS }}" | docker login registry.cn-hangzhou.aliyuncs.com -u ${{ secrets.ALIYUN_IMAGE_USER }} --password-stdin
       - name: Publish Image to Aliyun
         run: |
-          docker push ${{ secrets.ALIYUN_IMAGE_DDLB }}:${{ github.ref }}
+          docker push ${{ secrets.ALIYUN_IMAGE_DDLB }}:$IMAGE_VER
