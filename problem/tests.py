@@ -1,5 +1,6 @@
 # Create your tests here.
 from django.test import TestCase
+
 from problem import utils
 
 
@@ -13,4 +14,3 @@ class ProblemTestCase(TestCase):
                 {"in": "2.in", "out": "2.out"}
             ]}
         self.assertIsNotNone(utils.validate_manifest(manifest))
-
