@@ -1,6 +1,7 @@
 import json
-from json import JSONDecodeError
 import os
+from json import JSONDecodeError
+
 from ddl.settings import PROBLEM_TEST_CASES_DIR
 
 

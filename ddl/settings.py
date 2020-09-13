@@ -14,8 +14,8 @@ import os
 
 import sentry_sdk
 from django.utils.translation import gettext_lazy as _
-from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -202,8 +202,9 @@ if not dev_server:
     )
 
 # celery 配置
-CELERY_BROKER_URL = f"redis://{os.getenv('REDIS_HOST', '127.0.0.1')}:{os.getenv('REDIS_PORT', 6379)}/4"
-CELERY_RESULT_BACKEND = f"redis://{os.getenv('REDIS_HOST', '127.0.0.1')}:{os.getenv('REDIS_PORT', 6379)}/5"
+
+CELERY_BROKER_URL = f"amqp://guest:guest@{os.getenv('RABBITMQ_HOST', '127.0.0.1')}:{os.getenv('RABBITMQ_PORT', 5672)}/"
+CELERY_RESULT_BACKEND = f"amqp://guest:guest@{os.getenv('RABBITMQ_HOST', '127.0.0.1')}:{os.getenv('RABBITMQ_PORT', 5672)}/"
 CELERY_RESULT_SERIALIZER = 'json'
 
 REST_FRAMEWORK = {
@@ -226,3 +227,5 @@ PROBLEM_IMAGE_DIR = os.path.join(UPLOAD_DIR, 'problem_image')
 PROBLEM_PDF_DIR = os.path.join(UPLOAD_DIR, 'problem_pdf')
 PROBLEM_TEST_CASES_DIR = os.path.join(UPLOAD_DIR, 'problem_test_cases')
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+JUDGE_TOKEN = os.getenv('JUDGE_TOKEN', 'JUDGE_TOKEN')

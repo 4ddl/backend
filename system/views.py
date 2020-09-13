@@ -1,10 +1,11 @@
-from rest_framework import viewsets
-from .serializers import LanguageSerializer
-from rest_framework.response import Response
-from utils.response import msg
 from django.utils.translation import gettext as _
-from ddl.settings import LANGUAGE_COOKIE_NAME, LANGUAGES
+from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.response import Response
+
+from ddl.settings import LANGUAGE_COOKIE_NAME, LANGUAGES
+from utils.response import msg
+from .serializers import LanguageSerializer
 
 
 class SystemViewSet(viewsets.GenericViewSet):
