@@ -2,7 +2,7 @@ from celery import shared_task
 
 
 @shared_task(name='run_submission_task')
-def run_submission_task(sid, manifest, code, language, time_limit, memory_limit):
+def run_submission_task(submission_id, problem_id, manifest, code, language, time_limit, memory_limit):
     pass
     # try:
     #     submission = Submission.objects.get(id=pk)

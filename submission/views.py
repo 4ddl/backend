@@ -42,8 +42,10 @@ class SubmissionViewSet(viewsets.GenericViewSet):
         submission = serializer.save(user=request.user)
         run_submission_task.apply_async(
             args=[submission.id,
+                  submission.problem.id,
                   submission.problem.manifest,
                   submission.code,
+                  submission.lang,
                   submission.problem.time_limit,
                   submission.problem.memory_limit], queue='judge')
         Activity(user=request.user, category=Activity.SUBMISSION,
@@ -81,3 +83,4 @@ class SubmissionViewSet(viewsets.GenericViewSet):
             return SubmissionCreateSerializer
         else:
             return self.serializer_class
+
