@@ -3,8 +3,8 @@ from submission.models import Submission
 
 
 @shared_task(name='run_submission_task')
-def run_submission_task(submission_id, problem_id, manifest, code, language, time_limit, memory_limit):
-    print(submission_id, problem_id, manifest, code, language, time_limit, memory_limit)
+def run_submission_task(submission_id, manifest, code, language, time_limit, memory_limit):
+    print(submission_id, manifest, code, language, time_limit, memory_limit)
 
 
 @shared_task(name='result_submission_task')

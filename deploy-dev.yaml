@@ -1,11 +1,11 @@
 version: "3"
 services:
-  ddl-postgres:
+  ddl-postgres-dev:
     image: postgres:alpine
     container_name: ddl-postgres
     restart: always
     volumes:
-      - ~/data/ddl-postgres:/var/lib/postgresql/data
+      - ~/data/ddl-postgres-dev:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=ddl_database
       - POSTGRES_USER=ddl_username
@@ -14,40 +14,56 @@ services:
       - "0.0.0.0:5432:5432"
     networks:
       - ddl
-  ddl-redis:
+  ddl-redis-dev:
     image: redis:alpine
     container_name: ddl-redis
     volumes:
-      - ~/data/ddl-redis:/data
+      - ~/data/ddl-redis-dev:/data
     ports:
       - "0.0.0.0:6379:6379"
     networks:
       - ddl
-  ddl-celery:
-    command: celery -A ddl worker -l info
+  ddl-rabbitmq-dev:
+    image: rabbitmq:management
+    container_name: ddl-rabbitmq-dev
+    restart: always
+    hostname: my-rabbit
+    ports:
+      - '0.0.0.0:5672:5672'
+      - '0.0.0.0:15672:15672'
     volumes:
-      - ~/data/upload/problem_test_cases:/upload/problem_test_cases
-    image: 4ddl/ddlb
+      - ~/data/ddl_rabbitmq_dev:/var/lib/rabbitmq
+    networks:
+      - ddl-dev
+  ddl-celery-dev:
+    command: bash /app/docker/entrypoint-celery-dev.sh
+    volumes:
+      - .:/app
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: ddl-celery
+    image: 4ddl/ddlb
+    container_name: ddl-celery-dev
+    restart: always
     depends_on:
-      - ddl-redis
-      - ddl-postgres
+      - ddl-redis-dev
+      - ddl-postgres-dev
+      - ddl-rabbitmq-dev
     environment:
-      - REDIS_HOST=ddl-redis
-      - POSTGRES_HOST=ddl-postgres
+      - REDIS_HOST=ddl-redis-dev
+      - POSTGRES_HOST=ddl-postgres-dev
+      - RABBITMQ_HOST=ddl-rabbitmq-dev
     networks:
-      - ddl
-  ddl-backend:
+      - ddl-dev
+  ddl-backend-dev:
     command: bash /app/docker/entrypoint.sh
     volumes:
+      - .:/app
       - ~/data/upload/problem_test_cases:/upload/problem_test_cases
       - ~/data/upload/problem_image:/upload/problem_image
       - ~/data/upload/problem_pdf:/upload/problem_pdf
     image: 4ddl/ddlb
-    container_name: ddl-backend
+    container_name: ddl-backend-dev
     build:
       context: .
       dockerfile: Dockerfile
@@ -55,19 +71,20 @@ services:
       - ddl-redis
       - ddl-postgres
     environment:
-      - REDIS_HOST=ddl-redis
-      - POSTGRES_HOST=ddl-postgres
+      - REDIS_HOST=ddl-redis-dev
+      - POSTGRES_HOST=ddl-postgres-dev
+      - RABBITMQ_HOST=ddl-rabbitmq-dev
     ports:
       - "0.0.0.0:8000:8000"
     networks:
       - ddl
-  ddl-web:
-    container_name: ddl-web
+  ddl-web-dev:
+    container_name: ddl-web-dev
     image: 4ddl/ddlf
     depends_on:
       - ddl-backend
     environment:
-      - BACKEND_HOST=ddl-backend
+      - BACKEND_HOST=ddl-backend-dev
       - BACKEND_PORT=8000
     ports:
       - "0.0.0.0:80:80"

@@ -42,7 +42,6 @@ class SubmissionViewSet(viewsets.GenericViewSet):
         submission = serializer.save(user=request.user)
         run_submission_task.apply_async(
             args=[submission.id,
-                  submission.problem.id,
                   submission.problem.manifest,
                   submission.code,
                   submission.lang,

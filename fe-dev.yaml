@@ -24,8 +24,20 @@ services:
       - '0.0.0.0:6379:6379'
     networks:
       - ddl-dev
+  ddl-rabbitmq-dev:
+    image: rabbitmq:management
+    container_name: ddl-rabbitmq-dev
+    restart: always
+    hostname: my-rabbit
+    ports:
+      - '0.0.0.0:5672:5672'
+      - '0.0.0.0:15672:15672'
+    volumes:
+      - ~/data/ddl_rabbitmq_dev:/var/lib/rabbitmq
+    networks:
+      - ddl-dev
   ddl-celery-dev:
-    command: celery -A ddl worker -l info
+    command: bash /app/docker/entrypoint-celery-dev.sh
     volumes:
       - .:/app
       - ~/data/upload/problem_test_cases:/upload/problem_test_cases
