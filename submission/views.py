@@ -82,4 +82,3 @@ class SubmissionViewSet(viewsets.GenericViewSet):
             return SubmissionCreateSerializer
         else:
             return self.serializer_class
-
