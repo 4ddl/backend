@@ -40,7 +40,6 @@ services:
     command: bash /app/docker/entrypoint-celery-dev.sh
     volumes:
       - .:/app
-      - ~/data/upload/problem_test_cases:/upload/problem_test_cases
     image: 4ddl/ddlb
     container_name: ddl-celery-dev
     restart: always
