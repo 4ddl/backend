@@ -3,7 +3,7 @@ import os
 import traceback
 import zipfile
 from json import JSONDecodeError
-import shutil
+
 from django.http import HttpResponse
 
 from ddl.settings import PROBLEM_TEST_CASES_DIR, TMP_DIR

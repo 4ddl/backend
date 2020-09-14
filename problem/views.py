@@ -2,6 +2,7 @@ import os
 from uuid import uuid4
 
 from PIL import Image
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.http.response import HttpResponse
 from django.utils.translation import gettext as _
@@ -10,8 +11,9 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.views import Response
-from django.shortcuts import get_object_or_404
+
 from ddl.settings import PROBLEM_IMAGE_DIR, TMP_DIR, PROBLEM_PDF_DIR
+from problem import utils
 from problem.forms import ImageNameForms, RequestFileForm
 from problem.models import Problem
 from problem.perm import ManageProblemPermission
@@ -19,12 +21,9 @@ from problem.serializers import ProblemSerializer, ProblemListSerializer, Proble
     ProblemCreateSerializer, ProblemImageSerializer, ProblemPDFSerializer, ProblemUpdateSerializer, \
     ProblemImportSerializer
 from problem.uploads import TestCasesProcessor, TestCasesError
+from system.perm import JudgePermission
 from utils.permissions import check_permissions
 from utils.response import msg
-from system.perm import JudgePermission
-from problem import utils
-
-from django.core.exceptions import ObjectDoesNotExist
 
 
 class ProblemFilter(filters.FilterSet):
