@@ -24,6 +24,8 @@ from utils.response import msg
 from system.perm import JudgePermission
 from problem import utils
 
+from django.core.exceptions import ObjectDoesNotExist
+
 
 class ProblemFilter(filters.FilterSet):
     id = filters.NumberFilter(field_name='id', lookup_expr='icontains')
@@ -99,24 +101,26 @@ class ProblemViewSet(viewsets.GenericViewSet):
         return Response(msg(serializer.data))
 
     # judge daemon sync test case
+    # 因为这个是给判题机使用的接口，所以不会像其他接口那样返回JSON格式的数据
     @action(detail=True, methods=['get'], permission_classes=[JudgePermission])
     def sync_test_cases(self, request, pk=None, *args, **kwargs):
         # TODO: sync test cases
-        problem = get_object_or_404(self.get_queryset(), pk=pk)
+        try:
+            problem = self.get_queryset().get(id=pk)
+        except ObjectDoesNotExist:
+            return HttpResponse(status=404)
         try:
             manifest = utils.validate_manifest(problem.manifest)
-            hash_val = manifest.get('hash')
-            print(hash_val)
+            return utils.package_test_case(manifest)
         except utils.ManifestError:
             return HttpResponse(status=500)
-        response = HttpResponse()
-        return response
 
     # export problem
+    # 导出接口使用原生的HttpResponse
     @action(detail=True, methods=['get'], permission_classes=[ManageProblemPermission], url_path='export')
     def export_problem(self, request, *args, **kwargs):
         # TODO: export problem
-        return Response(msg('success'))
+        return HttpResponse(msg('success'))
 
     # import problem
     @action(detail=False, methods=['put'], permission_classes=[ManageProblemPermission], url_path='import')

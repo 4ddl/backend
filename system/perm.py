@@ -7,4 +7,4 @@ from ddl.settings import JUDGE_TOKEN
 class JudgePermission(permissions.BasePermission):
 
     def has_permission(self, request: Request, view):
-        return request.headers.get('JudgeToken', None) == JUDGE_TOKEN
+        return request.user.is_staff or request.headers.get('JudgeToken', None) == JUDGE_TOKEN

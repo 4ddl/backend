@@ -12,8 +12,8 @@ from rest_framework import serializers
 
 from ddl.settings import ACTIVATE_CODE_AGE
 from user.models import User, Activity, StudentInfo
+from user.tasks import send_activated_email as send_activated_email_task
 from user.utils import USERNAME_PATTERN, PASSWORD_PATTERN
-from utils.mail import send_activated_email
 from utils.views import CaptchaAPI
 
 
@@ -121,9 +121,9 @@ class LoginSerializer(serializers.Serializer):
             user.activate_uuid = uuid4()
             user.save()
             activate_code = '%06d' % random.randint(0, 999999)
-            send_activated_email(user.username,
-                                 user.email,
-                                 activate_code)
+            send_activated_email_task.apply_async(args=[user.username,
+                                                        user.email,
+                                                        activate_code], queue='result')
             cache.set(f'activate-code-{user.activate_uuid}', activate_code, ACTIVATE_CODE_AGE)
             return user, _('Account not activated, '
                            'an mail has been sent to your email address, '
@@ -153,9 +153,10 @@ class RegisterSerializer(serializers.Serializer):
         Activity.objects.create(user=user, category=Activity.USER_REGISTER, info='注册成功')
         user.save()
         activate_code = '%06d' % random.randint(0, 999999)
-        send_activated_email(user.username,
-                             user.email,
-                             activate_code)
+        send_activated_email_task.apply_async(args=[user.username,
+                                                    user.email,
+                                                    activate_code], queue='result')
+
         cache.set(f'activate-code-{user.activate_uuid}', activate_code, ACTIVATE_CODE_AGE)
         return user
 
@@ -194,7 +195,8 @@ class ActivateSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=6, min_length=6)
     id = serializers.IntegerField()
 
-    def validate_code(self, value):
+    @staticmethod
+    def validate_code(value):
         if str(value).isdigit():
             return value
         raise serializers.ValidationError(_('Activate code error'))
@@ -210,9 +212,10 @@ class ActivateSerializer(serializers.Serializer):
         saved_code = cache.get(f'activate-code-{user.activate_uuid}')
         if saved_code is None:
             activate_code = '%06d' % random.randint(0, 999999)
-            send_activated_email(user.username,
-                                 user.email,
-                                 activate_code)
+            send_activated_email_task.apply_async(args=[user.username,
+                                                        user.email,
+                                                        activate_code], queue='result')
+
             cache.set(f'activate-code-{user.activate_uuid}', activate_code, ACTIVATE_CODE_AGE)
             raise serializers.ValidationError(_('Activate code expired, server send email again.'))
         elif saved_code != self.validated_data['code']:
@@ -276,7 +279,8 @@ class FollowingSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()
     follow = serializers.BooleanField()
 
-    def validate_user_id(self, value):
+    @staticmethod
+    def validate_user_id(value):
         try:
             User.objects.get(id=value)
         except ObjectDoesNotExist:
@@ -309,9 +313,9 @@ class POSTCheckEmailAddressSerializer(serializers.Serializer):
         user.activate_uuid = uuid4()
         user.save()
         activate_code = '%06d' % random.randint(0, 999999)
-        send_activated_email(user.username,
-                             self.validated_data['email'],
-                             activate_code)
+        send_activated_email_task.apply_async(args=[user.username,
+                                                    self.validated_data['email'],
+                                                    activate_code], queue='result')
         cache.set(f'update-mail-code-{user.activate_uuid}', activate_code, ACTIVATE_CODE_AGE)
         cache.set(f'update-mail-address-{user.activate_uuid}', self.validated_data['email'], ACTIVATE_CODE_AGE)
 

@@ -1,14 +1,19 @@
 import json
 import os
+import traceback
+import zipfile
 from json import JSONDecodeError
+import shutil
+from django.http import HttpResponse
 
-from ddl.settings import PROBLEM_TEST_CASES_DIR
+from ddl.settings import PROBLEM_TEST_CASES_DIR, TMP_DIR
 
 
 class ManifestError(Exception):
     pass
 
 
+# 检查test case是否正确
 def validate_test_case(dir_name, filename):
     if not os.path.exists(PROBLEM_TEST_CASES_DIR) or not os.path.isdir(PROBLEM_TEST_CASES_DIR):
         raise ManifestError('problem test cases dir not exist')
@@ -22,6 +27,7 @@ def validate_test_case(dir_name, filename):
         raise ManifestError(f'file "{file_path}" not readable.')
 
 
+# 检查manifest是否正确
 def validate_manifest(manifest):
     # check manifest type
     if isinstance(manifest, str):
@@ -71,5 +77,26 @@ def validate_manifest(manifest):
     return manifest
 
 
-def package_test_case(manifest):
-    pass
+# 打包test case 并且返回
+def package_test_case(valid_manifest):
+    try:
+        # 生成临时的压缩包
+        test_case_dir = os.path.join(PROBLEM_TEST_CASES_DIR, valid_manifest['hash'])
+        file_name = f'{valid_manifest["hash"]}.zip'
+        temp_file_path = os.path.join(TMP_DIR, file_name)
+        download_zipfile = zipfile.ZipFile(temp_file_path, 'w')
+        for item in os.listdir(test_case_dir):
+            if os.path.isfile(os.path.join(test_case_dir, item)):
+                download_zipfile.write(os.path.join(test_case_dir, item), item)
+        download_zipfile.close()
+        # 构造返回的数据
+        f = open(temp_file_path, 'rb')
+        response = HttpResponse(f.read(), content_type='application/x-zip-compressed')
+        f.close()
+        response['Content-Disposition'] = f'attachment; filename={file_name}'
+        # 删除临时的压缩包
+        os.remove(temp_file_path)
+        return response
+    except Exception:
+        traceback.print_exc()
+    return HttpResponse(status=500)

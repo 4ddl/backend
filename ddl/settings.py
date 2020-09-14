@@ -174,9 +174,7 @@ SESSION_CACHE_ALIAS = "session"
 SESSION_COOKIE_AGE = 60 * 60 * 12
 
 # SMTP相关设置
-if dev_server:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-else:
+if os.getenv('EMAIL_HOST', None):
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = os.getenv('EMAIL_HOST', '')
     EMAIL_PORT = os.getenv('EMAIL_PORT', 465)
@@ -184,7 +182,8 @@ else:
     EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
     EMAIL_USE_SSL = (EMAIL_PORT == 465)
     DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # 验证码的有效时间（秒）
 CAPTCHA_AGE = 60 * 5
 # 缓存页面的时间
@@ -202,7 +201,8 @@ if not dev_server:
     )
 
 # celery 配置
-CELERY_BROKER_URL = f"amqp://guest:guest@{os.getenv('RABBITMQ_HOST', '127.0.0.1')}:{os.getenv('RABBITMQ_PORT', 5672)}/"
+CELERY_BROKER_URL = f"amqp://{os.getenv('RABBITMQ_USER', 'guest')}:{os.getenv('RABBITMQ_PASS', 'guest')}" \
+                    f"@{os.getenv('RABBITMQ_HOST', '127.0.0.1')}:{os.getenv('RABBITMQ_PORT', 5672)}/"
 CELERY_BROKER_SERIALIZER = 'json'
 
 REST_FRAMEWORK = {
