@@ -125,7 +125,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -202,10 +202,8 @@ if not dev_server:
     )
 
 # celery 配置
-
 CELERY_BROKER_URL = f"amqp://guest:guest@{os.getenv('RABBITMQ_HOST', '127.0.0.1')}:{os.getenv('RABBITMQ_PORT', 5672)}/"
-CELERY_RESULT_BACKEND = f"amqp://guest:guest@{os.getenv('RABBITMQ_HOST', '127.0.0.1')}:{os.getenv('RABBITMQ_PORT', 5672)}/"
-CELERY_RESULT_SERIALIZER = 'json'
+CELERY_BROKER_SERIALIZER = 'json'
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'utils.exception.custom_exception_handler',
