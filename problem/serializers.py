@@ -96,3 +96,7 @@ class ProblemPDFSerializer(serializers.Serializer):
 
 class ProblemImageSerializer(serializers.Serializer):
     file = serializers.ImageField()
+
+
+class ProblemImportSerializer(serializers.Serializer):
+    file = serializers.FileField()

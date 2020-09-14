@@ -10,18 +10,19 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.views import Response
-
+from django.shortcuts import get_object_or_404
 from ddl.settings import PROBLEM_IMAGE_DIR, TMP_DIR, PROBLEM_PDF_DIR
 from problem.forms import ImageNameForms, RequestFileForm
 from problem.models import Problem
 from problem.perm import ManageProblemPermission
-from problem.serializers import ProblemSerializer, \
-    ProblemListSerializer, \
-    ProblemTestCasesSerializer, \
-    ProblemCreateSerializer, ProblemImageSerializer, ProblemPDFSerializer, ProblemUpdateSerializer
+from problem.serializers import ProblemSerializer, ProblemListSerializer, ProblemTestCasesSerializer, \
+    ProblemCreateSerializer, ProblemImageSerializer, ProblemPDFSerializer, ProblemUpdateSerializer, \
+    ProblemImportSerializer
 from problem.uploads import TestCasesProcessor, TestCasesError
 from utils.permissions import check_permissions
 from utils.response import msg
+from system.perm import JudgePermission
+from problem import utils
 
 
 class ProblemFilter(filters.FilterSet):
@@ -97,6 +98,32 @@ class ProblemViewSet(viewsets.GenericViewSet):
         serializer = ProblemCreateSerializer(problem)
         return Response(msg(serializer.data))
 
+    # judge daemon sync test case
+    @action(detail=True, methods=['get'], permission_classes=[JudgePermission])
+    def sync_test_cases(self, request, pk=None, *args, **kwargs):
+        # TODO: sync test cases
+        problem = get_object_or_404(self.get_queryset(), pk=pk)
+        try:
+            manifest = utils.validate_manifest(problem.manifest)
+            hash_val = manifest.get('hash')
+            print(hash_val)
+        except utils.ManifestError:
+            return HttpResponse(status=500)
+        response = HttpResponse()
+        return response
+
+    # export problem
+    @action(detail=True, methods=['get'], permission_classes=[ManageProblemPermission], url_path='export')
+    def export_problem(self, request, *args, **kwargs):
+        # TODO: export problem
+        return Response(msg('success'))
+
+    # import problem
+    @action(detail=False, methods=['put'], permission_classes=[ManageProblemPermission], url_path='import')
+    def import_problem(self, request, *args, **kwargs):
+        # TODO: import problem
+        return Response(msg('success'))
+
     def get_serializer_class(self):
         if self.action == 'list':
             return ProblemListSerializer
@@ -106,6 +133,8 @@ class ProblemViewSet(viewsets.GenericViewSet):
             return ProblemUpdateSerializer
         elif self.action == 'create':
             return ProblemCreateSerializer
+        elif self.action == 'import_problem':
+            return ProblemImportSerializer
         else:
             return self.serializer_class
 
