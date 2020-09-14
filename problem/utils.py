@@ -30,7 +30,8 @@ def validate_manifest(manifest):
         except JSONDecodeError:
             raise ManifestError('decode manifest error')
     if not isinstance(manifest, dict):
-        raise ManifestError(f'manifest type error, type(manifest)={type(manifest)}')
+        raise ManifestError(
+            f'manifest type error, type(manifest)={type(manifest)}')
     # check manifest keys
     keys = ['hash', 'test_cases', 'spj']
     for key in keys:
@@ -68,3 +69,7 @@ def validate_manifest(manifest):
                 raise ManifestError('test_cases item key(out) length 0')
             validate_test_case(manifest.get('hash'), item.get('out'))
     return manifest
+
+
+def package_test_case(manifest):
+    pass
