@@ -6,6 +6,7 @@ from submission.models import Submission
 @shared_task(name='run_submission_task')
 def run_submission_task(submission_id, problem_id, manifest, code, language, time_limit, memory_limit):
     print(submission_id, problem_id, manifest, code, language, time_limit, memory_limit)
+    result_submission_task.apply_async(args=[submission_id, 'AC', 100, 20, {}], queue='result')
 
 
 # call back task

@@ -32,24 +32,11 @@ services:
     ports:
       - '0.0.0.0:5672:5672'
       - '0.0.0.0:15672:15672'
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
     volumes:
       - ~/data/ddl_rabbitmq_dev:/var/lib/rabbitmq
-    networks:
-      - ddl-dev
-  ddl-celery-dev:
-    command: bash /app/docker/entrypoint-celery-dev.sh
-    volumes:
-      - .:/app
-    image: 4ddl/ddlb
-    container_name: ddl-celery-dev
-    restart: always
-    depends_on:
-      - ddl-redis-dev
-      - ddl-postgres-dev
-    environment:
-      - ddl_env=development
-      - REDIS_HOST=ddl-redis-dev
-      - POSTGRES_HOST=ddl-postgres-dev
     networks:
       - ddl-dev
   ddl-backend-dev:

@@ -103,7 +103,6 @@ class ProblemViewSet(viewsets.GenericViewSet):
     # 因为这个是给判题机使用的接口，所以不会像其他接口那样返回JSON格式的数据
     @action(detail=True, methods=['get'], permission_classes=[JudgePermission])
     def sync_test_cases(self, request, pk=None, *args, **kwargs):
-        # TODO: sync test cases
         try:
             problem = self.get_queryset().get(id=pk)
         except ObjectDoesNotExist:

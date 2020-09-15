@@ -27,6 +27,7 @@ class Verdict:
     OUTPUT_LIMIT_EXCEEDED = 'OLE'
     COMPILE_ERROR = 'CE'
     SYSTEM_ERROR = 'SE'
+    SYNC_TEST_CASES = 'SYNC'
     VERDICT_CHOICES = (
         (PENDING, 'Pending'),
         (RUNNING, 'Running'),
@@ -39,4 +40,5 @@ class Verdict:
         (OUTPUT_LIMIT_EXCEEDED, 'Output Limit Exceeded'),
         (COMPILE_ERROR, 'Compile Error'),
         (SYSTEM_ERROR, 'System Error'),
+        (SYNC_TEST_CASES, 'Syncing Test Cases')
     )
