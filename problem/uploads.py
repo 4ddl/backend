@@ -1,6 +1,7 @@
 import hashlib
 import os
 import zipfile
+from django.utils.translation import gettext as _
 
 from ddl.settings import PROBLEM_TEST_CASES_DIR
 
@@ -15,10 +16,10 @@ class TestCasesProcessor(object):
     def handle_upload_test_cases(filename, tmp_path, spj: bool):
         # 检查在临时文件夹存放的zip文件是否格式正确
         if not zipfile.is_zipfile(os.path.join(tmp_path, filename)):
-            raise TestCasesError('not zip file')
+            raise TestCasesError(_('not zip file'))
         zf = zipfile.ZipFile(os.path.join(tmp_path, filename))
         if len(zf.namelist()) == 0:
-            raise TestCasesError('zip without files.')
+            raise TestCasesError(_('zip without files.'))
         index = 1
         in_list = []
         out_list = []
@@ -41,7 +42,7 @@ class TestCasesProcessor(object):
 
         if (spj and len(zf.namelist()) != len(in_list)) or (
                 not spj and len(zf.namelist()) != len(in_list) + len(out_list)):
-            raise TestCasesError('do not put irrelevant files into zip')
+            raise TestCasesError(_('do not put irrelevant files into zip'))
 
         # 将临时文件夹存放的zip解压到正式的文件里面
         hash_val = hashlib.sha256()

@@ -118,7 +118,7 @@ class ProblemViewSet(viewsets.GenericViewSet):
     @action(detail=True, methods=['get'], permission_classes=[ManageProblemPermission], url_path='export')
     def export_problem(self, request, *args, **kwargs):
         # TODO: export problem
-        return HttpResponse(msg('success'))
+        return HttpResponse(msg(_('success')))
 
     # import problem
     @action(detail=False, methods=['put'], permission_classes=[ManageProblemPermission], url_path='import')

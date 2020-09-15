@@ -2,6 +2,7 @@ from django.db import models
 
 from submission.config import Verdict
 from user.models import User
+from django.utils.translation import gettext as _
 
 
 # Create your models here.
@@ -11,9 +12,9 @@ class Problem(models.Model):
     VIEW_ONLY = 1
     DISABLE = 2
     PUBLIC_CHOICES = [
-        (VIEW_SUBMIT, 'Allow view and submit'),
-        (VIEW_ONLY, 'Allow view'),
-        (DISABLE, 'Disabled'),
+        (VIEW_SUBMIT, _('Allow view and submit')),
+        (VIEW_ONLY, _('Allow view')),
+        (DISABLE, _('Disabled')),
     ]
     title = models.CharField(max_length=100, null=False, blank=False)
     content = models.JSONField()
@@ -40,6 +41,6 @@ class Problem(models.Model):
     class Meta:
         ordering = ['id']
         permissions = [
-            ('view_private_problem', 'Can view private problem'),
-            ('manage_problem', 'Can manage problem')
+            ('view_private_problem', _('Can view private problem')),
+            ('manage_problem', _('Can manage problem'))
         ]
