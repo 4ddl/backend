@@ -16,12 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from ddl.settings import dev_server
+from ddl.settings import DDL_DEBUG
 from utils import views as utils_views
 
 urlpatterns = [
     path('api/admin/', admin.site.urls),
-] if dev_server else []
+] if DDL_DEBUG else []
 
 urlpatterns += [
     path('api/user/', include('user.urls')),
