@@ -28,9 +28,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv('SECRET_KEY', 'THIS_IS_A_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-
-dev_server = (os.getenv('ddl_env', 'development') != 'production')
-if dev_server:
+DDL_ENV = os.getenv('ddl_env', 'development')
+DDL_DEBUG = os.getenv('ddl_debug', 'False') == 'True'
+if DDL_DEBUG:
     DEBUG = True
 else:
     DEBUG = False
@@ -191,7 +191,7 @@ PAGE_CACHE_AGE = 60 * 5
 # 验证邮箱的有效时间
 ACTIVATE_CODE_AGE = 60 * 60
 
-if not dev_server:
+if DDL_ENV == 'production':
     sentry_sdk.init(
         dsn="https://03eb7f0b0aaf4a31b548639bea76c910@o428533.ingest.sentry.io/5374065",
         integrations=[DjangoIntegration(), CeleryIntegration(), RedisIntegration()],
@@ -214,15 +214,16 @@ REST_FRAMEWORK = {
     ]
 }
 
-if dev_server:
-    UPLOAD_DIR = os.path.join(BASE_DIR, 'upload')
-    TMP_DIR = os.path.join(UPLOAD_DIR, 'temp')
+if DDL_ENV != 'production':
+    DATA_DIR = os.path.join(BASE_DIR, 'data')
+    TMP_DIR = os.path.join(DATA_DIR, 'tmp')
 else:
-    UPLOAD_DIR = '/upload'
+    DATA_DIR = '/data'
     TMP_DIR = '/tmp'
-PROBLEM_IMAGE_DIR = os.path.join(UPLOAD_DIR, 'problem_image')
-PROBLEM_PDF_DIR = os.path.join(UPLOAD_DIR, 'problem_pdf')
-PROBLEM_TEST_CASES_DIR = os.path.join(UPLOAD_DIR, 'problem_test_cases')
+
+PROBLEM_IMAGE_DIR = os.path.join(DATA_DIR, 'image')
+PROBLEM_PDF_DIR = os.path.join(DATA_DIR, 'pdf')
+PROBLEM_TEST_CASES_DIR = os.path.join(DATA_DIR, 'test_cases')
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 JUDGE_TOKEN = os.getenv('JUDGE_TOKEN', 'JUDGE_TOKEN')

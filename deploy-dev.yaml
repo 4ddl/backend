@@ -43,9 +43,7 @@ services:
     command: bash /app/docker/entrypoint-dev.sh
     volumes:
       - .:/app
-      - ~/data/upload/problem_test_cases:/upload/problem_test_cases
-      - ~/data/upload/problem_image:/upload/problem_image
-      - ~/data/upload/problem_pdf:/upload/problem_pdf
+      - ~/data/backend-data:/data
     image: 4ddl/ddlb
     container_name: ddl-backend-dev
     build:

@@ -1,7 +1,7 @@
 FROM ubuntu:20.04
 
 LABEL maintainer="xudian.cn@gmail.com"
-
+ENV ddl_debug=False
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 ENV ddl_env=production
