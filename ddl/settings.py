@@ -125,7 +125,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en'
 
-TIME_ZONE = 'Asia/Shanghai'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -199,7 +199,6 @@ if not dev_server:
         # django.contrib.auth) you may enable sending PII data.
         send_default_pii=True
     )
-
 # celery 配置
 CELERY_BROKER_URL = f"amqp://{os.getenv('RABBITMQ_USER', 'guest')}:{os.getenv('RABBITMQ_PASS', 'guest')}" \
                     f"@{os.getenv('RABBITMQ_HOST', '127.0.0.1')}:{os.getenv('RABBITMQ_PORT', 5672)}/"

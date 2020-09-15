@@ -1,7 +1,7 @@
 version: "3"
 services:
   ddl-backend-dev:
-    command: bash /app/docker/entrypoint-dev.sh
+    command: bash /app/docker/entrypoint.sh
     volumes:
       - .:/app
       - ~/data/upload/problem_test_cases:/upload/problem_test_cases
