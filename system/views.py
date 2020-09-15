@@ -32,9 +32,9 @@ class SystemViewSet(viewsets.GenericViewSet):
         problem_cnt = Problem.objects.all().count()
         submission_cnt = Submission.objects.all().count()
         return Response(msg({
-            'user_count': user_cnt,
-            'problem_count': problem_cnt,
-            'submission_count': submission_cnt
+            'user_cnt': user_cnt,
+            'problem_cnt': problem_cnt,
+            'submission_cnt': submission_cnt
         }))
 
     def get_serializer_class(self):

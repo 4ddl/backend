@@ -21,10 +21,11 @@ from .serializers import SubmissionSerializer, SubmissionShortSerializer, Submis
 class SubmissionFilter(filters.FilterSet):
     verdict = filters.CharFilter(field_name='verdict', lookup_expr='iexact')
     user = filters.CharFilter(field_name='user', lookup_expr='exact')
+    username = filters.CharFilter(field_name='user__username', lookup_expr='contains')
 
     class Meta:
         model = Submission
-        fields = ['verdict', 'user']
+        fields = ['verdict', 'user', 'username']
 
 
 class SubmissionViewSet(viewsets.GenericViewSet):
