@@ -1,8 +1,10 @@
 from django.core.mail import EmailMultiAlternatives
 
 from ddl.settings import ACTIVATE_CODE_AGE
+from celery import shared_task
 
 
+@shared_task(name='send_activated_email')
 def send_activated_email(username, to_email, activate_code):
     subject = f'[DDL]确认电子邮件地址，验证码是：[{activate_code}]'
     text_content = f"""

@@ -2,6 +2,7 @@ import os
 from uuid import uuid4
 
 from PIL import Image
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.http.response import HttpResponse
 from django.utils.translation import gettext as _
@@ -12,14 +13,15 @@ from rest_framework.views import APIView
 from rest_framework.views import Response
 
 from ddl.settings import PROBLEM_IMAGE_DIR, TMP_DIR, PROBLEM_PDF_DIR
+from problem import utils
 from problem.forms import ImageNameForms, RequestFileForm
 from problem.models import Problem
 from problem.perm import ManageProblemPermission
-from problem.serializers import ProblemSerializer, \
-    ProblemListSerializer, \
-    ProblemTestCasesSerializer, \
-    ProblemCreateSerializer, ProblemImageSerializer, ProblemPDFSerializer, ProblemUpdateSerializer
+from problem.serializers import ProblemSerializer, ProblemListSerializer, ProblemTestCasesSerializer, \
+    ProblemCreateSerializer, ProblemImageSerializer, ProblemPDFSerializer, ProblemUpdateSerializer, \
+    ProblemImportSerializer
 from problem.uploads import TestCasesProcessor, TestCasesError
+from system.perm import JudgePermission
 from utils.permissions import check_permissions
 from utils.response import msg
 
@@ -97,6 +99,33 @@ class ProblemViewSet(viewsets.GenericViewSet):
         serializer = ProblemCreateSerializer(problem)
         return Response(msg(serializer.data))
 
+    # judge daemon sync test case
+    # 因为这个是给判题机使用的接口，所以不会像其他接口那样返回JSON格式的数据
+    @action(detail=True, methods=['get'], permission_classes=[JudgePermission])
+    def sync_test_cases(self, request, pk=None, *args, **kwargs):
+        try:
+            problem = self.get_queryset().get(id=pk)
+        except ObjectDoesNotExist:
+            return HttpResponse(status=404)
+        try:
+            manifest = utils.validate_manifest(problem.manifest)
+            return utils.package_test_case(manifest)
+        except utils.ManifestError:
+            return HttpResponse(status=500)
+
+    # export problem
+    # 导出接口使用原生的HttpResponse
+    @action(detail=True, methods=['get'], permission_classes=[ManageProblemPermission], url_path='export')
+    def export_problem(self, request, *args, **kwargs):
+        # TODO: export problem
+        return HttpResponse(msg('success'))
+
+    # import problem
+    @action(detail=False, methods=['put'], permission_classes=[ManageProblemPermission], url_path='import')
+    def import_problem(self, request, *args, **kwargs):
+        # TODO: import problem
+        return Response(msg('success'))
+
     def get_serializer_class(self):
         if self.action == 'list':
             return ProblemListSerializer
@@ -106,6 +135,8 @@ class ProblemViewSet(viewsets.GenericViewSet):
             return ProblemUpdateSerializer
         elif self.action == 'create':
             return ProblemCreateSerializer
+        elif self.action == 'import_problem':
+            return ProblemImportSerializer
         else:
             return self.serializer_class
 

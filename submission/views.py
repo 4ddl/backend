@@ -1,19 +1,21 @@
+from datetime import timedelta
+
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from django.utils.translation import gettext as _
+from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
 from rest_framework.response import Response
-from django.utils.translation import gettext as _
+
+from submission.tasks import run_submission_task
+from user.models import Activity
 from utils.permissions import is_authenticated
 from utils.response import msg
 from .models import Submission
 from .serializers import SubmissionSerializer, SubmissionShortSerializer, SubmissionCreateSerializer
-from django.utils import timezone
-from datetime import timedelta
-from django_filters import rest_framework as filters
-from user.models import Activity
-from submission.tasks import run_submission_task
 
 
 class SubmissionFilter(filters.FilterSet):
@@ -38,7 +40,14 @@ class SubmissionViewSet(viewsets.GenericViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         submission = serializer.save(user=request.user)
-        run_submission_task.delay(submission.id)
+        run_submission_task.apply_async(
+            args=[submission.id,
+                  submission.problem.id,
+                  submission.problem.manifest,
+                  submission.code,
+                  submission.lang,
+                  submission.problem.time_limit,
+                  submission.problem.memory_limit], queue='judge')
         Activity(user=request.user, category=Activity.SUBMISSION,
                  info=f'用户提交了题目{submission.problem.id}，提交编号是{submission.id}').save()
         return Response(msg(SubmissionShortSerializer(submission).data))

@@ -14,8 +14,8 @@ import os
 
 import sentry_sdk
 from django.utils.translation import gettext_lazy as _
-from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -28,9 +28,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv('SECRET_KEY', 'THIS_IS_A_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-
-dev_server = (os.getenv('ddl_env', 'development') != 'production')
-if dev_server:
+DDL_ENV = os.getenv('ddl_env', 'development')
+DDL_DEBUG = os.getenv('ddl_debug', 'False') == 'True'
+if DDL_DEBUG:
     DEBUG = True
 else:
     DEBUG = False
@@ -174,9 +174,7 @@ SESSION_CACHE_ALIAS = "session"
 SESSION_COOKIE_AGE = 60 * 60 * 12
 
 # SMTP相关设置
-if dev_server:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-else:
+if os.getenv('EMAIL_HOST', None):
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = os.getenv('EMAIL_HOST', '')
     EMAIL_PORT = os.getenv('EMAIL_PORT', 465)
@@ -184,7 +182,8 @@ else:
     EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
     EMAIL_USE_SSL = (EMAIL_PORT == 465)
     DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # 验证码的有效时间（秒）
 CAPTCHA_AGE = 60 * 5
 # 缓存页面的时间
@@ -192,7 +191,7 @@ PAGE_CACHE_AGE = 60 * 5
 # 验证邮箱的有效时间
 ACTIVATE_CODE_AGE = 60 * 60
 
-if not dev_server:
+if DDL_ENV == 'production':
     sentry_sdk.init(
         dsn="https://03eb7f0b0aaf4a31b548639bea76c910@o428533.ingest.sentry.io/5374065",
         integrations=[DjangoIntegration(), CeleryIntegration(), RedisIntegration()],
@@ -200,11 +199,10 @@ if not dev_server:
         # django.contrib.auth) you may enable sending PII data.
         send_default_pii=True
     )
-
 # celery 配置
-CELERY_BROKER_URL = f"redis://{os.getenv('REDIS_HOST', '127.0.0.1')}:{os.getenv('REDIS_PORT', 6379)}/4"
-CELERY_RESULT_BACKEND = f"redis://{os.getenv('REDIS_HOST', '127.0.0.1')}:{os.getenv('REDIS_PORT', 6379)}/5"
-CELERY_RESULT_SERIALIZER = 'json'
+CELERY_BROKER_URL = f"amqp://{os.getenv('RABBITMQ_USER', 'guest')}:{os.getenv('RABBITMQ_PASS', 'guest')}" \
+                    f"@{os.getenv('RABBITMQ_HOST', '127.0.0.1')}:{os.getenv('RABBITMQ_PORT', 5672)}/"
+CELERY_BROKER_SERIALIZER = 'json'
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'utils.exception.custom_exception_handler',
@@ -216,13 +214,16 @@ REST_FRAMEWORK = {
     ]
 }
 
-if dev_server:
-    UPLOAD_DIR = os.path.join(BASE_DIR, 'upload')
-    TMP_DIR = os.path.join(UPLOAD_DIR, 'temp')
+if DDL_ENV != 'production':
+    DATA_DIR = os.path.join(BASE_DIR, 'data')
+    TMP_DIR = os.path.join(DATA_DIR, 'tmp')
 else:
-    UPLOAD_DIR = '/upload'
+    DATA_DIR = '/data'
     TMP_DIR = '/tmp'
-PROBLEM_IMAGE_DIR = os.path.join(UPLOAD_DIR, 'problem_image')
-PROBLEM_PDF_DIR = os.path.join(UPLOAD_DIR, 'problem_pdf')
-PROBLEM_TEST_CASES_DIR = os.path.join(UPLOAD_DIR, 'problem_test_cases')
+
+PROBLEM_IMAGE_DIR = os.path.join(DATA_DIR, 'image')
+PROBLEM_PDF_DIR = os.path.join(DATA_DIR, 'pdf')
+PROBLEM_TEST_CASES_DIR = os.path.join(DATA_DIR, 'test_cases')
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+JUDGE_TOKEN = os.getenv('JUDGE_TOKEN', 'JUDGE_TOKEN')

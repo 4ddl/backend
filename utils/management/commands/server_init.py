@@ -1,9 +1,10 @@
 import os
+import time
 
 from django.core.management.base import BaseCommand
 from django.db import connection
 from django.db.utils import OperationalError
-import time
+
 from user.models import User
 
 
@@ -23,11 +24,11 @@ class Command(BaseCommand):
                     break
                 time.sleep(wait_secs)
 
-        if os.system('python3 manage.py makemigrations') != 0:
+        if os.system('python manage.py makemigrations') != 0:
             self.stdout.write(self.style.ERROR('Make migrations error.'))
             exit(1)
         self.stdout.write(self.style.SUCCESS("Make migrations success."))
-        if os.system('python3 manage.py migrate') != 0:
+        if os.system('python manage.py migrate') != 0:
             self.stdout.write(self.style.ERROR('Migrate error.'))
             exit(1)
         self.stdout.write(self.style.SUCCESS("Migrate success."))

@@ -34,6 +34,10 @@ JetBrains PyCharm
 flake8 --ignore=E722,W504 --exclude=venv,migrations,__pycache__ --max-line-length=120 .
 ```
 
+## celery
+```shell script
+celery -A ddl worker --concurrency=1 -Q result
+```
 
 ---
 ## deploy

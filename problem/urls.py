@@ -1,6 +1,7 @@
-from rest_framework import routers
-from problem.views import ProblemViewSet, ProblemImageAPI, ProblemPDFAPI
 from django.urls import path
+from rest_framework import routers
+
+from problem.views import ProblemViewSet, ProblemImageAPI, ProblemPDFAPI
 
 router = routers.SimpleRouter()
 router.register(r'', ProblemViewSet, basename='problem')

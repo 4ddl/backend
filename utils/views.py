@@ -13,7 +13,7 @@ class CaptchaAPI(APIView):
 
     @staticmethod
     def get(request, *args, **kwargs):
-        text = ''.join(random.sample('0123456789ABCDEFGHIJKLMNPQRSTUVWXYZ', 4))
+        text = ''.join(random.sample('123456789ABCDEFGHIJKLMNPQRSTUVWXYZ', 4))
         uuid = uuid4()
         image = ImageCaptcha(width=120, height=40, font_sizes=(25, 30, 35))
         result = image.generate(text)
