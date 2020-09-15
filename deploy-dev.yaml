@@ -1,3 +1,4 @@
+# 本地测试部署的时候运行的所有功能，判题机虚拟使用
 version: "3"
 services:
   ddl-postgres-dev:

@@ -1,3 +1,4 @@
+# 后端开发用的docker文件，自动部署redis,postgres,rabbitmq
 version: "3"
 services:
   ddl-postgres-dev:
