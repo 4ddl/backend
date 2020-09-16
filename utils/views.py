@@ -20,7 +20,7 @@ class CaptchaAPI(APIView):
         res = HttpResponse(result, content_type='image/png')
         captcha_cache_key = f'captcha-{uuid}'
         cache.set(captcha_cache_key, text, CAPTCHA_AGE)
-        res.set_cookie('CAPTCHA', captcha_cache_key, CAPTCHA_AGE)
+        res.set_cookie(key='CAPTCHA', value=captcha_cache_key, max_age=CAPTCHA_AGE, samesite='strict')
         return res
 
     @staticmethod

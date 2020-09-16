@@ -21,7 +21,7 @@ class SystemViewSet(viewsets.GenericViewSet):
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             res = Response(msg(_('Success.')))
-            res.set_cookie(LANGUAGE_COOKIE_NAME, serializer.validated_data['language'])
+            res.set_cookie(key=LANGUAGE_COOKIE_NAME, value=serializer.validated_data['language'], samesite='lax')
             return res
         else:
             return Response(msg(LANGUAGES))
