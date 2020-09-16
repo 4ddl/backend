@@ -1,4 +1,5 @@
 from celery import shared_task
+
 from submission.models import Submission
 
 
@@ -11,10 +12,10 @@ def run_submission_task(submission_id, problem_id, manifest, code, language, tim
 
 # call back task
 @shared_task(name='result_submission_task')
-def result_submission_task(submission_id, verdict, time_spend, memory_spend, additional_info):
+def result_submission_task(submission_id, verdict, time_cost, memory_cost, additional_info):
     submission = Submission.objects.get(id=submission_id)
     submission.verdict = verdict
-    submission.time_spend = time_spend
-    submission.memory_spend = memory_spend
+    submission.time_cost = time_cost
+    submission.memory_cost = memory_cost
     submission.additional_info = additional_info
     submission.save()

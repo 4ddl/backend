@@ -1,7 +1,7 @@
+from celery import shared_task
 from django.core.mail import EmailMultiAlternatives
 
 from ddl.settings import ACTIVATE_CODE_AGE
-from celery import shared_task
 
 
 @shared_task(name='send_activated_email')
