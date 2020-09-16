@@ -6,6 +6,7 @@ ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 ENV ddl_env=production
 RUN mkdir /config
+RUN mkdir /log
 COPY requirements.txt /config
 COPY docker/supervisord-dev.conf /config
 COPY docker/supervisord.conf /config
