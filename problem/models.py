@@ -1,8 +1,8 @@
 from django.db import models
+from django.utils.translation import gettext as _
 
 from submission.config import Verdict
 from user.models import User
-from django.utils.translation import gettext as _
 
 
 # Create your models here.
@@ -22,7 +22,10 @@ class Problem(models.Model):
     memory_limit = models.IntegerField(default=0, null=False, blank=False)
     public = models.IntegerField(default=VIEW_SUBMIT, choices=PUBLIC_CHOICES, null=False, blank=False)
     source = models.CharField(max_length=100, null=False, blank=False)
-    author = models.ForeignKey(to=User, default=None, null=True, on_delete=models.SET_NULL)
+    # 题目作者
+    author = models.CharField(max_length=100, null=True, blank=True, default=None)
+    # 数据项创建者，可以理解为上传者
+    creator = models.ForeignKey(to=User, default=None, null=True, on_delete=models.SET_NULL)
     create_time = models.DateTimeField(auto_now_add=True, editable=False)
     last_update = models.DateTimeField(auto_now=True, editable=False)
     manifest = models.JSONField(default=None, null=True, blank=True)

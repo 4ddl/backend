@@ -16,17 +16,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from ddl.settings import DDL_DEBUG
+from ddl.settings import DDL_ENV
 from utils import views as utils_views
 
 urlpatterns = [
     path('api/admin/', admin.site.urls),
-] if DDL_DEBUG else []
+] if DDL_ENV == 'development' else []
 
 urlpatterns += [
     path('api/user/', include('user.urls')),
     path('api/problem/', include('problem.urls')),
-    path('api/captcha', utils_views.CaptchaAPI.as_view()),
+    path('api/captcha/', utils_views.CaptchaAPI.as_view()),
     path('api/submission/', include('submission.urls')),
     path('api/system/', include('system.urls')),
 ]

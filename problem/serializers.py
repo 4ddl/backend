@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from problem.models import Problem
-from user.serializers import UserShortSerializer
 
 
 class ProblemShortSerializer(serializers.ModelSerializer):
@@ -11,8 +10,6 @@ class ProblemShortSerializer(serializers.ModelSerializer):
 
 
 class ProblemListSerializer(serializers.ModelSerializer):
-    author = UserShortSerializer(read_only=True)
-
     class Meta:
         model = Problem
         fields = ['id',
@@ -40,7 +37,7 @@ class ProblemCreateSerializer(serializers.ModelSerializer):
                   'manifest']
 
     def save(self, user):
-        Problem(author=user,
+        Problem(creator=user,
                 title=self.validated_data['title'],
                 memory_limit=self.validated_data['memory_limit'],
                 source=self.validated_data['source'],
@@ -64,8 +61,6 @@ class ProblemUpdateSerializer(serializers.ModelSerializer):
 
 
 class ProblemSerializer(serializers.ModelSerializer):
-    author = UserShortSerializer(read_only=True)
-
     class Meta:
         model = Problem
         fields = ['id',

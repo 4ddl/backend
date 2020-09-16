@@ -1,6 +1,7 @@
 import hashlib
 import os
 import zipfile
+
 from django.utils.translation import gettext as _
 
 from ddl.settings import PROBLEM_TEST_CASES_DIR

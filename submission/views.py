@@ -7,6 +7,7 @@ from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import IsAdminUser
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -76,6 +77,31 @@ class SubmissionViewSet(viewsets.GenericViewSet):
             serializer = self.get_serializer(submission)
             return Response(msg(serializer.data))
         raise PermissionDenied
+
+    @action(detail=True, methods=['get'], permission_classes=[IsAdminUser])
+    def rejudge(self, request, pk=None, *args, **kwargs):
+        queryset = self.get_queryset()
+        submission = get_object_or_404(queryset, pk=pk)
+        # 如果已经保存了last rejudge time 的话，与 last rejudge time 比较
+        # 如果没有保存 last rejudge time 的话， 和 create time 比较
+        if (submission.last_rejudge_time is not None and
+            timezone.now() < submission.last_rejudge_time + timedelta(minutes=1)) or (
+                submission.last_rejudge_time is None and
+                timezone.now() < submission.create_time + timedelta(minutes=1)):
+            return Response(msg(err=_('Can\'t Rejudge Within 1 minutes.')))
+        submission.last_rejudge_time = timezone.now()
+        submission.save()
+        run_submission_task.apply_async(
+            args=[submission.id,
+                  submission.problem.id,
+                  submission.problem.manifest,
+                  submission.code,
+                  submission.lang,
+                  submission.problem.time_limit,
+                  submission.problem.memory_limit], queue='judge')
+        Activity(user=request.user, category=Activity.SUBMISSION,
+                 info=f'用户请求Rejudge，提交编号是{submission.id}').save()
+        return Response(msg(SubmissionShortSerializer(submission).data))
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:

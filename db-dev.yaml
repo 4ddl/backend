@@ -8,9 +8,9 @@ services:
     volumes:
       - ~/data/ddl-postgres-dev:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=ddl_database
-      - POSTGRES_USER=ddl_username
-      - POSTGRES_PASSWORD=ddl_password
+      - POSTGRES_DB=ddl
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
     ports:
       - '0.0.0.0:5432:5432'
     networks:
@@ -20,7 +20,7 @@ services:
     container_name: ddl-redis-dev
     restart: always
     volumes:
-      - ~/data/ddl_redis_dev:/data
+      - ~/data/ddl-redis-dev:/data
     ports:
       - '0.0.0.0:6379:6379'
     networks:
@@ -37,7 +37,7 @@ services:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
     volumes:
-      - ~/data/ddl_rabbitmq_dev:/var/lib/rabbitmq
+      - ~/data/ddl-rabbitmq-dev:/var/lib/rabbitmq
     networks:
       - ddl-dev
 networks:
