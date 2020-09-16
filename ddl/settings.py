@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'THIS_IS_A_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DDL_ENV = os.getenv('DDL_ENV', 'development')
-DDL_DEBUG = os.getenv('DDL_DEBUG', 'False') == 'True'
+DDL_DEBUG = os.getenv('DDL_DEBUG', 'True') == 'True'
 if DDL_DEBUG:
     DEBUG = True
 else:
@@ -94,8 +94,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('POSTGRES_DB', 'ddl'),
-        'USER': os.getenv('POSTGRES_USER', 'postgres'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'password'),
+        'USER': os.getenv('POSTGRES_USER', 'user'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'pass'),
         'HOST': os.getenv('POSTGRES_HOST', '127.0.0.1'),
         'PORT': os.getenv('POSTGRES_PORT', 5432),
     }
@@ -189,7 +189,7 @@ CAPTCHA_AGE = 60 * 5
 # 缓存页面的时间
 PAGE_CACHE_AGE = 60 * 5
 # 验证邮箱的有效时间
-ACTIVATE_CODE_AGE = 60 * 60
+ACTIVATE_CODE_AGE = 10 * 60
 
 if os.getenv('SENTRY_ENABLE', 'False') == 'True':
     sentry_sdk.init(

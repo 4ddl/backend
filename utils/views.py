@@ -13,7 +13,7 @@ class CaptchaAPI(APIView):
 
     @staticmethod
     def get(request, *args, **kwargs):
-        text = ''.join(random.sample('123456789ABCDEFGHIJKLMNPQRSTUVWXYZ', 4))
+        text = ''.join(random.sample('345689ABCDEFGHIJKLMNPQRSTUVWXY', 4))
         uuid = uuid4()
         image = ImageCaptcha(width=120, height=40, font_sizes=(25, 30, 35))
         result = image.generate(text)
@@ -33,8 +33,8 @@ class CaptchaAPI(APIView):
         if 'CAPTCHA' not in request.COOKIES or request.COOKIES['CAPTCHA'] is None:
             return False
         captcha_cache_key = request.COOKIES['CAPTCHA']
-        captcha_value = cache.get(captcha_cache_key)
+        cache_captcha_value = cache.get(captcha_cache_key)
         cache.delete(captcha_cache_key)
-        if captcha_value != str.upper(captcha):
+        if cache_captcha_value != str.upper(captcha):
             return False
         return True

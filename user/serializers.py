@@ -1,18 +1,16 @@
 import random
 import re
-from uuid import uuid4
+from hashlib import md5
 
 from django.contrib import auth
 from django.contrib.auth.models import Permission
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import IntegrityError
 from django.utils.translation import gettext as _
 from rest_framework import serializers
 
 from ddl.settings import ACTIVATE_CODE_AGE
 from user.models import User, Activity, StudentInfo
-from user.tasks import send_activated_email as send_activated_email_task
 from user.utils import USERNAME_PATTERN, PASSWORD_PATTERN
 from utils.views import CaptchaAPI
 
@@ -110,37 +108,22 @@ class LoginSerializer(serializers.Serializer):
     def login(self, request):
         user = auth.authenticate(username=self.validated_data['username'],
                                  password=self.validated_data['password'])
-        if user.activated:
+        if user.ban:
+            raise Exception(_('You have been banned from this website.'))
+        elif user.activated:
             auth.login(request, user)
             user.save()
             Activity.objects.create(user=user, category=Activity.USER_LOGIN, info='登录成功')
             return user, None
-        elif user.ban:
-            return None, _('You have been banned from this website.')
         else:
-            user.activate_uuid = uuid4()
-            user.save()
-            activate_code = '%06d' % random.randint(0, 999999)
-            send_activated_email_task.apply_async(args=[user.username,
-                                                        user.email,
-                                                        activate_code], queue='result')
-            cache.set(f'activate-code-{user.activate_uuid}', activate_code, ACTIVATE_CODE_AGE)
-            return user, _('Account not activated, '
-                           'an mail has been sent to your email address, '
-                           'please check your mail box')
+            raise Exception(_('Account not activated.'))
 
 
 class RegisterSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
-    email = serializers.EmailField()
-    captcha = serializers.CharField()
-
-    def validate_captcha(self, value):
-        request = self.context['request']
-        if not CaptchaAPI.verify_captcha(request, value):
-            raise serializers.ValidationError(_('Captcha verify error.'))
-        return value
+    email = serializers.EmailField(max_length=100)
+    verify_code = serializers.CharField()
 
     def save(self, **kwargs):
         email = self.validated_data['email']
@@ -149,16 +132,15 @@ class RegisterSerializer(serializers.Serializer):
 
         user = User.objects.create_user(username=username,
                                         password=password,
+                                        activated=True,
                                         email=email)
-        Activity.objects.create(user=user, category=Activity.USER_REGISTER, info='注册成功')
-        user.save()
-        activate_code = '%06d' % random.randint(0, 999999)
-        send_activated_email_task.apply_async(args=[user.username,
-                                                    user.email,
-                                                    activate_code], queue='result')
-
-        cache.set(f'activate-code-{user.activate_uuid}', activate_code, ACTIVATE_CODE_AGE)
         return user
+
+    def validate(self, data):
+        email = str(data['email']).encode('utf-8')
+        if cache.get(f'check-email-code-{md5(email).hexdigest()}') != data['verify_code']:
+            raise serializers.ValidationError(_('Email verify code error'))
+        return data
 
     @staticmethod
     def validate_username(value):
@@ -189,40 +171,6 @@ class RegisterSerializer(serializers.Serializer):
         except ObjectDoesNotExist:
             pass
         return value
-
-
-class ActivateSerializer(serializers.Serializer):
-    code = serializers.CharField(max_length=6, min_length=6)
-    id = serializers.IntegerField()
-
-    @staticmethod
-    def validate_code(value):
-        if str(value).isdigit():
-            return value
-        raise serializers.ValidationError(_('Activate code error'))
-
-    def active(self):
-        try:
-            user = User.objects.get(id=self.validated_data['id'])
-        except ObjectDoesNotExist:
-            raise serializers.ValidationError(_('User not exist.'))
-        if user.activated:
-            raise serializers.ValidationError(_('User activated.'))
-
-        saved_code = cache.get(f'activate-code-{user.activate_uuid}')
-        if saved_code is None:
-            activate_code = '%06d' % random.randint(0, 999999)
-            send_activated_email_task.apply_async(args=[user.username,
-                                                        user.email,
-                                                        activate_code], queue='result')
-
-            cache.set(f'activate-code-{user.activate_uuid}', activate_code, ACTIVATE_CODE_AGE)
-            raise serializers.ValidationError(_('Activate code expired, server send email again.'))
-        elif saved_code != self.validated_data['code']:
-            raise serializers.ValidationError(_('Activate code error'))
-        user.activated = True
-        user.save()
-        cache.delete(f'activate-code-{user.activate_uuid}')
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -289,7 +237,7 @@ class FollowingSerializer(serializers.Serializer):
 
 
 class POSTCheckEmailAddressSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    email = serializers.EmailField(max_length=100)
     captcha = serializers.CharField()
 
     def validate_captcha(self, value):
@@ -300,8 +248,6 @@ class POSTCheckEmailAddressSerializer(serializers.Serializer):
 
     @staticmethod
     def validate_email(value):
-        if len(value) > 100:
-            raise serializers.ValidationError(_('Email address is too long'))
         try:
             User.objects.get(email=value)
             raise serializers.ValidationError(_('Email address occupied'))
@@ -309,43 +255,31 @@ class POSTCheckEmailAddressSerializer(serializers.Serializer):
             pass
         return value
 
-    def save(self, user: User):
-        user.activate_uuid = uuid4()
-        user.save()
+    def save(self):
         activate_code = '%06d' % random.randint(0, 999999)
-        send_activated_email_task.apply_async(args=[user.username,
-                                                    self.validated_data['email'],
-                                                    activate_code], queue='result')
-        cache.set(f'update-mail-code-{user.activate_uuid}', activate_code, ACTIVATE_CODE_AGE)
-        cache.set(f'update-mail-address-{user.activate_uuid}', self.validated_data['email'], ACTIVATE_CODE_AGE)
+        email = str(self.validated_data['email']).encode('utf-8')
+        cache.set(f'check-email-code-{md5(email).hexdigest()}', activate_code, ACTIVATE_CODE_AGE)
+        return activate_code
 
 
 class PUTChangeEmailAddressSerializer(serializers.Serializer):
-    code = serializers.CharField(max_length=6, min_length=6)
+    email = serializers.EmailField(max_length=100)
+    verify_code = serializers.CharField(max_length=6, min_length=6)
 
-    def validate_code(self, value):
-        user = self.context['user']
-        if cache.get(f'update-mail-code-{user.activate_uuid}') == value:
-            return value
-        raise serializers.ValidationError(_('Verify code error'))
+    def validate(self, data):
+        email = str(data["email"]).encode('utf-8')
+        if cache.get(f'check-email-code-{md5(email).hexdigest()}') != data['verify_code']:
+            raise serializers.ValidationError(_('Email verify code error'))
+        return data
 
     def save(self, **kwargs):
         user = self.context['user']
-        email = cache.get(f'update-mail-address-{user.activate_uuid}')
-        if email:
-            try:
-                user.email = email
-                user.save()
-                cache.delete(f'update-mail-address-{user.activate_uuid}')
-                cache.delete(f'update-mail-code-{user.activate_uuid}')
-            except IntegrityError:
-                raise serializers.ValidationError(_('email address occupied, please change another.'))
-        else:
-            raise serializers.ValidationError(_('Please send check email address again.'))
+        user.email = self.validated_data['email']
+        user.save()
+        cache.delete(f'check-email-code-{md5(str(user.email).encode("utf-8")).hexdigest()}')
 
 
 class StudentInfoSerializer(serializers.ModelSerializer):
-
     def save(self, user: User):
         try:
             user.student.school = self.validated_data['school']

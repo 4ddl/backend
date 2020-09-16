@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-16 02:50+0800\n"
+"POT-Creation-Date: 2020-09-17 01:43+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -38,139 +38,143 @@ msgstr "允许查看"
 msgid "Disabled"
 msgstr "不允许"
 
-#: .\problem\models.py:44
+#: .\problem\models.py:47
 msgid "Can view private problem"
 msgstr "可以查看私有的题目"
 
-#: .\problem\models.py:45
+#: .\problem\models.py:48
 msgid "Can manage problem"
 msgstr "可以管理题目"
 
-#: .\problem\uploads.py:19
+#: .\problem\uploads.py:20
 msgid "not zip file"
 msgstr "不是zip压缩包"
 
-#: .\problem\uploads.py:22
+#: .\problem\uploads.py:23
 msgid "zip without files."
 msgstr "zip压缩包没有文件"
 
-#: .\problem\uploads.py:45
+#: .\problem\uploads.py:46
 msgid "do not put irrelevant files into zip"
 msgstr "不要在zip压缩包中放置无关文件"
 
-#: .\problem\utils.py:21
+#: .\problem\utils.py:20
 msgid "problem test cases dir not exist"
 msgstr "题目的测试数据目录不存在"
 
-#: .\problem\utils.py:24 .\problem\utils.py:27
+#: .\problem\utils.py:23 .\problem\utils.py:26
 msgid "this problem test case dir not exist"
 msgstr "这个题目的测试目录不存在"
 
-#: .\problem\utils.py:29
+#: .\problem\utils.py:28
 #, python-brace-format
 msgid "file \"{file_path}\" not readable."
 msgstr "文件 \"{file_path}\" 不可读。"
 
-#: .\problem\utils.py:39
+#: .\problem\utils.py:38
 msgid "decode manifest error"
 msgstr "解析manifest错误"
 
-#: .\problem\utils.py:41
+#: .\problem\utils.py:40
 #, python-brace-format
 msgid "manifest type error, type(manifest)={type_of_manifest}"
 msgstr "manifest格式错误，获取到的格式是{type_of_manifest}"
 
-#: .\problem\utils.py:46
+#: .\problem\utils.py:45
 #, python-brace-format
 msgid "key {key} not in manifest"
 msgstr "键 {key} 不在 manifest 中"
 
-#: .\problem\utils.py:49
+#: .\problem\utils.py:48
 msgid "hash value not str"
 msgstr "键 hash 的值应该是字符串类型"
 
-#: .\problem\utils.py:51
+#: .\problem\utils.py:50
 msgid "hash value length 0"
 msgstr "键hash的值的长度为0"
 
-#: .\problem\utils.py:53
+#: .\problem\utils.py:52
 msgid "test_cases value not list"
 msgstr "测试数据列表格式不正确"
 
-#: .\problem\utils.py:55
+#: .\problem\utils.py:54
 msgid "spj value not bool"
 msgstr "键spj的值不是布尔类型"
 
-#: .\problem\utils.py:58
+#: .\problem\utils.py:57
 msgid "spj_code value not str"
 msgstr "键spj_code的值不是字符串类型"
 
-#: .\problem\utils.py:62
+#: .\problem\utils.py:61
 #, python-brace-format
 msgid "test_cases item {item} not dict"
 msgstr "测试数据列表中的元素 {item} 不是字典类型"
 
-#: .\problem\utils.py:64
+#: .\problem\utils.py:63
 msgid "test_cases item needs key \"in\""
 msgstr "测试数据列表中的元素需要键 in"
 
-#: .\problem\utils.py:66
+#: .\problem\utils.py:65
 msgid "test_cases item key \"in\" type error"
 msgstr "测试数据列表中的元素的键 in 的值的格式不对"
 
-#: .\problem\utils.py:68
+#: .\problem\utils.py:67
 msgid "test_cases item key \"in\" length 0"
 msgstr "测试数据列表中的元素的键 in 的值的长度为0"
 
-#: .\problem\utils.py:72
+#: .\problem\utils.py:71
 msgid "test_cases item needs key \"out\""
 msgstr "测试数据列表中的元素需要键 out"
 
-#: .\problem\utils.py:74
+#: .\problem\utils.py:73
 msgid "test_cases item key \"out\" type error"
 msgstr "测试数据列表中的元素的键 out 的值的格式不对"
 
-#: .\problem\utils.py:76
+#: .\problem\utils.py:75
 msgid "test_cases item key \"out\" length 0"
 msgstr "测试数据列表中的元素的键 out 的值的长度为0"
 
-#: .\problem\views.py:75
+#: .\problem\views.py:76
 msgid "Successful create."
 msgstr "成功创建"
 
-#: .\problem\views.py:83
+#: .\problem\views.py:84
 msgid "Successful update."
 msgstr "成功更新"
 
-#: .\problem\views.py:89
+#: .\problem\views.py:90
 msgid "Successful delete."
 msgstr "成功删除"
 
-#: .\problem\views.py:121
+#: .\problem\views.py:122
 #, fuzzy
 #| msgid "Success"
 msgid "success"
 msgstr "成功"
 
-#: .\problem\views.py:167 .\problem\views.py:227
+#: .\problem\views.py:168 .\problem\views.py:228
 msgid "Params validate error"
 msgstr "参数验证失败"
 
-#: .\problem\views.py:173
+#: .\problem\views.py:174
 msgid "Image not exist."
 msgstr "图片文件不存在"
 
-#: .\problem\views.py:219
+#: .\problem\views.py:220
 msgid "file not exist."
 msgstr "文件不存在"
 
-#: .\problem\views.py:233
+#: .\problem\views.py:234
 msgid "PDF not exist."
 msgstr "PDF文件不存在"
 
-#: .\submission\views.py:39
+#: .\submission\views.py:41
 msgid "Can't submit twice within 10 seconds."
 msgstr "两次提交之间需要间隔至少10秒"
+
+#: .\submission\views.py:91
+msgid "Can't Rejudge Within 1 minutes."
+msgstr "一分钟之内不可以重新判题"
 
 #: .\system\views.py:23
 #, fuzzy
@@ -178,122 +182,95 @@ msgstr "两次提交之间需要间隔至少10秒"
 msgid "Success."
 msgstr "成功"
 
-#: .\user\serializers.py:86 .\user\serializers.py:142 .\user\serializers.py:298
+#: .\user\serializers.py:84 .\user\serializers.py:246
 msgid "Captcha verify error."
 msgstr "验证码验证失败"
 
-#: .\user\serializers.py:93 .\user\serializers.py:167
+#: .\user\serializers.py:91 .\user\serializers.py:149
 msgid ""
 "Username can only contain letters, numbers, -, _ and no shorter than 6 and "
 "no longer than 20"
 msgstr "用户名只能包含字母，数字，-，_，并且长度在6-20之间"
 
-#: .\user\serializers.py:100 .\user\serializers.py:179
-#: .\user\serializers.py:236
+#: .\user\serializers.py:98 .\user\serializers.py:161 .\user\serializers.py:184
 msgid ""
 "Password can only contain letters, numbers, -, _ and no shorter than 8 and "
 "no longer than 20"
 msgstr "密码只能包含字母，数字，-，_，并且长度在8-20之间"
 
-#: .\user\serializers.py:107
+#: .\user\serializers.py:105
 msgid "Username or password wrong"
 msgstr "用户名或者密码错误"
 
-#: .\user\serializers.py:119
+#: .\user\serializers.py:112
 msgid "You have been banned from this website."
 msgstr "你已经被此网站封禁"
 
-#: .\user\serializers.py:128
-msgid ""
-"Account not activated, an mail has been sent to your email address, please "
-"check your mail box"
-msgstr "账号没有激活，一封激活邮件已经发送至您的邮箱，请检查您的邮箱"
+#: .\user\serializers.py:119
+#, fuzzy
+#| msgid "Successful activate."
+msgid "Account not activated."
+msgstr "成功激活"
 
-#: .\user\serializers.py:170
+#: .\user\serializers.py:142 .\user\serializers.py:272
+#, fuzzy
+#| msgid "Activate code error"
+msgid "Email verify code error"
+msgstr "激活码错误"
+
+#: .\user\serializers.py:152
 msgid "Username exist"
 msgstr "用户名已存在"
 
-#: .\user\serializers.py:185 .\user\serializers.py:304
+#: .\user\serializers.py:167
 msgid "Email address is too long"
 msgstr "邮箱地址太长"
 
-#: .\user\serializers.py:188 .\user\serializers.py:307
+#: .\user\serializers.py:170 .\user\serializers.py:253
 msgid "Email address occupied"
 msgstr "邮箱已被占用"
 
-#: .\user\serializers.py:202 .\user\serializers.py:222
-msgid "Activate code error"
-msgstr "激活码错误"
-
-#: .\user\serializers.py:208 .\user\serializers.py:287
-msgid "User not exist."
-msgstr "用户不存在"
-
-#: .\user\serializers.py:210
-msgid "User activated."
-msgstr "用户已激活"
-
-#: .\user\serializers.py:220
-msgid "Activate code expired, server send email again."
-msgstr "激活码已失效，服务器已经重新发送一封邮件"
-
-#: .\user\serializers.py:243
+#: .\user\serializers.py:191
 msgid "Old password error"
 msgstr "原密码错误"
 
-#: .\user\serializers.py:248
+#: .\user\serializers.py:196
 msgid "The new password cannot be the same as the old password"
 msgstr "新密码不能和原密码一样"
 
-#: .\user\serializers.py:330
-#, fuzzy
-#| msgid "Activate code error"
-msgid "Verify code error"
-msgstr "激活码错误"
+#: .\user\serializers.py:235
+msgid "User not exist."
+msgstr "用户不存在"
 
-#: .\user\serializers.py:342
-#, fuzzy
-#| msgid "Email address occupied"
-msgid "email address occupied, please change another."
-msgstr "邮箱已被占用"
-
-#: .\user\serializers.py:344
-msgid "Please send check email address again."
-msgstr ""
-
-#: .\user\views.py:85
+#: .\user\views.py:87
 msgid "Not login."
 msgstr "需要登录"
 
-#: .\user\views.py:91
+#: .\user\views.py:93
 msgid "Please sign out first before try to login."
 msgstr "登录之前请先退出登录"
 
-#: .\user\views.py:104
+#: .\user\views.py:105
 msgid "Please sign out first before try to register."
 msgstr "注册之前请先退出登录"
 
-#: .\user\views.py:114
+#: .\user\views.py:115
 msgid "Successful logout."
 msgstr "成功登出"
 
-#: .\user\views.py:122
-msgid "Successful activate."
-msgstr "成功激活"
-
-#: .\user\views.py:137
+#: .\user\views.py:130
 msgid "Success"
 msgstr "成功"
+
+#: .\user\views.py:190
+msgid "please check your new email box to get verify code."
+msgstr "请检查你的邮箱，以获取邮箱验证码"
 
 #: .\user\views.py:197
 #, fuzzy
 #| msgid "Email address occupied"
 msgid "Change email address success."
 msgstr "邮箱已被占用"
-
-#: .\user\views.py:202
-msgid "please check your new email address to confirm change."
-msgstr ""
 
 #: .\venv\Lib\site-packages\django\contrib\messages\apps.py:7
 msgid "Messages"
@@ -1494,6 +1471,25 @@ msgstr ""
 #, python-format
 msgid "Unable to connect to qpid with SASL mechanism %s"
 msgstr ""
+
+#~ msgid ""
+#~ "Account not activated, an mail has been sent to your email address, "
+#~ "please check your mail box"
+#~ msgstr "账号没有激活，一封激活邮件已经发送至您的邮箱，请检查您的邮箱"
+
+#~ msgid "Activate code error"
+#~ msgstr "激活码错误"
+
+#~ msgid "User activated."
+#~ msgstr "用户已激活"
+
+#~ msgid "Activate code expired, server send email again."
+#~ msgstr "激活码已失效，服务器已经重新发送一封邮件"
+
+#, fuzzy
+#~| msgid "Email address occupied"
+#~ msgid "email address occupied, please change another."
+#~ msgstr "邮箱已被占用"
 
 #~ msgid "Language not supported"
 #~ msgstr "语言不被支持"

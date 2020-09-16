@@ -33,6 +33,7 @@ class SubmissionViewSet(viewsets.GenericViewSet):
     queryset = Submission.objects.all()
     serializer_class = SubmissionSerializer
     filterset_class = SubmissionFilter
+    lookup_value_regex = r'\d+'
 
     @is_authenticated()
     def create(self, request: Request):

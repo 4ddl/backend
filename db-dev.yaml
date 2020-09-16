@@ -9,8 +9,8 @@ services:
       - ~/data/ddl-postgres-dev:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=ddl
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
     ports:
       - '0.0.0.0:5432:5432'
     networks:
