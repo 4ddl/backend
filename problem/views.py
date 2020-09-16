@@ -40,6 +40,7 @@ class ProblemViewSet(viewsets.GenericViewSet):
     queryset = Problem.objects.all()
     serializer_class = ProblemSerializer
     filterset_class = ProblemFilter
+    lookup_value_regex = r'\d+'
 
     def list(self, request, *args, **kwargs):
         """

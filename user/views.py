@@ -11,11 +11,12 @@ from rest_framework.views import Response
 
 from user.models import User, StudentInfo
 from user.perm import ManageUserPermission
-from user.serializers import UserInfoSerializer, LoginSerializer, RegisterSerializer, ActivateSerializer, \
+from user.serializers import UserInfoSerializer, LoginSerializer, RegisterSerializer, \
     ChangePasswordSerializer, ActivityListSerializer, AdvancedUserInfoSerializer, RankSerializer, \
     FollowingSerializer, PUTChangeEmailAddressSerializer, POSTCheckEmailAddressSerializer, StudentInfoSerializer
 from utils.response import msg
 from utils.tools import random_str
+from user.tasks import send_activated_email
 
 
 # Administrator's operations
@@ -75,6 +76,7 @@ class AdvancedUserViewSet(viewsets.GenericViewSet,
 class UserViewSet(viewsets.GenericViewSet, ListModelMixin):
     serializer_class = RankSerializer
     queryset = User.objects.all()
+    lookup_value_regex = r'\d+'
 
     # 查询登录状态和登录信息
     @action(methods=['GET'], detail=False)
@@ -91,18 +93,17 @@ class UserViewSet(viewsets.GenericViewSet, ListModelMixin):
             return Response(msg(err=_('Please sign out first before try to login.')))
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        user, err = serializer.login(request)
-        if user:
-            return Response(msg(UserInfoSerializer(user).data, err=err))
-        else:
-            return Response(msg(err=err))
+        try:
+            return Response(msg(UserInfoSerializer(serializer.login(request)).data))
+        except Exception as e:
+            return Response(msg(err=str(e)))
 
     # 注册
     @action(methods=['PUT'], detail=False)
     def register(self, request):
         if request.user.is_authenticated:
             return Response(msg(err=_('Please sign out first before try to register.')))
-        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         return Response(msg(UserInfoSerializer(user).data))
@@ -112,14 +113,6 @@ class UserViewSet(viewsets.GenericViewSet, ListModelMixin):
     def logout(self, request):
         auth.logout(request)
         return Response(msg(_('Successful logout.')))
-
-    # 激活账号
-    @action(methods=['POST'], detail=False)
-    def activate(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.active()
-        return Response(msg(_('Successful activate.')))
 
     # 获取个人信息
     def retrieve(self, request, pk=None):
@@ -188,18 +181,20 @@ class UserViewSet(viewsets.GenericViewSet, ListModelMixin):
     # update self's permission
     # Usage: send POST method first, then server will send an check email to your new address.
     #        then send PUT method to update your email address.
-    @action(methods=['POST', 'PUT'], detail=False, permission_classes=[IsAuthenticated])
+    @action(methods=['POST'], detail=False)
+    def check_email(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        verify_code = serializer.save()
+        send_activated_email.apply_async(args=[serializer.validated_data['email'], verify_code], queue='result')
+        return Response(msg(_('please check your new email box to get verify code.')))
+
+    @action(methods=['PUT'], detail=False, permission_classes=[IsAuthenticated])
     def email(self, request, *args, **kwargs):
-        if request.method == 'PUT':
-            serializer = self.get_serializer(data=request.data, context={'user': request.user})
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(msg(_('Change email address success.')))
-        else:
-            serializer = self.get_serializer(data=request.data, context={'request': request})
-            serializer.is_valid(raise_exception=True)
-            serializer.save(request.user)
-            return Response(msg(_('please check your new email address to confirm change.')))
+        serializer = self.get_serializer(data=request.data, context={'user': request.user})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(msg(_('Change email address success.')))
 
     # update and get user student information
     @action(methods=['POST', 'GET'], detail=False, permission_classes=[IsAuthenticated])
@@ -223,8 +218,6 @@ class UserViewSet(viewsets.GenericViewSet, ListModelMixin):
             return LoginSerializer
         elif self.action == 'register':
             return RegisterSerializer
-        elif self.action == 'activate':
-            return ActivateSerializer
         elif self.action == 'password':
             return ChangePasswordSerializer
         elif self.action == 'activities':
@@ -236,8 +229,8 @@ class UserViewSet(viewsets.GenericViewSet, ListModelMixin):
                 return RankSerializer
             return FollowingSerializer
         elif self.action == 'email':
-            if self.request.method == 'PUT':
-                return PUTChangeEmailAddressSerializer
+            return PUTChangeEmailAddressSerializer
+        elif self.action == 'check_email':
             return POSTCheckEmailAddressSerializer
         elif self.action == 'student':
             return StudentInfoSerializer
