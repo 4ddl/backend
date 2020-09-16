@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from problem.serializers import ProblemShortSerializer
+from submission.config import Language
 from user.models import User
 from user.serializers import UserShortSerializer
 from .models import Submission
@@ -20,8 +21,8 @@ class SubmissionShortSerializer(serializers.ModelSerializer):
             'create_time',
             'verdict',
             'lang',
-            'time_spend',
-            'memory_spend'
+            'time_cost',
+            'memory_cost'
         )
 
 
@@ -40,14 +41,16 @@ class SubmissionSerializer(serializers.ModelSerializer):
             'verdict',
             'lang',
             'create_time',
-            'time_spend',
-            'memory_spend',
+            'time_cost',
+            'memory_cost',
             'additional_info'
         )
 
 
 # create submission serializer
 class SubmissionCreateSerializer(serializers.ModelSerializer):
+    lang = serializers.ChoiceField(choices=Language.LANGUAGE_CHOICES)
+
     class Meta:
         model = Submission
         fields = (

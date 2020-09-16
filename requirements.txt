@@ -7,4 +7,3 @@ psycopg2-binary
 celery
 sentry-sdk
 django-filter
-daphne

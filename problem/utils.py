@@ -5,10 +5,9 @@ import zipfile
 from json import JSONDecodeError
 
 from django.http import HttpResponse
+from django.utils.translation import gettext as _
 
 from ddl.settings import PROBLEM_TEST_CASES_DIR, TMP_DIR
-
-from django.utils.translation import gettext as _
 
 
 class ManifestError(Exception):

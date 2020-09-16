@@ -17,3 +17,4 @@ RUN apt-get update
 RUN apt-get -y install curl zip unzip python3 python3-dev python3-pip supervisor python-is-python3
 RUN pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 RUN pip3 install --no-cache-dir -r /config/requirements.txt
+RUN pip3 install daphne
