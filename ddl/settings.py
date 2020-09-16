@@ -28,8 +28,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv('SECRET_KEY', 'THIS_IS_A_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DDL_ENV = os.getenv('ddl_env', 'development')
-DDL_DEBUG = os.getenv('ddl_debug', 'False') == 'True'
+DDL_ENV = os.getenv('DDL_ENV', 'development')
+DDL_DEBUG = os.getenv('DDL_DEBUG', 'False') == 'True'
 if DDL_DEBUG:
     DEBUG = True
 else:
@@ -93,9 +93,9 @@ WSGI_APPLICATION = 'ddl.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'ddl_database'),
-        'USER': os.getenv('POSTGRES_USER', 'ddl_username'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'ddl_password'),
+        'NAME': os.getenv('POSTGRES_DB', 'ddl'),
+        'USER': os.getenv('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'password'),
         'HOST': os.getenv('POSTGRES_HOST', '127.0.0.1'),
         'PORT': os.getenv('POSTGRES_PORT', 5432),
     }
@@ -174,7 +174,7 @@ SESSION_CACHE_ALIAS = "session"
 SESSION_COOKIE_AGE = 60 * 60 * 12
 
 # SMTP相关设置
-if os.getenv('EMAIL_HOST', None):
+if os.getenv('EMAIL_ENABLE', 'False') == 'True':
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = os.getenv('EMAIL_HOST', '')
     EMAIL_PORT = os.getenv('EMAIL_PORT', 465)
@@ -191,7 +191,7 @@ PAGE_CACHE_AGE = 60 * 5
 # 验证邮箱的有效时间
 ACTIVATE_CODE_AGE = 60 * 60
 
-if DDL_ENV == 'production':
+if os.getenv('SENTRY_ENABLE', 'False') == 'True':
     sentry_sdk.init(
         dsn="https://03eb7f0b0aaf4a31b548639bea76c910@o428533.ingest.sentry.io/5374065",
         integrations=[DjangoIntegration(), CeleryIntegration(), RedisIntegration()],

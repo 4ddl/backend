@@ -8,9 +8,9 @@ services:
     volumes:
       - ~/data/ddl-postgres-dev:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=ddl_database
-      - POSTGRES_USER=ddl_username
-      - POSTGRES_PASSWORD=ddl_password
+      - POSTGRES_DB=ddl
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
     ports:
       - "0.0.0.0:5432:5432"
     networks:
@@ -36,7 +36,7 @@ services:
       - '0.0.0.0:5672:5672'
       - '0.0.0.0:15672:15672'
     volumes:
-      - ~/data/ddl_rabbitmq_dev:/var/lib/rabbitmq
+      - ~/data/ddl-rabbitmq-dev:/var/lib/rabbitmq
     networks:
       - ddl-dev
   ddl-backend-dev:

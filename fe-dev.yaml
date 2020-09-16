@@ -52,7 +52,7 @@ services:
       - ddl-redis-dev
       - ddl-postgres-dev
     environment:
-      - ddl_env=development
+      - DDL_ENV=development
       - REDIS_HOST=ddl-redis-dev
       - POSTGRES_HOST=ddl-postgres-dev
     ports:

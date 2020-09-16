@@ -1,10 +1,11 @@
 FROM ubuntu:20.04
 
 LABEL maintainer="xudian.cn@gmail.com"
-ENV ddl_debug=False
+ENV SENTRY_ENABLE=True
+ENV DDL_DEBUG=False
 ENV TZ=Asia/Shanghai
+ENV DDL_ENV=production
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-ENV ddl_env=production
 RUN mkdir /config
 RUN mkdir /log
 COPY requirements.txt /config
