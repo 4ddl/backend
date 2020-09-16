@@ -13,6 +13,7 @@ class Submission(models.Model):
     verdict = models.CharField(max_length=10, default=Verdict.PENDING, choices=Verdict.VERDICT_CHOICES)
     lang = models.CharField(max_length=10, choices=Language.LANGUAGE_CHOICES)
     create_time = models.DateTimeField(auto_now_add=True)
+    last_rejudge_time = models.DateTimeField(default=None, null=True)
     time_spend = models.IntegerField(null=True)
     memory_spend = models.IntegerField(null=True)
     # 程序编译运行的时候返回的一些错误信息和编译失败的错误信息
