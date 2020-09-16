@@ -114,7 +114,7 @@ class LoginSerializer(serializers.Serializer):
             auth.login(request, user)
             user.save()
             Activity.objects.create(user=user, category=Activity.USER_LOGIN, info='登录成功')
-            return user, None
+            return user
         else:
             raise Exception(_('Account not activated.'))
 
