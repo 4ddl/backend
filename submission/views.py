@@ -34,6 +34,7 @@ class SubmissionViewSet(viewsets.GenericViewSet):
     serializer_class = SubmissionSerializer
     filterset_class = SubmissionFilter
     lookup_value_regex = r'\d+'
+
     @is_authenticated()
     def create(self, request: Request):
         last_submit_time = request.user.last_submit_time
