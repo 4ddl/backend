@@ -22,10 +22,8 @@ class SystemViewSet(viewsets.GenericViewSet):
     @action(methods=['GET'], detail=False)
     def queue(self, request, *args, **kwargs):
         try:
-            fp = open('/dev/null', 'w')
-            inspect_task = inspect(app=celery_app, stdout=fp)
+            inspect_task = inspect(app=celery_app)
             replies = inspect_task.run('active_queues')
-            fp.close()
             res = {}
             for key in replies.keys():
                 res[key] = []
