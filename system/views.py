@@ -1,10 +1,15 @@
+import traceback
+
+from celery.bin.control import inspect
 from django.utils.translation import gettext as _
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
-
-from ddl.settings import LANGUAGE_COOKIE_NAME, LANGUAGES
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from ddl.celery import app as celery_app
+from ddl.settings import LANGUAGE_COOKIE_NAME, LANGUAGES, PAGE_CACHE_AGE
 from problem.models import Problem
 from submission.models import Submission
 from user.models import User
@@ -13,6 +18,23 @@ from .serializers import LanguageSerializer
 
 
 class SystemViewSet(viewsets.GenericViewSet):
+    @method_decorator(cache_page(PAGE_CACHE_AGE))
+    @action(methods=['GET'], detail=False)
+    def queue(self, request, *args, **kwargs):
+        try:
+            fp = open('/dev/null', 'w')
+            inspect_task = inspect(app=celery_app, stdout=fp)
+            replies = inspect_task.run('active_queues')
+            fp.close()
+            res = {}
+            for key in replies.keys():
+                res[key] = []
+                for item in replies[key]:
+                    res[key].append(item[key])
+            return Response(msg(data=res))
+        except Exception as e:
+            traceback.print_exc()
+            return Response(msg(err=str(e)))
 
     # 获取API接口支持的语言和修改API接口的语言
     @action(methods=['GET', 'POST'], detail=False)

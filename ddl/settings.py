@@ -187,7 +187,7 @@ else:
 # 验证码的有效时间（秒）
 CAPTCHA_AGE = 60 * 5
 # 缓存页面的时间
-PAGE_CACHE_AGE = 60 * 5
+PAGE_CACHE_AGE = 10
 # 验证邮箱的有效时间
 ACTIVATE_CODE_AGE = 10 * 60
 
