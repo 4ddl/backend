@@ -24,11 +24,10 @@ class SystemViewSet(viewsets.GenericViewSet):
         try:
             inspect_task = inspect(app=celery_app)
             replies = inspect_task.run('active_queues')
-            res = {}
-            for key in replies.keys():
-                res[key] = []
-                for item in replies[key]:
-                    res[key].append(item['name'])
+            res = [{
+                'name': key,
+                'queue': [item['name'] for item in replies[key]]
+            } for key in replies.keys()]
             return Response(msg(data=res))
         except Exception as e:
             traceback.print_exc()
