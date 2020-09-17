@@ -28,7 +28,7 @@ class SystemViewSet(viewsets.GenericViewSet):
             for key in replies.keys():
                 res[key] = []
                 for item in replies[key]:
-                    res[key].append(item[key])
+                    res[key].append(item['name'])
             return Response(msg(data=res))
         except Exception as e:
             traceback.print_exc()
