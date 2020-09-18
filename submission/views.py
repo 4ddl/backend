@@ -28,7 +28,7 @@ class SubmissionFilter(filters.FilterSet):
 
     class Meta:
         model = Submission
-        fields = ['verdict', 'user', 'username', 'problem_id']
+        fields = ['verdict', 'user', 'username', 'problem_id', 'language']
 
 
 class SubmissionViewSet(viewsets.GenericViewSet):
