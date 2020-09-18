@@ -23,10 +23,12 @@ class SubmissionFilter(filters.FilterSet):
     verdict = filters.CharFilter(field_name='verdict', lookup_expr='iexact')
     user = filters.CharFilter(field_name='user', lookup_expr='exact')
     username = filters.CharFilter(field_name='user__username', lookup_expr='contains')
+    problem_id = filters.CharFilter(field_name='problem__id', lookup_expr='icontains')
+    language = filters.CharFilter(field_name='lang', lookup_expr='exact')
 
     class Meta:
         model = Submission
-        fields = ['verdict', 'user', 'username']
+        fields = ['verdict', 'user', 'username', 'problem_id']
 
 
 class SubmissionViewSet(viewsets.GenericViewSet):
