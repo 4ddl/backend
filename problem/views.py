@@ -9,6 +9,7 @@ from django.utils.translation import gettext as _
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.views import APIView
 from rest_framework.views import Response
 
@@ -91,8 +92,10 @@ class ProblemViewSet(viewsets.GenericViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         problem = self.get_object()
-        serializer = ProblemSerializer(problem)
-        return Response(msg(serializer.data))
+        if problem.public == Problem.VIEW_SUBMIT or problem.public == Problem.VIEW_ONLY or request.user.is_staff:
+            serializer = ProblemSerializer(problem)
+            return Response(msg(serializer.data))
+        raise PermissionDenied
 
     @action(detail=True, methods=['get'], permission_classes=[ManageProblemPermission])
     def system_retrieve(self, request, *args, **kwargs):

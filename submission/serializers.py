@@ -5,6 +5,9 @@ from submission.config import Language
 from user.models import User
 from user.serializers import UserShortSerializer
 from .models import Submission
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import gettext as _
+from problem.models import Problem
 
 
 # list submission serializer
@@ -58,6 +61,17 @@ class SubmissionCreateSerializer(serializers.ModelSerializer):
             'problem',
             'lang',
         )
+
+    @staticmethod
+    def validate_problem(value):
+        try:
+            problem = Problem.objects.get(id=value)
+            if problem.public == Problem.VIEW_SUBMIT:
+                return value
+            else:
+                raise serializers.ValidationError(_('problem read only.'))
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError(_('problem not exist.'))
 
     def save(self, user: User):
         submission = Submission(
