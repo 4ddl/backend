@@ -65,7 +65,7 @@ class SubmissionCreateSerializer(serializers.ModelSerializer):
     @staticmethod
     def validate_problem(value):
         try:
-            problem = Problem.objects.get(id=value)
+            problem = value
             if problem.public == Problem.VIEW_SUBMIT:
                 return value
             else:
