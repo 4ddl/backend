@@ -82,7 +82,6 @@ class ProblemFileSerializer(serializers.Serializer):
 
 class ProblemTestCasesSerializer(serializers.Serializer):
     file = serializers.FileField()
-    spj = serializers.BooleanField()
 
 
 class ProblemPDFSerializer(serializers.Serializer):

@@ -14,7 +14,7 @@ class TestCasesError(Exception):
 class TestCasesProcessor(object):
 
     @staticmethod
-    def handle_upload_test_cases(filename, tmp_path, spj: bool):
+    def handle_upload_test_cases(filename, tmp_path):
         # 检查在临时文件夹存放的zip文件是否格式正确
         if not zipfile.is_zipfile(os.path.join(tmp_path, filename)):
             raise TestCasesError(_('not zip file'))
@@ -27,10 +27,7 @@ class TestCasesProcessor(object):
         test_cases = []
 
         while True:
-            if spj and f'{index}.in' in zf.namelist():
-                in_list.append(f'{index}.in')
-                test_cases.append({'in': f'{index}.in'})
-            elif not spj and f'{index}.in' in zf.namelist() and f'{index}.out' in zf.namelist():
+            if f'{index}.in' in zf.namelist() and f'{index}.out' in zf.namelist():
                 in_list.append(f'{index}.in')
                 out_list.append(f'{index}.out')
                 test_cases.append({
@@ -41,8 +38,7 @@ class TestCasesProcessor(object):
                 break
             index += 1
 
-        if (spj and len(zf.namelist()) != len(in_list)) or (
-                not spj and len(zf.namelist()) != len(in_list) + len(out_list)):
+        if len(zf.namelist()) != len(in_list) + len(out_list):
             raise TestCasesError(_('do not put irrelevant files into zip'))
 
         # 将临时文件夹存放的zip解压到正式的文件里面
@@ -55,7 +51,6 @@ class TestCasesProcessor(object):
         manifest = {
             'hash': test_case_id,
             'test_cases': test_cases,
-            'spj': spj,
         }
         for item in zf.namelist():
             with open(os.path.join(test_case_dir, item), 'wb') as des:

@@ -151,8 +151,7 @@ class ProblemViewSet(viewsets.GenericViewSet):
             for chunk in serializer.validated_data['file'].chunks(1024):
                 destination.write(chunk)
         try:
-            manifest = TestCasesProcessor.handle_upload_test_cases(tmp_file, TMP_DIR,
-                                                                   spj=serializer.validated_data['spj'])
+            manifest = TestCasesProcessor.handle_upload_test_cases(tmp_file, TMP_DIR)
             os.remove(os.path.join(TMP_DIR, tmp_file))
             return Response(msg(manifest))
         except TestCasesError as e:
