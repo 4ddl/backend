@@ -86,7 +86,7 @@ class SubmissionViewSet(viewsets.GenericViewSet):
     def rejudge(self, request, pk=None, *args, **kwargs):
         queryset = self.get_queryset()
         submission = get_object_or_404(queryset, pk=pk)
-        # 如果已经保存了last rejudge time 的话，与 last rejudge time 比较
+        # 如果已经保存了 last rejudge time 的话，与 last rejudge time 比较
         # 如果没有保存 last rejudge time 的话， 和 create time 比较
         if (submission.last_rejudge_time is not None and
             timezone.now() < submission.last_rejudge_time + timedelta(minutes=1)) or (

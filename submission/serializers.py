@@ -53,6 +53,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
 # create submission serializer
 class SubmissionCreateSerializer(serializers.ModelSerializer):
     lang = serializers.ChoiceField(choices=Language.LANGUAGE_CHOICES)
+    code = serializers.CharField(max_length=65536)
 
     class Meta:
         model = Submission
@@ -65,8 +66,7 @@ class SubmissionCreateSerializer(serializers.ModelSerializer):
     @staticmethod
     def validate_problem(value):
         try:
-            problem = value
-            if problem.public == Problem.VIEW_SUBMIT:
+            if value.public == Problem.VIEW_SUBMIT:
                 return value
             else:
                 raise serializers.ValidationError(_('problem read only.'))
