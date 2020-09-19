@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from submission.config import Verdict
 from submission.tasks import run_submission_task
 from user.models import Activity
 from utils.permissions import is_authenticated
@@ -92,7 +93,10 @@ class SubmissionViewSet(viewsets.GenericViewSet):
                 submission.last_rejudge_time is None and
                 timezone.now() < submission.create_time + timedelta(minutes=1)):
             return Response(msg(err=_('Can\'t Rejudge Within 1 minutes.')))
+
         submission.last_rejudge_time = timezone.now()
+        submission.verdict = Verdict.PENDING
+        submission.additional_info = None
         submission.save()
         run_submission_task.apply_async(
             args=[submission.id,
