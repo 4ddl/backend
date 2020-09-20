@@ -6,7 +6,7 @@ from django.core.cache import cache
 from django.http import HttpResponse
 from rest_framework.views import APIView
 
-from ddl.settings import CAPTCHA_AGE
+from oj.settings import CAPTCHA_AGE
 
 
 class CaptchaAPI(APIView):

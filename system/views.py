@@ -8,8 +8,8 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from ddl.celery import app as celery_app
-from ddl.settings import LANGUAGE_COOKIE_NAME, LANGUAGES, PAGE_CACHE_AGE
+from oj.celery import app as celery_app
+from oj.settings import LANGUAGE_COOKIE_NAME, LANGUAGES, PAGE_CACHE_AGE
 from problem.models import Problem
 from submission.models import Submission
 from user.models import User

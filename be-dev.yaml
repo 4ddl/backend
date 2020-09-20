@@ -1,17 +1,17 @@
 version: "3"
 services:
-  ddl-backend-dev:
+  oj-backend-dev:
     command: bash /app/docker/entrypoint-dev.sh
     volumes:
       - .:/app
       - ~/data/backend-data:/data
-    image: 4ddl/ddlb
-    container_name: ddl-backend-dev
+    image: wustacm/oj-backend
+    container_name: oj-backend-dev
     build:
       context: .
       dockerfile: Dockerfile
     environment:
-      - DDL_ENV=development
+      - OJ_ENV=development
       - REDIS_HOST=192.168.50.10
       - POSTGRES_HOST=192.168.50.10
       - RABBITMQ_HOST=192.168.50.10
