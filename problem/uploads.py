@@ -4,7 +4,7 @@ import zipfile
 
 from django.utils.translation import gettext as _
 
-from ddl.settings import PROBLEM_TEST_CASES_DIR
+from oj.settings import PROBLEM_TEST_CASES_DIR
 
 
 class TestCasesError(Exception):

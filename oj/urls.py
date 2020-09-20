@@ -1,4 +1,4 @@
-"""ddl URL Configuration
+"""oj URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.0/topics/http/urls/
@@ -16,12 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from ddl.settings import DDL_ENV
+from oj.settings import OJ_DEV
 from utils import views as utils_views
 
 urlpatterns = [
     path('api/admin/', admin.site.urls),
-] if DDL_ENV == 'development' else []
+] if OJ_DEV == 'development' else []
 
 urlpatterns += [
     path('api/user/', include('user.urls')),

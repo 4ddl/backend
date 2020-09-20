@@ -15,9 +15,9 @@ jobs:
       postgres: 
         image: postgres:alpine
         env:
-          POSTGRES_DB: ddl_database
-          POSTGRES_USER: ddl_username
-          POSTGRES_PASSWORD: ddl_password
+          POSTGRES_DB: oj
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: pass
       redis:
         image: redis:alpine
     steps:

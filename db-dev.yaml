@@ -1,33 +1,29 @@
 # 开发用的databases文件，
 version: "3"
 services:
-  ddl-postgres-dev:
+  oj-postgres-dev:
     image: postgres:alpine
-    container_name: ddl-postgres-dev
+    container_name: oj-postgres-dev
     restart: always
     volumes:
-      - ~/data/ddl-postgres-dev:/var/lib/postgresql/data
+      - ~/data/oj-postgres-dev:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=ddl
+      - POSTGRES_DB=oj
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=pass
     ports:
       - '0.0.0.0:5432:5432'
-    networks:
-      - ddl-dev
-  ddl-redis-dev:
+  oj-redis-dev:
     image: redis:alpine
-    container_name: ddl-redis-dev
+    container_name: oj-redis-dev
     restart: always
     volumes:
-      - ~/data/ddl-redis-dev:/data
+      - ~/data/oj-redis-dev:/data
     ports:
       - '0.0.0.0:6379:6379'
-    networks:
-      - ddl-dev
-  ddl-rabbitmq-dev:
+  oj-rabbitmq-dev:
     image: rabbitmq:management
-    container_name: ddl-rabbitmq-dev
+    container_name: oj-rabbitmq-dev
     restart: always
     hostname: my-rabbit
     ports:
@@ -37,8 +33,4 @@ services:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
     volumes:
-      - ~/data/ddl-rabbitmq-dev:/var/lib/rabbitmq
-    networks:
-      - ddl-dev
-networks:
-  ddl-dev:
+      - ~/data/oj-rabbitmq-dev:/var/lib/rabbitmq

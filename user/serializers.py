@@ -9,7 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 from rest_framework import serializers
 
-from ddl.settings import ACTIVATE_CODE_AGE
+from oj.settings import ACTIVATE_CODE_AGE
 from user.models import User, Activity, StudentInfo
 from user.utils import USERNAME_PATTERN, PASSWORD_PATTERN
 from utils.views import CaptchaAPI

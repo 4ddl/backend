@@ -13,7 +13,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.views import APIView
 from rest_framework.views import Response
 
-from ddl.settings import PROBLEM_IMAGE_DIR, TMP_DIR, PROBLEM_PDF_DIR
+from oj.settings import PROBLEM_IMAGE_DIR, TMP_DIR, PROBLEM_PDF_DIR
 from problem import utils
 from problem.forms import ImageNameForms, RequestFileForm
 from problem.models import Problem

@@ -1,7 +1,7 @@
 from rest_framework import permissions
 from rest_framework.request import Request
 
-from ddl.settings import JUDGE_TOKEN
+from oj.settings import JUDGE_TOKEN
 
 
 class JudgePermission(permissions.BasePermission):

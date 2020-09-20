@@ -3,12 +3,12 @@ version: "3"
 services:
   ddl-postgres-dev:
     image: postgres:alpine
-    container_name: ddl-postgres
+    container_name: oj-postgres
     restart: always
     volumes:
-      - ~/data/ddl-postgres-dev:/var/lib/postgresql/data
+      - ~/data/oj-postgres-dev:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=ddl
+      - POSTGRES_DB=oj
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
     ports:
@@ -17,16 +17,16 @@ services:
       - ddl
   ddl-redis-dev:
     image: redis:alpine
-    container_name: ddl-redis
+    container_name: oj-redis
     volumes:
-      - ~/data/ddl-redis-dev:/data
+      - ~/data/oj-redis-dev:/data
     ports:
       - "0.0.0.0:6379:6379"
     networks:
       - ddl
   ddl-rabbitmq-dev:
     image: rabbitmq:management
-    container_name: ddl-rabbitmq-dev
+    container_name: oj-rabbitmq-dev
     restart: always
     hostname: my-rabbit
     environment:
@@ -36,37 +36,37 @@ services:
       - '0.0.0.0:5672:5672'
       - '0.0.0.0:15672:15672'
     volumes:
-      - ~/data/ddl-rabbitmq-dev:/var/lib/rabbitmq
+      - ~/data/oj-rabbitmq-dev:/var/lib/rabbitmq
     networks:
-      - ddl-dev
+      - oj-dev
   ddl-backend-dev:
     command: bash /app/docker/entrypoint-dev.sh
     volumes:
       - .:/app
       - ~/data/backend-data:/data
     image: 4ddl/ddlb
-    container_name: ddl-backend-dev
+    container_name: oj-backend-dev
     build:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - ddl-redis
-      - ddl-postgres
+      - oj-redis
+      - oj-postgres
     environment:
-      - REDIS_HOST=ddl-redis-dev
-      - POSTGRES_HOST=ddl-postgres-dev
-      - RABBITMQ_HOST=ddl-rabbitmq-dev
+      - REDIS_HOST=oj-redis-dev
+      - POSTGRES_HOST=oj-postgres-dev
+      - RABBITMQ_HOST=oj-rabbitmq-dev
     ports:
       - "0.0.0.0:8000:8000"
     networks:
       - ddl
   ddl-web-dev:
-    container_name: ddl-web-dev
+    container_name: oj-web-dev
     image: 4ddl/ddlf
     depends_on:
-      - ddl-backend
+      - oj-backend
     environment:
-      - BACKEND_HOST=ddl-backend-dev
+      - BACKEND_HOST=oj-backend-dev
       - BACKEND_PORT=8000
     ports:
       - "0.0.0.0:80:80"

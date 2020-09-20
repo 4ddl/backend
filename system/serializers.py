@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ddl.settings import LANGUAGES
+from oj.settings import LANGUAGES
 
 
 class LanguageSerializer(serializers.Serializer):

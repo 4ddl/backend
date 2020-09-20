@@ -1,8 +1,8 @@
-# ddl backend
+# oj backend
 
 ## dev 运行环境
 > 需要环境 Python3.8, Redis, PostgreSQL  
-> Redis 和 PostgresSQL 的安装可以使用ddlt中的docker配置文件
+> Redis 和 PostgresSQL 的安装可以使用oj-tools中的docker配置文件
 
 安装依赖：`pip install -r requirements.txt`
 ## dev 更新数据库模型结构
