@@ -25,6 +25,7 @@ from problem.uploads import TestCasesProcessor, TestCasesError
 from system.perm import JudgePermission
 from utils.permissions import check_permissions
 from utils.response import msg
+from submission.config import Verdict
 
 
 class ProblemFilter(filters.FilterSet):
@@ -53,21 +54,35 @@ class ProblemViewSet(viewsets.GenericViewSet):
         :param kwargs:
         :return: Response
         """
-        if request.user.is_staff:
-            queryset = self.filter_queryset(self.get_queryset())
-        elif request.user.is_authenticated:
-            queryset = self.filter_queryset(self.get_queryset().filter(
-                Q(public=Problem.VIEW_ONLY) | Q(public=Problem.VIEW_SUBMIT) | Q(author=request.user)))
+        if request.user.is_authenticated:
+            if request.user.is_staff:
+                queryset = self.filter_queryset(self.get_queryset())
+            else:
+                queryset = self.filter_queryset(self.get_queryset().filter(
+                    Q(public=Problem.VIEW_ONLY) | Q(public=Problem.VIEW_SUBMIT)))
+
+            page = self.paginate_queryset(queryset)
+            serializer = self.get_serializer(page, many=True)
+            res = serializer.data
+            # 计算登录用户是否完成列表中的每一道题
+            accepted_problems = set(request.user.submissions.values_list('problem__id', flat=True).filter(
+                verdict=Verdict.ACCEPTED).order_by('problem__id').distinct('problem__id'))
+            tried_problems = set(request.user.submissions.values_list('problem__id', flat=True).order_by(
+                'problem__id').distinct('problem__id'))
+            for pos in range(len(res)):
+                if res[pos]['id'] in accepted_problems:
+                    res[pos]['user_stat'] = 2
+                elif res[pos]['id'] in tried_problems:
+                    res[pos]['user_stat'] = 1
+                else:
+                    res[pos]['user_stat'] = 0
+            return self.get_paginated_response(res)
         else:
             queryset = self.filter_queryset(self.get_queryset().filter(
                 Q(public=Problem.VIEW_ONLY) | Q(public=Problem.VIEW_SUBMIT)))
-        page = self.paginate_queryset(queryset)
-        if page is not None:
+            page = self.paginate_queryset(queryset)
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
 
     @check_permissions('problem.manage_problem')
     def create(self, request):
