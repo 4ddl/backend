@@ -176,6 +176,13 @@ class RegisterSerializer(serializers.Serializer):
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField()
     new_password = serializers.CharField()
+    captcha = serializers.CharField()
+
+    def validate_captcha(self, value):
+        request = self.context['request']
+        if not CaptchaAPI.verify_captcha(request, value):
+            raise serializers.ValidationError(_('Captcha verify error.'))
+        return value
 
     @staticmethod
     def validate_new_password(value):

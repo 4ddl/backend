@@ -123,7 +123,7 @@ class UserViewSet(viewsets.GenericViewSet, ListModelMixin):
     # 修改密码
     @action(methods=['PUT'], detail=False, permission_classes=[IsAuthenticated])
     def password(self, request: Request):
-        serializer = ChangePasswordSerializer(data=request.data, context={'user': request.user})
+        serializer = ChangePasswordSerializer(data=request.data, context={'user': request.user, 'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         auth.logout(request)
