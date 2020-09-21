@@ -25,6 +25,7 @@ from problem.uploads import TestCasesProcessor, TestCasesError
 from system.perm import JudgePermission
 from utils.permissions import check_permissions
 from utils.response import msg
+from submission.config import Verdict
 
 
 class ProblemFilter(filters.FilterSet):
@@ -57,7 +58,9 @@ class ProblemViewSet(viewsets.GenericViewSet):
             queryset = self.filter_queryset(self.get_queryset())
         elif request.user.is_authenticated:
             queryset = self.filter_queryset(self.get_queryset().filter(
-                Q(public=Problem.VIEW_ONLY) | Q(public=Problem.VIEW_SUBMIT) | Q(author=request.user)))
+                Q(public=Problem.VIEW_ONLY) | Q(public=Problem.VIEW_SUBMIT)))
+            accepted_problems = request.user.submissions.filter(verdict=Verdict.ACCEPTED).values('problem').distinct()
+            tried_problems = request.user.submissions.values('problem').distinct()
         else:
             queryset = self.filter_queryset(self.get_queryset().filter(
                 Q(public=Problem.VIEW_ONLY) | Q(public=Problem.VIEW_SUBMIT)))
