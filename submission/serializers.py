@@ -25,8 +25,15 @@ class SubmissionShortSerializer(serializers.ModelSerializer):
             'verdict',
             'lang',
             'time_cost',
-            'memory_cost'
+            'memory_cost',
+            'is_public'
         )
+
+
+class SubmissionUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Submission
+        fields = ('id', 'is_public')
 
 
 # basic submission serializer
@@ -46,7 +53,8 @@ class SubmissionSerializer(serializers.ModelSerializer):
             'create_time',
             'time_cost',
             'memory_cost',
-            'additional_info'
+            'additional_info',
+            'is_public'
         )
 
 

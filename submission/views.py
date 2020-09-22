@@ -17,7 +17,9 @@ from user.models import Activity
 from utils.permissions import is_authenticated
 from utils.response import msg
 from .models import Submission
-from .serializers import SubmissionSerializer, SubmissionShortSerializer, SubmissionCreateSerializer
+from .serializers import SubmissionSerializer, SubmissionShortSerializer, SubmissionCreateSerializer, \
+    SubmissionUpdateSerializer
+from rest_framework.mixins import UpdateModelMixin
 
 
 class SubmissionFilter(filters.FilterSet):
@@ -32,7 +34,7 @@ class SubmissionFilter(filters.FilterSet):
         fields = ['verdict', 'user', 'username', 'problem_id', 'language']
 
 
-class SubmissionViewSet(viewsets.GenericViewSet):
+class SubmissionViewSet(viewsets.GenericViewSet, UpdateModelMixin):
     queryset = Submission.objects.all()
     serializer_class = SubmissionSerializer
     filterset_class = SubmissionFilter
@@ -67,6 +69,26 @@ class SubmissionViewSet(viewsets.GenericViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    @is_authenticated()
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+
+        # 权限检查，管理员或者作者用户
+        if not request.user.is_staff and request.user.id != instance.user.id:
+            raise PermissionDenied
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(msg(_('Success')))
+
     def retrieve(self, request, pk=None):
         queryset = self.get_queryset()
         submission = get_object_or_404(queryset, pk=pk)
@@ -77,7 +99,7 @@ class SubmissionViewSet(viewsets.GenericViewSet):
     def personal(self, request, pk=None):
         queryset = self.get_queryset()
         submission = get_object_or_404(queryset, pk=pk)
-        if submission.user == request.user or request.user.is_staff:
+        if submission.user == request.user or request.user.is_staff or submission.is_public:
             serializer = self.get_serializer(submission)
             return Response(msg(serializer.data))
         raise PermissionDenied
@@ -115,5 +137,7 @@ class SubmissionViewSet(viewsets.GenericViewSet):
             return SubmissionShortSerializer
         elif self.action == 'create':
             return SubmissionCreateSerializer
+        elif self.action == 'update':
+            return SubmissionUpdateSerializer
         else:
             return self.serializer_class

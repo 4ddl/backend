@@ -17,6 +17,7 @@ from user.serializers import UserInfoSerializer, LoginSerializer, RegisterSerial
 from utils.response import msg
 from utils.tools import random_str
 from user.tasks import send_activated_email
+from oj.settings import OJ_DEBUG
 
 
 # Administrator's operations
@@ -186,6 +187,8 @@ class UserViewSet(viewsets.GenericViewSet, ListModelMixin):
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         verify_code = serializer.save()
+        if OJ_DEBUG:
+            print("verify code:", verify_code)
         send_activated_email.apply_async(args=[serializer.validated_data['email'], verify_code], queue='result')
         return Response(msg(_('please check your new email box to get verify code.')))
 
