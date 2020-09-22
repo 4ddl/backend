@@ -30,7 +30,6 @@ class SystemViewSet(viewsets.GenericViewSet):
             } for key in replies.keys()]
             return Response(msg(data=res))
         except Exception as e:
-            traceback.print_exc()
             return Response(msg(err=str(e)))
 
     # 获取API接口支持的语言和修改API接口的语言
