@@ -20,6 +20,7 @@ class Submission(models.Model):
     memory_cost = models.IntegerField(null=True)
     # 程序编译运行的时候返回的一些错误信息和编译失败的错误信息
     additional_info = models.JSONField(default=None, null=True)
+    is_public = models.BooleanField(default=False)
 
     def __str__(self):
         return f'<Submission>id:{self.id} problem: {self.problem.id} verdict: {self.verdict}'
